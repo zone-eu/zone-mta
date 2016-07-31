@@ -1,0 +1,14 @@
+[Unit]
+Description=Zone Mail Transport Agent
+Conflicts=sendmail.service exim.service postfix.service
+After=syslog.target network.target
+
+[Service]
+Environment="NODE_ENV=production"
+WorkingDirectory=/opt/zone-mta
+ExecStart=/usr/bin/node app.js
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

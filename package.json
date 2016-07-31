@@ -1,0 +1,39 @@
+{
+  "name": "zone-mta",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tiny outbound MTA",
+  "main": "app.js",
+  "scripts": {
+    "test": "grunt",
+    "start": "node app.js"
+  },
+  "author": "Andris Reinman",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "addressparser": "^1.0.1",
+    "config": "^1.21.0",
+    "crc-32": "^0.4.1",
+    "dnscache": "0.0.4",
+    "isemail": "^2.2.1",
+    "level": "^1.4.0",
+    "level-stream-access": "^1.0.1",
+    "libmime": "^2.0.3",
+    "mkdirp": "^0.5.1",
+    "nodemailer-fetch": "^1.4.0",
+    "npmlog": "^4.0.0",
+    "restify": "^4.1.1",
+    "smtp-connection": "^2.10.0",
+    "smtp-server": "^1.13.0",
+    "uuid": "^2.0.2"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-nodeunit": "^1.0.0",
+    "grunt-eslint": "^19.0.0",
+    "moment": "^2.14.1",
+    "nodemailer": "^2.5.0",
+    "random-message": "^1.1.0"
+  }
+}

@@ -1,0 +1,225 @@
+# Bounce rules list
+# Format:
+#   regex,action,reason,message
+# action: defer, reject, slowdown
+# reasons:
+#   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth
+
+# Hotmail error messages
+# https://mail.live.com/mail/troubleshooting.aspx
+^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
+^550[ \-]+DY\-001,reject,block,Using dynamic IP range
+^550[ \-]+DY\-002,reject,virus,Virus found
+^550[ \-]+OU\-001,reject,block,Sender IP blocked
+^550[ \-]+OU\-002,reject,spam,Spam detected
+^550[ \-]+SC\-001,reject,spam,Spam detected
+^550[ \-]+SC\-002,reject,block,Sender IP blocked
+^550[ \-]+SC\-003,reject,block,Sender is open relay
+^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
+
+# Yahoo error messages
+# https://help.yahoo.com/kb/SLN23996.html
+^421[ \-]+4\.7\.0 \[TS0[12]\],defer,spam,Users complain about spam from this sender
+^421[ \-]+4\.7\.0 \[TS03\],reject,block,Sender IP blocked
+^451[ \-]+VS1\-IP\b,reject,block,Sender is open relay
+^451[ \-]+VS1\-MF\b,reject,spam,From address is spammer
+^553[ \-]+5\.7\.1 \[BL,reject,block,Blacklisted by Spamhaus
+^554[ \-]+5\.7\.5 \(AU01\),reject,message,Invalid DKIM signature
+
+# AOL error messages
+# https://postmaster.aol.com/error-codes
+^554[ \-]+\(?RTR:(BB|DU),reject,block,Using dynamic IP range
+^554[ \-]+\(?RTR:CH,reject,spam,Virus found
+^554[ \-]+\(?RTR:RD,reject,config,Invalid reverse DNS
+^554[ \-]+\(?RTR:(SC|BL),reject,block,Sender IP blocked
+^554[ \-]+\(?RTR:GE,defer,other,Technical error
+^554[ \-]+\(?HVU:B\d,reject,message,Message content blocked
+^554[ \-]+\(?RLY:(B1|B2),slowdown,rate,Rate limit exceeded
+^554[ \-]+\(?RLY:(B2|BL),reject,block,Sender IP blocked
+^554[ \-]+\(?RLY:BD,reject,message,Message content blocked
+^(421|554)[ \-]+\(?RLY:(CH),reject,spam,Spam detected
+^554[ \-]+\(?RLY:IR,reject,block,Using dynamic IP range
+^554[ \-]+\(?RLY:SN,reject,sender,Unauthorized sender
+^421[ \-]+\(?DYN:T\d,slowdown,rate,Rate limit exceeded
+^554[ \-]+\(?CON:B1,reject,block,Sender IP blocked
+^421[ \-]+\(?CON:B1,defer,block,Sender IP temporary blocked
+^554[ \-]+\(?DMARC:,reject,message,Message failed DMARC Evaluation
+^421[ \-]+\(?MFF:,defer,message,Future date in message
+
+# Gmail error messages
+# https://support.google.com/a/answer/3726730?hl=en
+^421[ \-]+4\.7\.0\s+.*IP not in whitelist,reject,block,Sender IP blocked
+^421[ \-]+4\.7.0\s+.*unsolicited mail,defer,spam,Spam detected
+^421[ \-]+4\.7\.0\s+.*TLS required,defer,config,TLS required
+^450[ \-]+4\.2\.1\s+.*mail too quickly,defer,recipient,Recipient overloaded
+^450[ \-]+4\.2\.1\s+.*rate that prevents,defer,recipient,Recipient overloaded
+^450[ \-]+4\.2\.1\s+.*Peak SMTP,slowdown,rate,Relay limit exceeded
+^550[ \-]+5\.7\.1\s+.*not RFC 5322,reject,message,Message content blocked
+^550[ \-]+5\.7\.1\s+.*unsolicited mail originating,reject,spam,Sender IP blocked for Spam
+^550[ \-]+5\.7\.1\s+.*unsolicited mail,reject,spam,Spam detected
+^550[ \-]+5\.7\.1\s+.*not authorized,reject,block,Sender IP blocked
+^550[ \-]+5\.7\.1\s+.*policy that prohibited,reject,recipient,Blocked by recipient
+^550[ \-]+5\.7\.1\s+.*IPv6 sending guidelines,reject,config,Invalid PTR or missing DKIM
+
+# Specific errors
+
+^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
+
+# Temporary errors by Enhanced Status Codes
+
+^\d{3}[ \-]+4\.0\.0\b,defer,other,Unknown Issue
+^\d{3}[ \-]+4\.1\.0\b,defer,envelope,Unknown Issue With Recipient's Email Address
+^\d{3}[ \-]+4\.1\.1\b,reject,envelope,User Name In Email Address Not Valid
+^\d{3}[ \-]+4\.1\.2\b,reject,envelope,Domain Name Of Email Address Not Valid
+^\d{3}[ \-]+4\.1\.3\b,reject,envelope,Email Address Malformed
+^\d{3}[ \-]+4\.1\.4\b,reject,recipient,Multiple Mailboxes For Recipient
+^\d{3}[ \-]+4\.1\.5\b,defer,recipient,Valid Email Address
+^\d{3}[ \-]+4\.1\.6\b,reject,recipient,Email Address No Longer Accepts Or Forwards Messages
+^\d{3}[ \-]+4\.1\.7\b,reject,envelope,Sender's Address Is Written Incorrectly
+^\d{3}[ \-]+4\.1\.8\b,defer,config,Sending Address Is Bad Or Can't Accept Replies
+^\d{3}[ \-]+4\.1\.9\b,reject,recipient,Message Routed To Non-Email System
+^\d{3}[ \-]+4\.2\.0\b,defer,recipient,Unknown Issue With Mailbox
+^\d{3}[ \-]+4\.2\.1\b,defer,capacity,Mailbox Is Not Accepting New Messages
+^\d{3}[ \-]+4\.2\.2\b,defer,capacity,Mailbox Is Full
+^\d{3}[ \-]+4\.2\.3\b,reject,message,Message Is Too Long
+^\d{3}[ \-]+4\.2\.4\b,defer,recipient,Mailbox Has A Mailing List System Issue
+^\d{3}[ \-]+4\.3\.0\b,defer,recipient,Unknown Issue With The Receiving System
+^\d{3}[ \-]+4\.3\.1\b,defer,capacity,Email System Is Full
+^\d{3}[ \-]+4\.3\.2\b,defer,recipient,Receiving Email System Not Operating
+^\d{3}[ \-]+4\.3\.3\b,reject,message,Message Features Not Supported By Receiving System
+^\d{3}[ \-]+4\.3\.4\b,reject,message,Message Is Too Large
+^\d{3}[ \-]+4\.3\.5\b,defer,recipient,Recipient System Incorrectly Configured
+^\d{3}[ \-]+4\.3\.6\b,defer,message,Message Priority Issue
+^\d{3}[ \-]+4\.4\.0\b,defer,network,Unknown Issue With Network Connection
+^\d{3}[ \-]+4\.4\.1\b,defer,network,Network Is Busy
+^\d{3}[ \-]+4\.4\.2\b,defer,network,Network Connection Timed Out
+^\d{3}[ \-]+4\.4\.3\b,defer,network,Network Issue With The Receiving System
+^\d{3}[ \-]+4\.4\.4\b,defer,network,Email Routing Issue Due To Network
+^\d{3}[ \-]+4\.4\.5\b,defer,network,Overloaded Network
+^\d{3}[ \-]+4\.4\.6\b,reject,network,Network Issue Caused A Mail Loop
+^\d{3}[ \-]+4\.4\.7\b,defer,network,Message Expired Before Delivery Completed
+^\d{3}[ \-]+4\.5\.0\b,defer,config,Unknown Issue With Your Email Server
+^\d{3}[ \-]+4\.5\.1\b,reject,protocol,Bad Messaging Command In Transmission
+^\d{3}[ \-]+4\.5\.2\b,reject,protocol,Email System Sent Bad Command
+^\d{3}[ \-]+4\.5\.3\b,reject,message,Too Many Recipients For Message
+^\d{3}[ \-]+4\.5\.4\b,reject,protocol,Email System Sent Bad Command
+^\d{3}[ \-]+4\.5\.5\b,reject,protocol,Email Systems Were Incompatible
+^\d{3}[ \-]+4\.5\.6\b,reject,protocol,Messaging Command In Transmission Too Long
+^\d{3}[ \-]+4\.6\.0\b,defer,message,Unknown Issue With The Message Content
+^\d{3}[ \-]+4\.6\.1\b,reject,message,Message Content Or Attachment Not Supported
+^\d{3}[ \-]+4\.6\.2\b,reject,message,Message Content Not Accepted By Recipient Server
+^\d{3}[ \-]+4\.6\.3\b,defer,message,Message Content Could Not Be Processed For Delivery
+^\d{3}[ \-]+4\.6\.4\b,defer,network,Content Loss During Delivery
+^\d{3}[ \-]+4\.6\.5\b,reject,network,Message Content Not Accessible To Recipient Server
+^\d{3}[ \-]+4\.6\.6\b,defer,network,Email Content Could Not Be Accessed
+^\d{3}[ \-]+4\.6\.7\b,reject,envelope,Email Address Format Not Supported
+^\d{3}[ \-]+4\.6\.8\b,defer,protocol,Email Servers Are Not Responding Appropriately
+^\d{3}[ \-]+4\.6\.9\b,defer,protocol,Email Servers Are Not Communicating With Each Other
+^\d{3}[ \-]+4\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
+^\d{3}[ \-]+4\.7\.0\b,defer,other,Unknown Security Or Policy Concern
+^\d{3}[ \-]+4\.7\.1\b,reject,block,Message Sender Blocked By Receiving Server
+^\d{3}[ \-]+4\.7\.2,reject,auth,Not Authorized To Send To Mailing List
+^\d{3}[ \-]+4\.7\.3,defer,other,Security Features Could Not Be Interpreted
+^\d{3}[ \-]+4\.7\.4,defer,auth,User Authentication For Message Failed
+^\d{3}[ \-]+4\.7\.5,defer,message,Message Authentication Issues
+^\d{3}[ \-]+4\.7\.6,defer,message,Message Encryption Issues
+^\d{3}[ \-]+4\.7\.7,reject,message,Potentially Corrupt Message
+^\d{3}[ \-]+4\.7\.8,defer,auth,User Authentication Failed
+^\d{3}[ \-]+4\.7\.9,defer,auth,Security Issue With User Authentication
+^\d{3}[ \-]+4\.7\.10\b,defer,auth,Stronger Security Or Encryption Needed
+^\d{3}[ \-]+4\.7\.11\b,defer,auth,Encryption Needed For Network Connection
+^\d{3}[ \-]+4\.7\.12\b,reject,auth,Authentication Required
+^\d{3}[ \-]+4\.7\.13\b,defer,block,Sender Account Disabled
+^\d{3}[ \-]+4\.7\.14\b,reject,spam,Potential Security Issue For Sender
+^\d{3}[ \-]+4\.7\.15\b,reject,message,Message Priority Level Too Low
+^\d{3}[ \-]+4\.7\.16\b,reject,message,Message Too Large For Given Priority Level
+
+# Permanent errors by Enhanced Status Codes
+
+^\d{3}[ \-]+5\.0\.0\b,reject,other,Unknown Issue
+^\d{3}[ \-]+5\.1\.0\b,reject,envelope,Unknown Issue With Email Address
+^\d{3}[ \-]+5\.1\.1\b,reject,envelope,User Name Of Email Address Not Valid
+^\d{3}[ \-]+5\.1\.2\b,reject,envelope,Domain Name Of Email Address Not Valid
+^\d{3}[ \-]+5\.1\.3\b,reject,envelope,Email Address Malformed
+^\d{3}[ \-]+5\.1\.4\b,reject,recipient,Multiple Mailboxes For Recipient
+^\d{3}[ \-]+5\.1\.5\b,reject,recipient,Valid Email Address
+^\d{3}[ \-]+5\.1\.6\b,reject,recipient,Email Address No Longer Accepts Or Forwards Messages
+^\d{3}[ \-]+5\.1\.7\b,reject,envelope,Sender's Address Is Written Incorrectly
+^\d{3}[ \-]+5\.1\.8\b,reject,config,Sending Address Is Bad Or Can't Accept Replies
+^\d{3}[ \-]+5\.1\.9\b,reject,recipient,Message Routed To Non-Email System
+^\d{3}[ \-]+5\.2\.0\b,reject,recipient,Unknown Issue With Mailbox
+^\d{3}[ \-]+5\.2\.1\b,defer,capacity,Mailbox Is Not Accepting New Messages
+^\d{3}[ \-]+5\.2\.2\b,defer,capacity,Mailbox Is Full
+^\d{3}[ \-]+5\.2\.3\b,reject,message,Message Is Too Long
+^\d{3}[ \-]+5\.2\.4\b,defer,recipient,Mailbox Has A Mailing List System Issue
+^\d{3}[ \-]+5\.3\.0\b,reject,recipient,Unknown Issue With The Receiving System
+^\d{3}[ \-]+5\.3\.1\b,defer,capacity,Email System Is Full
+^\d{3}[ \-]+5\.3\.2\b,defer,recipient,Receiving Email System Not Operable
+^\d{3}[ \-]+5\.3\.3\b,reject,message,Message Features Not Supported
+^\d{3}[ \-]+5\.3\.4\b,reject,message,Message Is Too Large
+^\d{3}[ \-]+5\.3\.5\b,reject,config,Incorrect Configuration Of System
+^\d{3}[ \-]+5\.3\.6\b,reject,message,Message Priority Issue
+^\d{3}[ \-]+5\.4\.0\b,reject,network,Unknown Issue With Network Connection
+^\d{3}[ \-]+5\.4\.1\b,defer,network,Network Is Busy
+^\d{3}[ \-]+5\.4\.2\b,defer,network,Network Connection Timed Out
+^\d{3}[ \-]+5\.4\.3\b,defer,network,Network Issue With The Receiving System
+^\d{3}[ \-]+5\.4\.4\b,reject,network,Email Routing Issue Due To Network
+^\d{3}[ \-]+5\.4\.5\b,defer,network,Overloaded Network
+^\d{3}[ \-]+5\.4\.6\b,reject,network,Network Issue Caused A Mail Loop
+^\d{3}[ \-]+5\.4\.7\b,reject,network,Message Expired Before Delivery Completed
+^\d{3}[ \-]+5\.5\.0\b,reject,config,Unknown Issue With Your Email Server
+^\d{3}[ \-]+5\.5\.1\b,reject,protocol,Bad Messaging Command In Transmission
+^\d{3}[ \-]+5\.5\.2\b,reject,protocol,Email System Sent Bad Command
+^\d{3}[ \-]+5\.5\.3\b,reject,envelope,Too Many Recipients For Message
+^\d{3}[ \-]+5\.5\.4\b,reject,protocol,Email System Sent Bad Command
+^\d{3}[ \-]+5\.5\.5\b,reject,protocol,Email Systems Were Incompatible
+^\d{3}[ \-]+5\.5\.6\b,reject,protocol,Messaging Command In Transmission Too Long
+^\d{3}[ \-]+5\.6\.0\b,reject,message,Unknown Issue With The Message Content
+^\d{3}[ \-]+5\.6\.1\b,reject,message,Message Content Or Attachment Not Supported
+^\d{3}[ \-]+5\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
+^\d{3}[ \-]+5\.6\.2\b,reject,message,Message Content Not Accepted By Recipient Server
+^\d{3}[ \-]+5\.6\.3\b,reject,message,Message Content Could Not Be Processed For Delivery
+^\d{3}[ \-]+5\.6\.4\b,reject,network,Content Loss During Delivery
+^\d{3}[ \-]+5\.6\.5\b,reject,network,Message Content Not Accessible To Recipient Server
+^\d{3}[ \-]+5\.6\.6\b,reject,network,Email Content Could Not Be Accessed
+^\d{3}[ \-]+5\.6\.7\b,reject,envelope,Email Address Format Not Supported
+^\d{3}[ \-]+5\.6\.8\b,reject,protocol,Email Servers Are Not Responding Appropriately
+^\d{3}[ \-]+5\.6\.9\b,reject,protocol,Email Servers Are Not Communicating With Each Other
+^\d{3}[ \-]+5\.7\.0\b,reject,other,Unknown Security Or Policy Concern
+^\d{3}[ \-]+5\.7\.1\b,reject,block,Message Sender Blocked By Receiving Server
+^\d{3}[ \-]+5\.7\.2\b,reject,auth,Not Authorized To Send To Mailing List
+^\d{3}[ \-]+5\.7\.3\b,reject,other,Security Features Could Not Be Interpreted
+^\d{3}[ \-]+5\.7\.4\b,reject,auth,User Authentication For Message Failed
+^\d{3}[ \-]+5\.7\.5\b,reject,message,Message Authentication Issues
+^\d{3}[ \-]+5\.7\.6\b,reject,message,Message Encryption Issues
+^\d{3}[ \-]+5\.7\.7\b,reject,message,Potentially Corrupt Message
+^\d{3}[ \-]+5\.7\.8\b,reject,auth,User Authentication Failed
+^\d{3}[ \-]+5\.7\.9\b,reject,auth,Security Issue With User Authentication
+^\d{3}[ \-]+5\.7\.10\b,reject,auth,Stronger Security Or Encryption Needed
+^\d{3}[ \-]+5\.7\.11\b,reject,auth,Encryption Needed For Network Connection
+^\d{3}[ \-]+5\.7\.12\b,reject,auth,Authentication Required
+^\d{3}[ \-]+5\.7\.13\b,reject,block,Sender Account Disabled
+^\d{3}[ \-]+5\.7\.14\b,reject,spam,Potential Security Issue For Sender
+^\d{3}[ \-]+5\.7\.15\b,reject,message,Message Priority Level Too Low
+^\d{3}[ \-]+5\.7\.16\b,reject,message,Message Too Large For Given Priority Level
+
+# General errors
+^450\b,defer,recipient,Mailbox unavailable
+^451\b,defer,recipient,Local error in processing
+^452\b,defer,capacity,Insufficient system storage
+^500\b,reject,protocol,Syntax error, command unrecognized
+^501\b,reject,protocol,Syntax error in parameters or arguments
+^502\b,reject,protocol,Command not implemented
+^503\b,reject,protocol,Bad sequence of commands
+^504\b,reject,protocol,Command parameter not implemented
+^521\b,reject,recipient,Domain does not accept mail
+^530\b,reject,auth,Access denied
+^550\b,reject,recipient,Mailbox unavailable
+^551\b,reject,recipient,User not local
+^552\b,defer,capacity,Exceeded storage allocation
+^553\b,reject,envelope,Mailbox name not allowed
+^554\b,reject,other,Transaction failed
+
+# All other errors
+^4\d\d,defer,other,Other temporary error
+^5\d\d,reject,other,Other permanent error
