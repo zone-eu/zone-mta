@@ -1,5 +1,3 @@
-/* eslint no-console: 0 */
-
 'use strict';
 
 const levelup = require('levelup');
@@ -70,7 +68,8 @@ module.exports['Push and shift a bunch of messages to and from queue'] = test =>
         let envelope = {
             from: 'sender@example.com',
             to: ['receiver@example.com', 'receiver@blurdybloop.com'],
-            origin: '1.2.3.4'
+            origin: '1.2.3.4',
+            headers: {}
         };
 
         let message = new PassThrough();
