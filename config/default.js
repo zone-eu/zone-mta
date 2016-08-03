@@ -10,6 +10,14 @@ module.exports = {
     user: 'nobody',
     group: 'nogroup',
 
+    // App name to be used in the Received headers
+    name: 'Zone-MTA',
+
+    // How many recipients to allow per message
+    // All recipient data is stored in DB in batch so too many recipients would make the
+    // batch size very large (large batch takes a lot of time and blocks DB usage)
+    maxRecipients: 500,
+
     // SMTP relay server that accepts messages for the outgoing queue
     feeder: {
         port: 2525,
@@ -25,9 +33,6 @@ module.exports = {
         authurl: 'http://localhost:8080/test-auth',
         user: 'zone', // username for the static example auth url
         pass: 'test', // password for the static example auth url
-
-        // how many RCPT TO calls allowed per message
-        maxRecipients: 500,
 
         starttls: false, // set to true to enable STARTTLS (port 587)
         secure: false // set to true to start in TLS mode (port 465)
