@@ -15,10 +15,9 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
-
+const PassThrough = require('stream').PassThrough;
 
 let closing = false;
-
 let zone;
 
 // Read command line arguments
@@ -175,16 +174,27 @@ function sender() {
                         return handleResponseError(delivery, false, err, sendNext);
                     }
 
-                    // DO the actual delivery
+                    let recivedHeader = Buffer.from(zone.generateReceivedHeader(delivery, connection.options.name) + '\r\n');
+                    let messageSize = recivedHeader.length + delivery.headerSize + delivery.bodySize; // required for SIZE argument
+                    let messageFetch = fetch('http://' + config.api.hostname + ':' + config.api.port + '/fetch/' + instanceId + '/' + clientId + '/' + delivery.id);
+                    let messageStream = new PassThrough();
+
+                    messageStream.write(recivedHeader);
+                    messageFetch.pipe(messageStream);
+                    messageFetch.on('error', err => messageStream.emit('error', err));
+
+                    // Do the actual delivery
                     connection.send({
                         from: delivery.from,
-                        to: [].concat(delivery.to || [])
-                    }, fetch('http://' + config.api.hostname + ':' + config.api.port + '/fetch/' + instanceId + '/' + clientId + '/' + delivery.id), (err, info) => {
-
+                        to: [].concat(delivery.to || []),
+                        size: messageSize
+                    }, messageStream, (err, info) => {
                         // kill this connection, we don't need it anymore
                         connection.close();
 
                         if (err) {
+                            messageStream = null;
+                            messageFetch = null;
                             return handleResponseError(delivery, connection, err, sendNext);
                         }
 

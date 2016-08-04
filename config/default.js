@@ -30,6 +30,7 @@ module.exports = {
         // and if the response is positive (in the 2xx range), then then user
         // is considered as authenticated
         // The test auth url authenticates users as zone:test
+        // Use "AUTH PLAIN em9uZQB6b25lAHRlc3Q=" for telnet
         authurl: 'http://localhost:8080/test-auth',
         user: 'zone', // username for the static example auth url
         pass: 'test', // password for the static example auth url
@@ -56,6 +57,7 @@ module.exports = {
         hostname: 'localhost'
     },
 
+    // The user running this server mush have read/write access to the following folders
     queue: {
         // Leveldb folder location. Created if it does not exist
         db: './queuedata',
@@ -117,7 +119,7 @@ module.exports = {
         // This allows you to use different IP addresses for different messages:
         // For example, if you have 5 IP's listed and you open 5 parallel
         // connections against a domain then each of these seems to originate
-        // from a different IP address (assuming you can bind to these addresses)
+        // from a different IP address (assuming you can locally bind to these addresses)
         pool: [{
             address: '0.0.0.0',
             name: os.hostname()
