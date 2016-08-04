@@ -25,7 +25,7 @@
     "restify": "^4.1.1",
     "seq-index": "^1.1.0",
     "smtp-connection": "^2.11.0",
-    "smtp-server": "^1.13.0",
+    "smtp-server": "^1.13.1",
     "uuid": "^2.0.2"
   },
   "devDependencies": {
