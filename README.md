@@ -1,6 +1,6 @@
 # ZoneMTA
 
-Tiny outbound SMTP relay built on Node.js and LevelDB.
+Tiny outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
 The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower "sending zones" or through IP addresses with less reputation.
 

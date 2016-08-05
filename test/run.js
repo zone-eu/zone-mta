@@ -58,7 +58,7 @@ let send = () => {
 
         //to: 'Andris <andris@test.tahvel.info>,andris2@test2.tahvel.info,andris3@test3.tahvel.info',
 
-        to: recipients+',andris.reinman@gmail.com',
+        to: recipients,
 
         //to: 'andris@127.0.0.1',
         //to: 'andris+1@kreata.ee',
