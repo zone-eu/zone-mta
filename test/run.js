@@ -87,6 +87,11 @@ let send = () => {
                     ]
                 },
         */
+
+        headers: {
+            // 'x-user-id': [1, '123', 3]
+        },
+
         // An array of attachments
         attachments: [
             // String attachment

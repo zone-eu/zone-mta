@@ -13,10 +13,11 @@ module.exports = {
     // App name to be used in the Received headers
     name: 'Zone-MTA',
 
-    // How many recipients to allow per message
-    // All recipient data is stored in DB in batch so too many recipients would make the
-    // batch size very large (large batch takes a lot of time and blocks DB usage)
-    maxRecipients: 500,
+    // How many recipients to allow per message. This data is handled in batch,
+    // so allowing too large lists of recipients might start blocking the thread.
+    // 1000 or less recommended but can go up to tens of thousands if needed
+    // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
+    maxRecipients: 1000,
 
     // SMTP relay server that accepts messages for the outgoing queue
     feeder: {
@@ -51,8 +52,8 @@ module.exports = {
     // Simple HTTP server for fetching info about messages
     api: {
         port: 8080,
-        // bind to localhost only as the server does authenticate users
-        host: '0.0.0.0',
+        // bind to localhost only
+        host: '127.0.0.1',
         // domain name to access the API server
         hostname: 'localhost'
     },
@@ -113,7 +114,7 @@ module.exports = {
         connections: 10,
 
         // Throttling applies per connection in a process
-        throttling: '100 messages / second', // max messages per minute, hour or second
+        throttling: '100 messages/second', // max messages per minute, hour or second
 
         // Define address:name pairs (both IPv4 and IPv6) for outgoing IP addresses
         // This allows you to use different IP addresses for different messages:
@@ -136,8 +137,9 @@ module.exports = {
         ignoreIPv6: true,
         connections: 1,
         processes: 1,
-        interface: 'lo0', // use all IP addresses provided by this network interface
-        // All messages that are send from @localhost addresses are routed through
+        // use all IP addresses provided by this network interface
+        interface: 'lo0',
+        // All messages that are sent from @localhost addresses are routed through
         // this Sending Zone by default
         senderDomains: ['localhost']
     }, {
@@ -151,7 +153,11 @@ module.exports = {
         logger: true,
         logLevel: 'silly',
         // If zone is not specified then use this zone as default for the following recipient domains
-        recipientDomains: ['gmail.com', 'kreata.ee']
+        recipientDomains: ['gmail.com', 'kreata.ee'],
+        routingHeaders: {
+            // use this zone by default if the message includes the following header
+            'x-user-id': '123'
+        }
     }],
 
     // Domain specific configuration

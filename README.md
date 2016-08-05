@@ -61,15 +61,64 @@ DKIM signature is based on the domain name of the From: address or if there is n
 
 You can define as many Sending Zones as you want. Every Sending Zone can have its own local address IP pool that is used to send out messages designated for that Zone. You can also specify the amount of max parallel outgoing connections for a Sending Zone.
 
-Sending Zone routing is handled by message headers:
+### Routing by Zone name
+
+To preselect a Zone to be used for a specific message you can use the `X-Sending-Zone` header key
 
 ```
 X-Sending-Zone: zone-identifier
 ```
 
-For example if you have a Sending Zone called "zone-identifier" set then messages with such header are routed through this Sending Zone. If there is no Sending Zone with that name then "default" Sending Zone is used instead.
+For example if you have a Sending Zone called "zone-identifier" set then messages with such header are routed through this Sending Zone.
 
-You can also pre-assign specific domains to specific Sending Zones, in which case the message is routed to the correct Sending Zone without additional routing headers based on either the sender or recipient domain.
+### Routing based on specific header value
+
+You can define specific header values in the Sending Zone configuration with the `routingHeaders` option. For example if you want to send messages that contain the header 'X-User-ID' with value '123' then you can configure it like this:
+
+```javascript
+{
+    name: 'sending-zone',
+    ...
+    routingHeaders: {
+        'x-user-id': '123'
+    }
+}
+```
+
+### Routing based on sender domain name
+
+You also define that all senders with a specific From domain name are routed through a specific domain. Use `senderDomains` option in the Zone config.
+
+```javascript
+{
+    name: 'sending-zone',
+    ...
+    senderDomains: ['example.com']
+}
+```
+
+### Routing based on recipient domain name
+
+You also define that all recipients with a specific domain name are routed through a specific domain. Use `recipientDomains` option in the Zone config.
+
+```javascript
+{
+    name: 'sending-zone',
+    ...
+    recipientDomains: ['gmail.com', 'kreata.ee']
+}
+```
+
+### Default routing
+
+The routing priority is the following:
+
+1. By the `X-Sending-Zone` header
+2. By matching `routingHeaders` headers
+3. By sender domain value in `senderDomains`
+4. By recipient domain value in `recipientDomains`
+
+If no routing can be detected, then the "default" zone is used.
 
 ## IPv6 support
 
@@ -100,3 +149,17 @@ Currently it is possible to limit active connections against a domain and you ca
 ### 2\. Web interface
 
 It should be possible to administer queues using an easy to use web interface.
+
+### 3\. Replace LevelDB with RocksDB
+
+RocksDB has much better performance both for reading and writing but it's more difficult to set up
+
+## Notes
+
+In production you probably would want to allow Node.js to use more memory, so you should probably start the app with `–max-old-space-size` option
+
+```
+node –max-old-space-size=8192 app.js
+```
+
+This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
