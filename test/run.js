@@ -126,9 +126,11 @@ let send = () => {
 };
 
 transporter.on('idle', () => {
-    while (!finished && transporter.isIdle()) {
-        send();
-    }
+    setTimeout(() => {
+        while (!finished && transporter.isIdle()) {
+            send();
+        }
+    }, 100);
 });
 
 

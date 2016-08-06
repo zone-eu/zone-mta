@@ -12,10 +12,9 @@ const bounces = require('./lib/bounces');
 const SMTPConnection = require('smtp-connection');
 const net = require('net');
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 const mkdirp = require('mkdirp');
 const PassThrough = require('stream').PassThrough;
+const AppendLog = require('./lib/append-log');
 
 let closing = false;
 let zone;
@@ -44,106 +43,11 @@ log.info('Sender/' + zone.name + '/' + process.pid, 'Starting sending for %s', z
 
 process.title = 'zone-mta: sender process [' + currentZone + ']';
 
-let unacker = {
-
-    fname: false,
-    fd: false,
-
-    unacked: new Set(),
-    compacting: false,
-    compactTimeout: false,
-
-    rows: 0,
-    fscount: 0,
-
-    init() {
-        if (this.fd) {
-            return;
-        }
-        this.fname = path.join(config.queue.appendlog, 'unacked-' + clientId + '.' + currentZone + '.' + process.pid + '-' + (++this.fscount) + '.log');
-        this.rows = 0;
-        this.fd = fs.createWriteStream(this.fname);
-        this.fd.once('error', err => {
-            log.error('Sender/' + zone.name + '/' + process.pid, 'Append log file error');
-            log.error('Sender/' + zone.name + '/' + process.pid, err.message);
-            return process.exit(16);
-        });
-
-        // write old data
-        if (this.unacked.size) {
-            this.rows = this.unacked.size;
-            this.fd.write(Array.from(this.unacked).map(key => '?:' + key).join('\n') + '\n');
-        }
-    },
-
-    add(key) {
-        if (!this.fd) {
-            this.init();
-        }
-        this.rows++;
-
-        this.unacked.add(key);
-        this.fd.write('?:' + key + '\n');
-
-        this.checkCompaction();
-    },
-
-    remove(key) {
-        if (!this.fd) {
-            this.init();
-        }
-        this.rows++;
-
-        this.unacked.delete(key);
-        this.fd.write('0:' + key + '\n');
-
-        this.checkCompaction();
-    },
-
-    checkCompaction() {
-        clearTimeout(this.compactTimeout);
-        if (this.rows - this.unacked.size > 500) {
-            this.compact();
-        } else {
-            this.compactTimeout = setTimeout(() => {
-                if (this.unacked.size !== this.rows) {
-                    this.compact();
-                }
-            }, 60 * 1000);
-            this.compactTimeout.unref();
-        }
-    },
-
-    compact() {
-        clearTimeout(this.compactTimeout);
-        if (this.compacting || !this.fd) {
-            return false;
-        }
-        this.compacting = true;
-
-        let fd = this.fd;
-        let fname = this.fname;
-
-        this.fd = false;
-        this.fname = false;
-
-        fd.once('close', () => {
-            fd.removeAllListeners('error');
-            // remove old log file
-            fs.unlink(fname, err => {
-                if (err) {
-                    log.error('Sender/' + zone.name + '/' + process.pid, 'Could not unlink log file: %s', err.message);
-                }
-                this.compacting = false;
-            });
-            // create new log file if we have unacked values in memory
-            if (this.unacked.size) {
-                this.init();
-            }
-        });
-        fd.end();
-    }
-};
+let unacker = new AppendLog({
+    fnamePrefix: 'unacked-' + clientId + '.' + currentZone + '.' + process.pid,
+    folder: config.queue.appendlog,
+    logId: 'Sender/' + zone.name + '/' + process.pid
+});
 
 function fetchJson(url, options, callback) {
     if (!callback && typeof options === 'function') {
