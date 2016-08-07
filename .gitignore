@@ -1,8 +1,7 @@
 node_modules
 .DS_Store
 npm-debug.log
-queuedata
-appendlog
+data/
 .lev_history
 keys/*.pem
 test/queuetest

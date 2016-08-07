@@ -13,7 +13,6 @@ let expecting = Number(process.argv[2]) || 100;
 let destserver = process.argv[3] || 'localhost';
 let rcptCount = Number(process.argv[4]) || 10;
 let domainCount = Number(process.argv[5]) || 6;
-let maxAttachmentSize = Number(process.argv[6]) || 0.10;
 
 let total = expecting;
 let finished = false;
@@ -25,7 +24,7 @@ let errors = 0;
 // Create a SMTP transporter object
 const transporter = nodemailer.createTransport({
     pool: true,
-    maxConnections: 50,
+    maxConnections: 10,
     host: destserver,
     port: config.feeder.port,
     auth: {
@@ -40,16 +39,19 @@ const transporter = nodemailer.createTransport({
     from: 'Andris Test <andris@kreata.ee>'
 });
 
-let recipients = [];
-for (let i = 0; i < rcptCount; i++) {
-    recipients += (i ? ', ' : '') + 'Test #' + (i + 1) + ' <test+' + (i + 1) + '@test' + ((i % domainCount) + 1) + '.tahvel.info>';
-}
+let domainCounter = 0;
 
 let send = () => {
     if (total-- <= 0) {
         finished = true;
         return;
     }
+
+    let recipients = [];
+    for (let i = 0; i < rcptCount; i++) {
+        recipients += (i ? ', ' : '') + 'Test #' + (i + 1) + ' <test+' + (i + 1) + '@test' + (++domainCounter % domainCount + 1) + '.tahvel.info>';
+    }
+
     // Message object
     let message = {
 
@@ -111,7 +113,7 @@ let send = () => {
                 cid: 'note@example.com' // should be as unique as possible
             }, {
                 filename: 'attachment.bin',
-                content: new Buffer(Math.ceil(Math.random() * maxAttachmentSize * 1024 * 1024))
+                content: Buffer.allocUnsafe(5 * 1024)
             }
         ]
     };
@@ -133,7 +135,6 @@ transporter.on('idle', () => {
     }, 100);
 });
 
-
 function stats() {
     console.log('Sent %s messages, errored %s (total %s, %s%), started %s (%s, %s)', sent, errors, sent + errors, Math.round((sent + errors) / expecting * 100), moment(startTime).fromNow(), startTime.getTime(), Date.now()); // eslint-disable-line no-console
     if (total <= 0) {
@@ -143,4 +144,5 @@ function stats() {
 
 setInterval(stats, 10 * 1000);
 
+console.log('Current time: %s', new Date().toString()); // eslint-disable-line no-console
 stats();

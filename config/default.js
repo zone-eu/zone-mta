@@ -61,9 +61,9 @@ module.exports = {
     // The user running this server mush have read/write access to the following folders
     queue: {
         // Leveldb folder location. Created if it does not exist
-        db: './queuedata',
+        db: './data/queue',
         // crash recovery log files folder. Created if it does not exist
-        appendlog: './appendlog'
+        appendlog: './data/log'
     },
 
     log: {
@@ -161,13 +161,18 @@ module.exports = {
     }],
 
     // Domain specific configuration
+    // Where "domain" means the domain part of an email address
     domainConfig: {
         // default is required
         default: {
-            maxConnections: 5
+            maxConnections: 10
         },
 
         'test.tahvel.info': {
+            maxConnections: 5
+        },
+
+        'hot.ee': {
             maxConnections: 5
         }
     }
