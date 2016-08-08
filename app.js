@@ -69,34 +69,52 @@ feederServer.start(err => {
     });
 });
 
-let stop = () => {
+let stop = code => {
+    code = code || 0;
     if (queue.closing) {
         log.info('Process', 'Force closing...');
-        return process.exit(0);
+        return process.exit(code);
     }
     log.info('Process', 'Server closing down...');
     queue.closing = true;
 
+    let closed = 0;
+    let checkClosed = () => {
+        if (++closed === 3) {
+            queue.db.close(() => process.exit(code));
+        }
+    };
+
+    // Stop accepting any new connections
     feederServer.close(() => {
         // wait until all connections to the feeder SMTP are closed
         log.info('Feeder', 'Service closed');
-        apiServer.close(() => {
-            // wait until all connections to the API HTTP are closed
-            log.info('API', 'Service closed');
-            queue.stop(() => {
-                // wait until DB is closed
-                log.info('Queue', 'Service closed');
-                return process.exit(0);
-            });
-        });
+        checkClosed();
+    });
+    apiServer.close(() => {
+        // wait until all connections to the API HTTP are closed
+        log.info('API', 'Service closed');
+        checkClosed();
+    });
+    queue.stop(() => {
+        // wait until DB is closed
+        log.info('Queue', 'Service closed');
+        checkClosed();
     });
 
+    // If we were not able to stop other stuff by 10 sec. force close
     let forceExitTimer = setTimeout(() => {
         log.info('Process', 'Timed out, force closing...');
-        process.exit(0);
+        process.exit(code);
     }, 10 * 1000);
     forceExitTimer.unref();
 };
 
 process.on('SIGINT', () => stop());
 process.on('SIGTERM', () => stop());
+
+process.on('uncaughtException', err => {
+    log.error('Process', 'Uncaught exception');
+    log.error('Process', err);
+    stop(4);
+});
