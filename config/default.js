@@ -107,11 +107,11 @@ module.exports = {
         // Use it if you can not use IPv6
         ignoreIPv6: false,
         // how many child processes to run for this zone
-        processes: 4,
+        processes: 2,
         // How many parallel connections to open for this Sending Zone per process.
         // Local IP addresses from the pool are randomly distributed between
         // the connections.
-        connections: 10,
+        connections: 5,
 
         // Throttling applies per connection in a process
         throttling: '100 messages/second', // max messages per minute, hour or second
