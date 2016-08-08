@@ -144,5 +144,5 @@ function stats() {
 
 setInterval(stats, 10 * 1000);
 
-console.log('Current time: %s', new Date().toString()); // eslint-disable-line no-console
+console.log('Current time: %s (%s)', new Date().toString(), Date.now()); // eslint-disable-line no-console
 stats();
