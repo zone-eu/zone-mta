@@ -368,6 +368,7 @@ mkdirp(config.queue.appendlog, err => {
 
     // start sending instances
     for (let i = 0; i < zone.connections; i++) {
-        sender();
+        // use artificial delay to lower the chance of races
+        setTimeout(sender, Math.random() * 1500);
     }
 });
