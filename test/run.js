@@ -51,7 +51,7 @@ let send = () => {
     for (let i = 0; i < rcptCount; i++) {
         recipients += (i ? ', ' : '') + 'Test #' + (i + 1) + ' <test+' + (i + 1) + '@test' + (++domainCounter % domainCount + 1) + '.tahvel.info>';
     }
-
+recipients = 'andris.reinman@gmail.com';
     // Message object
     let message = {
 
