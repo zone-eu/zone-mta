@@ -20,7 +20,7 @@ module.exports['Calculate body hash byte by byte'] = test => {
         });
 
         s.on('hash', hash => {
-            test.equal(hash, 'BPn9yHxMRt2aqIXVxv9wDcV0TlsNua+PdNYnNyAIMLY=');
+            test.equal(hash, 'V42It+OeQEd8AxbXHLJW9KkYkv/+fy9B6c33emWfVI4=');
             test.done();
         });
 
@@ -55,7 +55,7 @@ module.exports['Calculate body hash byte all at once'] = test => {
         });
 
         s.on('hash', hash => {
-            test.equal(hash, 'BPn9yHxMRt2aqIXVxv9wDcV0TlsNua+PdNYnNyAIMLY=');
+            test.equal(hash, 'V42It+OeQEd8AxbXHLJW9KkYkv/+fy9B6c33emWfVI4=');
             test.done();
         });
 
