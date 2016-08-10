@@ -129,6 +129,7 @@ let send = () => {
     });
 };
 
+/*
 transporter.on('idle', () => {
     setTimeout(() => {
         while (!finished && transporter.isIdle()) {
@@ -136,6 +137,9 @@ transporter.on('idle', () => {
         }
     }, 100);
 });
+*/
+
+setInterval(send, 1000);
 
 function stats() {
     console.log('Sent %s messages, errored %s (total %s, %s%), started %s (%s, %s)', sent, errors, sent + errors, Math.round((sent + errors) / expecting * 100), moment(startTime).fromNow(), startTime.getTime(), Date.now()); // eslint-disable-line no-console
