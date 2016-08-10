@@ -6,6 +6,7 @@ The goal of this project is to provide granular control over routing different m
 
 ## Features
 
+- Fast. Send hundreds of thousands messages per hour
 - Send large messages with low overhead
 - Automatic DKIM signing
 - Adds Message-Id and Date headers if missing
