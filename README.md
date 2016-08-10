@@ -1,4 +1,4 @@
-# ZoneMTA
+# ZoneMTA (project X-699)
 
 Tiny outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
