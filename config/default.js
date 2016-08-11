@@ -11,7 +11,7 @@ module.exports = {
     group: 'nogroup',
 
     // App name to be used in the Received headers
-    name: 'Zone-MTA',
+    name: 'ZoneMTA',
 
     // How many recipients to allow per message. This data is handled in batch,
     // so allowing too large lists of recipients might start blocking the thread.
@@ -27,7 +27,7 @@ module.exports = {
 
         // Set to false to not require authentication
         authentication: true,
-        // Zone-MTA makes an Authentication:Basic request against that url
+        // ZoneMTA makes an Authentication:Basic request against that url
         // and if the response is positive (in the 2xx range), then then user
         // is considered as authenticated
         // The test auth url authenticates users as zone:test

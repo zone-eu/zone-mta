@@ -193,8 +193,8 @@ function handleResponseError(delivery, connection, err, callback) {
     let deferredCount = delivery._deferred && delivery._deferred.count || 0;
     let smtpResponse = formatSMTPResponse(err.response || err.message);
 
-    if ((bounce = bounces.check(err.response)).action !== 'reject' || deferredCount >= 15) {
-        let ttl = Math.min(Math.pow(2, deferredCount + 1), 1024) * 60 * 1000;
+    if ((bounce = bounces.check(err.response)).action !== 'reject' || deferredCount > 6) {
+        let ttl = Math.min(Math.pow(5, deferredCount + 1), 1024) * 60 * 1000;
         log.info('Sender/' + zone.name + '/' + process.pid, 'DEFERRED[%s] %s.%s for <%s> by %s: %s (%s)', bounce.category, delivery.id, delivery.seq, delivery.to, delivery.domain, bounce.message, smtpResponse);
         return deferDelivery(delivery, ttl, err => {
             if (err) {

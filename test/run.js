@@ -14,6 +14,15 @@ let destserver = process.argv[3] || 'localhost';
 let rcptCount = Number(process.argv[4]) || 10;
 let domainCount = Number(process.argv[5]) || 6;
 
+let port = config.feeder.port;
+let destparts = destserver.split(':');
+if (destparts.length > 1) {
+    port = parseInt(destparts.pop(), 10) || port;
+    destserver = destparts.join(':');
+}
+
+console.log('Sending %s messages (each %s recipients) to %s:%s', expecting, rcptCount, destserver, port); // eslint-disable-line no-console
+
 let total = expecting;
 let finished = false;
 
@@ -26,7 +35,7 @@ const transporter = nodemailer.createTransport({
     pool: true,
     maxConnections: 10,
     host: destserver,
-    port: config.feeder.port,
+    port,
     auth: {
         user: config.feeder.user,
         pass: config.feeder.pass
@@ -57,22 +66,10 @@ let send = () => {
     // Message object
     let message = {
 
-        // Comma separated list of recipients
-        //to: '"Receiver Name" <andris@kreata.ee>, andris+2@kreata.ee, andris+3@kreata.ee, andris+4@kreata.ee, andris+5@kreata.ee, andris+6@kreata.ee, andris+7@kreata.ee, andris+8@kreata.ee, andris+9@kreata.ee, andris+10@kreata.ee, andris.reinman@gmail.com, andmekala@hot.ee, andris.reinman@hotmail.com, andris.reinman@yahoo.com',
-
-        //to: 'Andris <andris@test.tahvel.info>,andris2@test2.tahvel.info,andris3@test3.tahvel.info',
-
         to: recipients,
 
-        //to: 'andris@127.0.0.1',
-        //to: 'andris+1@kreata.ee',
-        //to: '"Receiver Name" <andris@kreata.ee>, andris+2@kreata.ee, andris.reinman@gmail.com',
-
-        //to:'andris.reinman@hotmail.com',
-
-        //to: 'lutik@mutikasnutikas.ee',
-
-
+        // Comma separated list of recipients
+        //to: '"Receiver Name" <andris@kreata.ee>, andris+2@kreata.ee, andris+3@kreata.ee, andris+4@kreata.ee, andris+5@kreata.ee, andris+6@kreata.ee, andris+7@kreata.ee, andris+8@kreata.ee, andris+9@kreata.ee, andris+10@kreata.ee, andris.reinman@gmail.com, andmekala@hot.ee, andris.reinman@hotmail.com, andris.reinman@yahoo.com',
 
         // Subject of the message
         subject: 'Nodemailer is unicode friendly ✔ ' + Date.now(), //
