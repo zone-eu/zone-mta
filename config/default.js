@@ -40,8 +40,8 @@ module.exports = {
         secure: false // set to true to start in TLS mode (port 465)
             /*
             // define keys for STARTTLS/TLS
-            key: fs.readFileSync('../keys/private.key'),
-            cert: fs.readFileSync('../keys/server.crt')
+            key: '../keys/private.key',
+            cert: '../keys/server.crt'
             */
     },
 

@@ -9,12 +9,14 @@ const log = require('npmlog');
 const fetch = require('nodemailer-fetch');
 const iptools = require('./lib/iptools');
 const bounces = require('./lib/bounces');
+const createHeaders = require('./lib/headers');
 const SMTPConnection = require('smtp-connection');
 const net = require('net');
 const crypto = require('crypto');
 const mkdirp = require('mkdirp');
 const PassThrough = require('stream').PassThrough;
 const AppendLog = require('./lib/append-log');
+const dkimSign = require('./lib/dkim-sign');
 
 let closing = false;
 let zone;
@@ -120,6 +122,7 @@ function sender() {
             if (!delivery || !delivery.id) {
                 return setTimeout(sendNext, 5 * 1000);
             }
+            delivery.headers = createHeaders(delivery.headers);
 
             zone.speedometer(ref, () => { // check throttling speed
                 // Try to connect to the recipient MX
@@ -128,12 +131,20 @@ function sender() {
                         return handleResponseError(delivery, false, err, sendNext);
                     }
 
-                    let recivedHeader = Buffer.from(zone.generateReceivedHeader(delivery, connection.options.name) + '\r\n');
-                    let messageSize = recivedHeader.length + delivery.headerSize + delivery.bodySize; // required for SIZE argument
+                    let recivedHeader = Buffer.from(zone.generateReceivedHeader(delivery, connection.options.name));
+                    delivery.headers.addFormatted('Received', recivedHeader, 0);
+
+                    if (config.dkim.enabled) {
+                        // tro to sign the message, this would prepend a DKIM-Signature header to the message
+                        signMessage(delivery);
+                    }
+
+                    let messageHeaders = delivery.headers.build();
+                    let messageSize = recivedHeader.length + messageHeaders.length + delivery.bodySize; // required for SIZE argument
                     let messageFetch = fetch('http://' + config.api.hostname + ':' + config.api.port + '/fetch/' + instanceId + '/' + clientId + '/' + delivery.id);
                     let messageStream = new PassThrough();
 
-                    messageStream.write(recivedHeader);
+                    messageStream.write(messageHeaders);
                     messageFetch.pipe(messageStream);
                     messageFetch.on('error', err => messageStream.emit('error', err));
 
@@ -331,7 +342,9 @@ function releaseDelivery(delivery, callback) {
     fetchJson('http://' + config.api.hostname + ':' + config.api.port + '/release-delivery/' + instanceId + '/' + clientId + '/' + zone.name, {
         method: 'POST',
         body: JSON.stringify({
-            delivery
+            id: delivery.id,
+            seq: delivery.seq,
+            _lock: delivery._lock
         }),
         contentType: 'application/json; charset=utf-8'
     }, (err, updated) => {
@@ -346,7 +359,9 @@ function deferDelivery(delivery, ttl, callback) {
     fetchJson('http://' + config.api.hostname + ':' + config.api.port + '/defer-delivery/' + instanceId + '/' + clientId + '/' + zone.name, {
         method: 'POST',
         body: JSON.stringify({
-            delivery,
+            id: delivery.id,
+            seq: delivery.seq,
+            _lock: delivery._lock,
             ttl
         }),
         contentType: 'application/json; charset=utf-8'
@@ -356,6 +371,25 @@ function deferDelivery(delivery, ttl, callback) {
         }
         callback(null, updated);
     });
+}
+
+function signMessage(delivery) {
+    let dkimKeys;
+    let headerFrom = delivery.headers.from && delivery.headers.from.split('@').pop();
+    let envelopeFrom = delivery.from && delivery.from.split('@').pop();
+
+    if (dkimSign.keys.has(headerFrom)) {
+        dkimKeys = dkimSign.keys.get(headerFrom);
+    } else if (dkimSign.keys.has(envelopeFrom)) {
+        dkimKeys = dkimSign.keys.get(envelopeFrom);
+    }
+
+    let dkimHeader;
+    if (dkimKeys) {
+        dkimHeader = dkimSign.sign(delivery.headers, delivery.bodyHash, dkimKeys);
+        delivery.dkim = true;
+        delivery.headers.addFormatted('dkim-signature', dkimHeader);
+    }
 }
 
 // Start by ensuring the appendlog folder exists
