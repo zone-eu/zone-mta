@@ -13,6 +13,7 @@ let expecting = Number(process.argv[2]) || 100;
 let destserver = process.argv[3] || 'localhost';
 let rcptCount = Number(process.argv[4]) || 10;
 let domainCount = Number(process.argv[5]) || 6;
+let delayTTL = Number(process.argv[6]) || 0;
 
 let port = config.feeder.port;
 let destparts = destserver.split(':');
@@ -126,14 +127,17 @@ let send = () => {
     });
 };
 
-
-transporter.on('idle', () => {
-    setTimeout(() => {
-        while (!finished && transporter.isIdle()) {
-            send();
-        }
-    }, 100);
-});
+if (!delayTTL) {
+    transporter.on('idle', () => {
+        setTimeout(() => {
+            while (!finished && transporter.isIdle()) {
+                send();
+            }
+        }, 100);
+    });
+} else {
+    setInterval(send, delayTTL);
+}
 
 function stats() {
     console.log('Sent %s messages, errored %s (total %s, %s%), started %s (%s, %s)', sent, errors, sent + errors, Math.round((sent + errors) / expecting * 100), moment(startTime).fromNow(), startTime.getTime(), Date.now()); // eslint-disable-line no-console

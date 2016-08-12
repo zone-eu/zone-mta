@@ -75,7 +75,7 @@ module.exports = {
         feeder: false,
 
         syslog: {
-            enabled: true,
+            enabled: false,
             host: '::1',
             port: 514,
             protocol: 'udp' // 'udp' or 'tcp'
