@@ -9,9 +9,51 @@ const createFeederServer = require('./lib/feeder-server');
 const createAPIServer = require('./lib/api-server');
 const createMailQueue = require('./lib/mail-queue');
 const sendingZone = require('./lib/sending-zone');
+const PassThrough = require('stream').PassThrough;
+const syslog = require('syslog-client');
 
-log.level = config.log.level;
+let syslogClient;
+
 process.title = 'zone-mta: master process';
+log.level = config.log.level;
+
+if (config.log.syslog.enabled) {
+    syslogClient = syslog.createClient(config.log.syslog.host, {
+        port: config.log.syslog.port,
+        transport: config.log.syslog.protocol === 'tcp' ? syslog.Transport.Tcp : syslog.Transport.Udp
+    });
+    log.stream = new PassThrough();
+    log.stream.on('readable', () => {
+        while (log.stream.read() !== null) {
+            // just ignore
+        }
+    });
+    log.on('log', ev => {
+        if (log.levels[ev.level] < log.levels[log.level]) {
+            return;
+        }
+
+        let severity;
+        switch (ev.level) {
+            case 'error':
+                severity = syslog.Severity.Error;
+                break;
+            case 'warn':
+                severity = syslog.Severity.Warning;
+                break;
+            default:
+                severity = syslog.Severity.Informational;
+        }
+
+        syslogClient.log(ev.message, {
+            severity
+        }, err => {
+            if (err) {
+                console.error(err); //eslint-disable-line no-console
+            }
+        });
+    });
+}
 
 let feederServer = createFeederServer();
 let apiServer = createAPIServer();

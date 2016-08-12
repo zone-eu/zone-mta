@@ -72,7 +72,14 @@ module.exports = {
         // set to true to see outgoing SMTP transaction log
         mx: false,
         // set to true to see incoming SMTP transaction log
-        feeder: false
+        feeder: false,
+
+        syslog: {
+            enabled: true,
+            host: '::1',
+            port: 514,
+            protocol: 'udp' // 'udp' or 'tcp'
+        }
     },
 
     /*
