@@ -45,6 +45,16 @@ module.exports = {
             */
     },
 
+    srs: {
+        enabled: true,
+        // secret value for HHH hash
+        secret: 'a cat',
+        // which domain name to use for the rewritten addresses
+        rewriteDomain: 'kreata.ee',
+        // which addresses to not rewrite
+        excludeDomains: ['kreata.ee']
+    },
+
     // Sets DNS servers to use for resolving MX/A/AAAA records
     // Use only IP addresses
     //nameservers: ['127.0.0.1']
@@ -72,14 +82,7 @@ module.exports = {
         // set to true to see outgoing SMTP transaction log
         mx: false,
         // set to true to see incoming SMTP transaction log
-        feeder: false,
-
-        syslog: {
-            enabled: false,
-            host: '::1',
-            port: 514,
-            protocol: 'udp' // 'udp' or 'tcp'
-        }
+        feeder: false
     },
 
     /*

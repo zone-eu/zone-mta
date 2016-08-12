@@ -17,6 +17,10 @@ const mkdirp = require('mkdirp');
 const PassThrough = require('stream').PassThrough;
 const AppendLog = require('./lib/append-log');
 const dkimSign = require('./lib/dkim-sign');
+const SRS = require('srs.js');
+const srsRewriter = new SRS({
+    secret: config.srs.secret
+});
 
 let closing = false;
 let zone;
@@ -148,9 +152,19 @@ function sender() {
                     messageFetch.pipe(messageStream);
                     messageFetch.on('error', err => messageStream.emit('error', err));
 
+                    let envelopeFrom = delivery.from;
+                    if (config.srs.enabled) {
+                        let senderDomain = envelopeFrom.substr(envelopeFrom.lastIndexOf('@') + 1).toLowerCase();
+                        if (!config.srs.excludeDomains.includes(senderDomain)) {
+                            envelopeFrom = srsRewriter
+                                .rewrite(envelopeFrom.substr(0, envelopeFrom.lastIndexOf('@')), senderDomain) +
+                                '@' + config.srs.rewriteDomain;
+                        }
+                    }
+
                     // Do the actual delivery
                     connection.send({
-                        from: delivery.from,
+                        from: envelopeFrom,
                         to: [].concat(delivery.to || []),
                         size: messageSize
                     }, messageStream, (err, info) => {

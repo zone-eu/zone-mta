@@ -99,7 +99,7 @@ let send = () => {
             // String attachment
             {
                 filename: 'notes.txt',
-                content: 'Some notes about this e-mail',
+                content: 'Some notes about       this e-mail',
                 contentType: 'text/plain' // optional, would be detected from the filename
             },
 
@@ -113,7 +113,7 @@ let send = () => {
                 cid: 'note@example.com' // should be as unique as possible
             }, {
                 filename: 'attachment.bin',
-                content: Buffer.allocUnsafe(5 * 1024)
+                content: Buffer.allocUnsafe(100 * 1024)
             }
         ]
     };
