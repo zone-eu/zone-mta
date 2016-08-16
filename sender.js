@@ -89,7 +89,7 @@ function sender() {
 
             if (!delivery || !delivery.id) {
                 emptyChecks++;
-                return setTimeout(sendNext, Math.min(emptyChecks, 50) * 100);
+                return setTimeout(sendNext, Math.min(Math.power(emptyChecks, 2), 1000) * 10);
             }
             emptyChecks = 0;
 
