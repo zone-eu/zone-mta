@@ -7,6 +7,7 @@ const config = require('config');
 const log = require('npmlog');
 const createFeederServer = require('./lib/feeder-server');
 const createAPIServer = require('./lib/api-server');
+const createQueueServer = require('./lib/queue-server');
 const createMailQueue = require('./lib/mail-queue');
 const sendingZone = require('./lib/sending-zone');
 
@@ -15,6 +16,7 @@ log.level = config.log.level;
 
 let feederServer = createFeederServer();
 let apiServer = createAPIServer();
+let queueServer = createQueueServer();
 let queue = createMailQueue(config.queue);
 
 // Starts the queueing MTA
@@ -26,45 +28,56 @@ feederServer.start(err => {
     }
     log.info('Feeder', 'Feeder MTA server started');
 
-    // Starts the API HTTP REST server that is used by sending processes to fetch messages from the queue
-    apiServer.start(err => {
+    queueServer.start(err => {
         if (err) {
-            log.error('API', 'Could not start API server');
-            log.error('API', err);
+            log.error('QS', 'Could not start Queue server');
+            log.error('QS', err);
             return process.exit(2);
         }
-        log.info('API', 'API server started');
+        log.info('QS', 'Queue server started');
 
-        // downgrade user if needed
-        if (config.group) {
-            try {
-                process.setgid(config.group);
-                log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
-            } catch (E) {
-                log.info('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
-            }
-        }
-        if (config.user) {
-            try {
-                process.setuid(config.user);
-                log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
-            } catch (E) {
-                log.info('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
-            }
-        }
-
-        // Open LevelDB database and start sender processes
-        queue.init(err => {
+        // Starts the API HTTP REST server that is used by sending processes to fetch messages from the queue
+        apiServer.start(err => {
             if (err) {
-                log.error('Queue', 'Could not initialize sending queue');
-                log.error('Queue', err);
-                return process.exit(3);
+                log.error('API', 'Could not start API server');
+                log.error('API', err);
+                return process.exit(2);
             }
-            log.info('Queue', 'Sending queue initialized');
+            log.info('API', 'API server started');
 
-            feederServer.queue = queue;
-            apiServer.queue = queue;
-            sendingZone.init(queue);
+
+            // downgrade user if needed
+            if (config.group) {
+                try {
+                    process.setgid(config.group);
+                    log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
+                } catch (E) {
+                    log.info('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
+                }
+            }
+            if (config.user) {
+                try {
+                    process.setuid(config.user);
+                    log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
+                } catch (E) {
+                    log.info('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
+                }
+            }
+
+            // Open LevelDB database and start sender processes
+            queue.init(err => {
+                if (err) {
+                    log.error('Queue', 'Could not initialize sending queue');
+                    log.error('Queue', err);
+                    return process.exit(3);
+                }
+                log.info('Queue', 'Sending queue initialized');
+
+                feederServer.queue = queue;
+                apiServer.queue = queue;
+                queueServer.queue = queue;
+                sendingZone.init(queue);
+            });
         });
     });
 });
@@ -96,11 +109,12 @@ let stop = code => {
         log.info('API', 'Service closed');
         checkClosed();
     });
-    queue.stop(() => {
-        // wait until DB is closed
-        log.info('Queue', 'Service closed');
+    queueServer.close(() => {
+        // wait until all connections to the API HTTP are closed
+        log.info('QS', 'Service closed');
         checkClosed();
     });
+    queue.stop();
 
     // If we were not able to stop other stuff by 10 sec. force close
     let forceExitTimer = setTimeout(() => {

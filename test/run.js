@@ -120,6 +120,7 @@ let send = () => {
 
     transporter.sendMail(message, error => {
         if (error) {
+            console.log(error.message); // eslint-disable-line no-console
             errors++;
             return;
         }

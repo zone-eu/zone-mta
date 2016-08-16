@@ -13,22 +13,25 @@ const createHeaders = require('./lib/headers');
 const SMTPConnection = require('smtp-connection');
 const net = require('net');
 const crypto = require('crypto');
-const mkdirp = require('mkdirp');
 const PassThrough = require('stream').PassThrough;
-const AppendLog = require('./lib/append-log');
 const dkimSign = require('./lib/dkim-sign');
+const QueueClient = require('./lib/transport/client');
+const queueClient = new QueueClient(config.queueServer);
+
 const SRS = require('srs.js');
 const srsRewriter = new SRS({
     secret: config.srs.secret
 });
+
+let cmdId = 0;
+let responseHandlers = new Map();
 
 let closing = false;
 let zone;
 
 // Read command line arguments
 let currentZone = (process.argv[2] || '').toString().trim().toLowerCase();
-let instanceId = (process.argv[3] || '').toString().trim().toLowerCase();
-let clientId = (process.argv[4] || '').toString().trim().toLowerCase() || crypto.randomBytes(10).toString('hex');
+let clientId = (process.argv[3] || '').toString().trim().toLowerCase() || crypto.randomBytes(10).toString('hex');
 
 // Find and setup correct Sending Zone
 [].concat(config.zones || []).find(sendingZone => {
@@ -49,64 +52,23 @@ log.info('Sender/' + zone.name + '/' + process.pid, 'Starting sending for %s', z
 
 process.title = 'zone-mta: sender process [' + currentZone + ']';
 
-let unacker = new AppendLog({
-    fnamePrefix: 'unacked-' + clientId + '.' + currentZone + '.' + process.pid,
-    folder: config.queue.appendlog,
-    logId: 'Sender/' + zone.name + '/' + process.pid
-});
-
-function fetchJson(url, options, callback) {
-    if (!callback && typeof options === 'function') {
-        callback = options;
-        options = false;
-    }
-
-    let retries = 0;
-
-    let tryRequest = () => {
-
-        let chunks = [];
-        let chunklen = 0;
-        let returned = false;
-        let req = fetch(url, options);
-
-        req.on('readable', () => {
-            let chunk;
-            while ((chunk = req.read()) !== null) {
-                chunks.push(chunk);
-                chunklen += chunk.length;
-            }
-        });
-
-        req.on('error', err => {
-            if (!closing && retries < 5 && err && err.code && /^ECONN/.test(err.code)) {
-                let sec = Math.min(Math.pow(2, retries++), 16); // check again in  2, 4, 8, 16 seconds
-                log.verbose('Sender/' + zone.name + '/' + process.pid, 'Request to "%s" failed, retrying in %s sec.', url, sec);
-                return setTimeout(tryRequest, sec * 1000);
-            }
-            if (returned) {
-                return false;
-            }
-            returned = true;
-            callback(err);
-        });
-
-        req.on('end', () => {
-            if (returned) {
-                return false;
-            }
-            returned = true;
-            let data;
-            try {
-                data = JSON.parse(Buffer.concat(chunks, chunklen));
-            } catch (E) {
-                return callback(new Error('Could not parse JSON'));
-            }
-            callback(null, data);
-        });
+function sendCommand(cmd, callback) {
+    let id = ++cmdId;
+    let data = {
+        req: id,
+        zone: zone.name,
+        client: clientId
     };
 
-    tryRequest();
+    if (typeof cmd === 'string') {
+        cmd = {
+            cmd
+        };
+    }
+
+    Object.keys(cmd).forEach(key => data[key] = cmd[key]);
+    responseHandlers.set(id, callback);
+    queueClient.send(data);
 }
 
 function sender() {
@@ -116,7 +78,7 @@ function sender() {
             return;
         }
 
-        fetchJson('http://' + config.api.hostname + ':' + config.api.port + '/get/' + instanceId + '/' + clientId + '/' + zone.name, (err, delivery) => {
+        sendCommand('GET', (err, delivery) => {
             if (err) {
                 closing = true;
                 log.error('Sender/' + zone.name + '/' + process.pid, err.message);
@@ -145,7 +107,7 @@ function sender() {
 
                     let messageHeaders = delivery.headers.build();
                     let messageSize = recivedHeader.length + messageHeaders.length + delivery.bodySize; // required for SIZE argument
-                    let messageFetch = fetch('http://' + config.api.hostname + ':' + config.api.port + '/fetch/' + instanceId + '/' + clientId + '/' + delivery.id);
+                    let messageFetch = fetch('http://' + config.api.hostname + ':' + config.api.port + '/fetch/' + delivery.id + '?body=yes');
                     let messageStream = new PassThrough();
 
                     messageStream.write(messageHeaders);
@@ -177,9 +139,6 @@ function sender() {
                             return handleResponseError(delivery, connection, err, sendNext);
                         }
 
-                        // Mark as sent but not yet acknowledged
-                        unacker.add(delivery.id + '.' + delivery.seq);
-
                         log.info('Sender/' + zone.name + '/' + process.pid, 'ACCEPTED %s.%s for <%s> by %s (%s)', delivery.id, delivery.seq, delivery.to, delivery.domain, formatSMTPResponse(info.response));
                         return releaseDelivery(delivery, err => {
                             if (err) {
@@ -188,8 +147,6 @@ function sender() {
                                 closing = true;
                                 return;
                             }
-                            // Acknowledging worked, remove the entry from log file
-                            unacker.remove(delivery.id + '.' + delivery.seq);
 
                             // Safe to move on the next message
                             return sendNext();
@@ -353,14 +310,11 @@ function formatSMTPResponse(str) {
 }
 
 function releaseDelivery(delivery, callback) {
-    fetchJson('http://' + config.api.hostname + ':' + config.api.port + '/release-delivery/' + instanceId + '/' + clientId + '/' + zone.name, {
-        method: 'POST',
-        body: JSON.stringify({
-            id: delivery.id,
-            seq: delivery.seq,
-            _lock: delivery._lock
-        }),
-        contentType: 'application/json; charset=utf-8'
+    sendCommand({
+        cmd: 'RELEASE',
+        id: delivery.id,
+        seq: delivery.seq,
+        _lock: delivery._lock
     }, (err, updated) => {
         if (err) {
             return callback(err);
@@ -370,15 +324,12 @@ function releaseDelivery(delivery, callback) {
 }
 
 function deferDelivery(delivery, ttl, callback) {
-    fetchJson('http://' + config.api.hostname + ':' + config.api.port + '/defer-delivery/' + instanceId + '/' + clientId + '/' + zone.name, {
-        method: 'POST',
-        body: JSON.stringify({
-            id: delivery.id,
-            seq: delivery.seq,
-            _lock: delivery._lock,
-            ttl
-        }),
-        contentType: 'application/json; charset=utf-8'
+    sendCommand({
+        cmd: 'DEFER',
+        id: delivery.id,
+        seq: delivery.seq,
+        _lock: delivery._lock,
+        ttl
     }, (err, updated) => {
         if (err) {
             return callback(err);
@@ -406,17 +357,34 @@ function signMessage(delivery) {
     }
 }
 
-// Start by ensuring the appendlog folder exists
-mkdirp(config.queue.appendlog, err => {
+queueClient.connect(err => {
     if (err) {
-        log.error('Sender/' + zone.name + '/' + process.pid, 'Could not create appendlog folder');
+        log.error('Sender/' + zone.name + '/' + process.pid, 'Could not connect to Queue server');
         log.error('Sender/' + zone.name + '/' + process.pid, err.message);
-        return process.exit(1);
+        process.exit(1);
     }
+
+    queueClient.on('close', () => {
+        if (!closing) {
+            log.error('Sender/' + zone.name + '/' + process.pid, 'Connection to Queue server closed unexpectedly');
+            process.exit(1);
+        }
+    });
+
+    queueClient.onData = (data, next) => {
+        let callback;
+        if (responseHandlers.has(data.req)) {
+            callback = responseHandlers.get(data.req);
+            responseHandlers.delete(data.req);
+            setImmediate(() => callback(data.error ? data.error : null, !data.error && data.response));
+        }
+        next();
+    };
 
     // start sending instances
     for (let i = 0; i < zone.connections; i++) {
         // use artificial delay to lower the chance of races
         setTimeout(sender, Math.random() * 1500);
     }
+
 });

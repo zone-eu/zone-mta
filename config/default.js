@@ -6,7 +6,7 @@ const os = require('os');
 module.exports = {
 
     // If started as root then privileges are dropped after all ports are bound
-    // This user must have read+write rights for the leveldb folder and appendlog folder
+    // This user must have read+write rights for the leveldb folder
     user: 'nobody',
     group: 'nogroup',
 
@@ -68,12 +68,19 @@ module.exports = {
         hostname: 'localhost'
     },
 
+    // Data channel server for retrieving info about messages to be delivered
+    queueServer: {
+        port: 8081,
+        // bind to localhost only
+        host: '127.0.0.1',
+        // this is where the clients connect to
+        hostname: 'localhost'
+    },
+
     // The user running this server mush have read/write access to the following folders
     queue: {
         // Leveldb folder location. Created if it does not exist
-        db: './data/queue',
-        // crash recovery log files folder. Created if it does not exist
-        appendlog: './data/log'
+        db: './data/queue'
     },
 
     log: {
