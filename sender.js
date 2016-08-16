@@ -89,6 +89,7 @@ function sender() {
 
             if (!delivery || !delivery.id) {
                 emptyChecks++;
+                console.log('NEXT CHECK IN %s s', Math.min(Math.pow(emptyChecks, 2), 1000) / 100);
                 return setTimeout(sendNext, Math.min(Math.pow(emptyChecks, 2), 1000) * 10);
             }
             emptyChecks = 0;
