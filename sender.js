@@ -73,6 +73,8 @@ function sendCommand(cmd, callback) {
 
 function sender() {
     let ref = {}; // we need a new object value for WeakMap references
+
+    let emptyChecks = 0;
     let sendNext = () => {
         if (closing) {
             return;
@@ -86,8 +88,11 @@ function sender() {
             }
 
             if (!delivery || !delivery.id) {
-                return setTimeout(sendNext, 5 * 1000);
+                emptyChecks++;
+                return setTimeout(sendNext, Math.min(emptyChecks, 50) * 100);
             }
+            emptyChecks = 0;
+
             delivery.headers = createHeaders(delivery.headers);
 
             zone.speedometer(ref, () => { // check throttling speed
