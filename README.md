@@ -17,10 +17,11 @@ The goal of this project is to provide granular control over routing different m
 - Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
 - Smarter bounce handling
 - Throttling per Sending Zone connection
+- Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
 
 ## Setup
 
-1. Requirements: Node.js v6+ for running the app + compiler for building leveldb
+1. Requirements: Node.js v6+ for running the app + compiler for building leveldb and snappy bindings
 
 2. Open ZoneMTA folder and install required dependencies: `npm install`
 
@@ -136,6 +137,8 @@ You can set connection limits for recipient domains per Sending Zone. For exampl
 ## Bounce handling
 
 ZoneMTA tries to guess the reason behind rejecting a message – maybe the message was greylisted or maybe your sending IP is blocked by this recipient. Not every bounce is equal.
+
+Currently, if the message hard bounces, the event is logged and that's it.
 
 ## Error Recovery
 

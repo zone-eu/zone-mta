@@ -36,6 +36,10 @@ module.exports = {
         user: 'zone', // username for the static example auth url
         pass: 'test', // password for the static example auth url
 
+        // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
+        // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
+        allowFutureMessages: true,
+
         starttls: false, // set to true to enable STARTTLS (port 587)
         secure: false // set to true to start in TLS mode (port 465)
             /*
