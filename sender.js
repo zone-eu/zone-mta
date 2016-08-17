@@ -34,9 +34,10 @@ let currentZone = (process.argv[2] || '').toString().trim().toLowerCase();
 let clientId = (process.argv[3] || '').toString().trim().toLowerCase() || crypto.randomBytes(10).toString('hex');
 
 // Find and setup correct Sending Zone
-[].concat(config.zones || []).find(sendingZone => {
-    if (sendingZone.name === currentZone) {
-        zone = new SendingZone(sendingZone, false);
+Object.keys(config.zones || {}).find(zoneName => {
+    let zoneData = config.zones[zoneName];
+    if (zoneName === currentZone) {
+        zone = new SendingZone(zoneName, zoneData, false);
         return true;
     }
     return false;
@@ -55,9 +56,7 @@ process.title = 'zone-mta: sender process [' + currentZone + ']';
 function sendCommand(cmd, callback) {
     let id = ++cmdId;
     let data = {
-        req: id,
-        zone: zone.name,
-        client: clientId
+        req: id
     };
 
     if (typeof cmd === 'string') {
@@ -385,6 +384,13 @@ queueClient.connect(err => {
         }
         next();
     };
+
+    // Notify the server about the details of this client
+    queueClient.send({
+        cmd: 'HELLO',
+        zone: zone.name,
+        id: clientId
+    });
 
     // start sending instances
     for (let i = 0; i < zone.connections; i++) {

@@ -40,8 +40,8 @@ module.exports = {
         secure: false // set to true to start in TLS mode (port 465)
             /*
             // define keys for STARTTLS/TLS
-            key: '../keys/private.key',
-            cert: '../keys/server.crt'
+            key: './keys/private.key',
+            cert: './keys/server.crt'
             */
     },
 
@@ -107,90 +107,99 @@ module.exports = {
         // even if there is no key available for this sender
         enabled: true,
         // Set hash for the DKIM signature, eg. "sha1" or "sha256"
-        hash: 'sha256'
+        hash: 'sha256',
+        // Key folder
+        keys: './keys'
     },
 
     // Sending Zone definitions
     // Every Sending Zone can have multiple IPs that are rotated between connections
-    zones: [{
-        // Identifier for the Sending Zone
-        // 'default' is a special ID that always exists even if not defined
-        // If a zone is not selected for a message, then 'default' is used
-        name: 'default',
-        port: 25,
-        // If true then tries IPv6 addresses first when connecting to MX
-        preferIPv6: true,
-        // If true then does not resolve IPv6 addresses even if these exist.
-        // Use it if you can not use IPv6
-        ignoreIPv6: false,
-        // how many child processes to run for this zone
-        processes: 2,
-        // How many parallel connections to open for this Sending Zone per process.
-        // Local IP addresses from the pool are randomly distributed between
-        // the connections.
-        connections: 5,
+    zones: {
+        // example default zone
+        default: {
+            // you can override the SMTP port for testing
+            //port: 25,
 
-        // Throttling applies per connection in a process
-        throttling: '100 messages/second', // max messages per minute, hour or second
+            // If true then tries IPv6 addresses first when connecting to MX
+            preferIPv6: false,
 
-        // Define address:name pairs (both IPv4 and IPv6) for outgoing IP addresses
-        // This allows you to use different IP addresses for different messages:
-        // For example, if you have 5 IP's listed and you open 5 parallel
-        // connections against a domain then each of these seems to originate
-        // from a different IP address (assuming you can locally bind to these addresses)
-        pool: [{
-            address: '0.0.0.0',
-            name: os.hostname()
-        }, {
-            address: '::',
-            name: os.hostname()
-        }]
-    }, {
-        // Another example for a Sending Zone. You probably do not want to use this
-        // unless you want all messages to be blocked
-        name: 'loopback',
-        port: 25,
-        preferIPv6: false,
-        ignoreIPv6: true,
-        connections: 1,
-        processes: 1,
-        // use all IP addresses provided by this network interface
-        interface: 'lo0',
-        // All messages that are sent from @localhost addresses are routed through
-        // this Sending Zone by default
-        senderDomains: ['localhost']
-    }, {
-        name: 'gmail',
-        port: 25,
-        preferIPv6: true,
-        ignoreIPv6: false,
-        connections: 1,
-        processes: 1,
-        // zone specific logging
-        logger: true,
-        logLevel: 'silly',
-        // If zone is not specified then use this zone as default for the following recipient domains
-        recipientDomains: ['gmail.com', 'kreata.ee'],
-        routingHeaders: {
-            // use this zone by default if the message includes the following header
-            'x-user-id': '123'
+            // If true then does not resolve IPv6 addresses even if these exist.
+            // Use it if you can not use IPv6
+            ignoreIPv6: true,
+
+            // How many child processes to run for this zone
+            processes: 2,
+            // How many parallel connections to open for this Sending Zone per process.
+            // Local IP addresses from the pool are randomly distributed between
+            // the connections.
+            connections: 5,
+
+            // Throttling applies per connection in a process
+            throttling: '100 messages/second', // max messages per minute, hour or second
+
+            // Define address:name pairs (both IPv4 and IPv6) for outgoing IP addresses
+            // This allows you to use different IP addresses for different messages:
+            // For example, if you have 5 IP's listed and you open 5 parallel
+            // connections against a domain then each of these seems to originate
+            // from a different IP address (assuming you can locally bind to these addresses)
+            pool: [{
+                address: '0.0.0.0',
+                name: os.hostname()
+            }, {
+                address: '::',
+                name: os.hostname()
+            }]
         }
-    }],
+        /*
+        loopback: {
+            // Another example for a Sending Zone. You probably do not want to use this
+            // unless you want all messages to be blocked
+            name: 'loopback',
+            port: 25,
+            preferIPv6: false,
+            ignoreIPv6: true,
+            connections: 1,
+            processes: 1,
+            // use all IP addresses provided by this network interface
+            interface: 'lo0',
+            // All messages that are sent from @localhost addresses are routed through
+            // this Sending Zone by default
+            senderDomains: ['localhost']
+        },
+        gmail: {
+            port: 25,
+            preferIPv6: true,
+            ignoreIPv6: false,
+            connections: 1,
+            processes: 1,
+            // zone specific logging
+            logger: true,
+            logLevel: 'silly',
+            // If zone is not specified then use this zone as default for the following recipient domains
+            recipientDomains: ['gmail.com', 'kreata.ee'],
+            routingHeaders: {
+                // use this zone by default if the message includes the following header
+                'x-user-id': '123'
+            }
+        }
+        */
+    },
 
     // Domain specific configuration
     // Where "domain" means the domain part of an email address
     domainConfig: {
         // default is required
         default: {
-            maxConnections: 10
-        },
-
+            // How many parallel connections per Sending Zone to use against a recipient domain
+            maxConnections: 5
+        }
+        /*
         'test.tahvel.info': {
             maxConnections: 5
         },
-
         'hot.ee': {
             maxConnections: 5
         }
+        */
     }
 };

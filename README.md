@@ -22,7 +22,7 @@ The goal of this project is to provide granular control over routing different m
 
 1. Requirements: Node.js v6+ for running the app + compiler for building leveldb
 
-2. Open Mailqueue folder and install required dependencies: `npm install`
+2. Open ZoneMTA folder and install required dependencies: `npm install`
 
 3. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
 
@@ -48,7 +48,7 @@ All data is processed in chunks without reading the entire message into memory, 
 
 ## LevelDB backend
 
-Using LeveldDB means that you do not run out of inodes when you have a large queue
+Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first)
 
 ## DKIM signing
 
@@ -143,15 +143,19 @@ Child processes keep file based logs of delivered messages. Whenever a child pro
 
 ## TODO
 
-### 1\. Domain based throttling
+### 1\. Better handling of DKIM keys
+
+Currently all DKIM keys are loaded into memory on startup by all processes which is not cool, especially if you have a large number of keys
+
+### 2\. Domain based throttling
 
 Currently it is possible to limit active connections against a domain and you can limit sending speed per connection (eg. 10 messages/min per connection) but you can't limit sending speed per domain. If you have set 3 processes, 5 connections and limit sending with 10 messages / minute then what you actually get is 3 _5_ 10 = 150 messages per minute for a Sending Zone.
 
-### 2\. Web interface
+### 3\. Web interface
 
 It should be possible to administer queues using an easy to use web interface.
 
-### 3\. Replace LevelDB with RocksDB
+### 4\. Replace LevelDB with RocksDB
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
 

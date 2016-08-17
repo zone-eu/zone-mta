@@ -113,7 +113,7 @@ let send = () => {
                 cid: 'note@example.com' // should be as unique as possible
             }, {
                 filename: 'attachment.bin',
-                content: Buffer.allocUnsafe(100 * 1024)
+                content: Buffer.allocUnsafe(10 * 1024)
             }
         ]
     };

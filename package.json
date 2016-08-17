@@ -26,7 +26,8 @@
     "restify": "^4.1.1",
     "seq-index": "^1.1.0",
     "smtp-connection": "^2.11.0",
-    "smtp-server": "^1.14.0",
+    "smtp-server": "^1.14.1",
+    "snappy": "^5.0.5",
     "srs.js": "^0.1.0",
     "uuid": "^2.0.2"
   },
