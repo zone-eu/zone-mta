@@ -92,6 +92,7 @@ let send = () => {
 
         headers: {
             // 'x-user-id': [1, '123', 3]
+            'x-fbl': 'campaign-' + Date.now()
         },
 
         // An array of attachments

@@ -32,7 +32,7 @@ module.exports = {
         // is considered as authenticated
         // The test auth url authenticates users as zone:test
         // Use "AUTH PLAIN em9uZQB6b25lAHRlc3Q=" for telnet
-        authurl: 'http://localhost:8080/test-auth',
+        authUrl: 'http://localhost:8080/test-auth',
         user: 'zone', // username for the static example auth url
         pass: 'test', // password for the static example auth url
 
@@ -93,7 +93,17 @@ module.exports = {
         // set to true to see outgoing SMTP transaction log
         mx: false,
         // set to true to see incoming SMTP transaction log
-        feeder: false
+        feeder: false,
+
+        // An url to send the bounce information to
+        // Bounce notification would be a POST request with the following form fields:
+        //   id=delivery id
+        //   to=recipient address
+        //   returnPath=envelope FROM address
+        //   response=server response message
+        //   fbl=the value from X-Fbl header
+        // If bounce reporting fails (non 2xx response), the notification is retried a few times during the next minutes
+        bounceUrl: 'http://localhost:8080/report-bounce'
     },
 
     /*

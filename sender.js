@@ -187,6 +187,57 @@ function handleResponseError(delivery, connection, err, callback) {
                 closing = true;
                 return;
             }
+
+            let retries = 0;
+            let body = {
+                id: delivery.id,
+                to: delivery.to,
+                seq: delivery.seq,
+                returnPath: delivery.from,
+                category: bounce.category,
+                time: Date.now(),
+                response: smtpResponse
+            };
+            if (delivery.fbl) {
+                body.fbl = delivery.fbl;
+            }
+
+            let notifyBounce = () => {
+
+                // send bounce information
+                let returned;
+                let stream = fetch(config.log.bounceUrl, {
+                    body
+                });
+
+                stream.on('readable', () => {
+                    while (stream.read() !== null) {
+                        // ignore
+                    }
+                });
+
+                stream.on('error', err => {
+                    if (returned) {
+                        return;
+                    }
+                    returned = true;
+                    log.error('Sender/' + zone.name + '/' + process.pid, 'Could not send bounce info');
+                    log.error('Sender/' + zone.name + '/' + process.pid, err.message);
+                    if (retries++ <= 5) {
+                        setTimeout(notifyBounce, Math.pow(retries, 2) * 1000).unref();
+                    }
+                });
+
+                stream.on('end', () => {
+                    if (returned) {
+                        return;
+                    }
+                    returned = true;
+                });
+            };
+
+            setImmediate(notifyBounce);
+
             return callback();
         });
     }

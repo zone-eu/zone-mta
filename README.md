@@ -138,7 +138,7 @@ You can set connection limits for recipient domains per Sending Zone. For exampl
 
 ZoneMTA tries to guess the reason behind rejecting a message – maybe the message was greylisted or maybe your sending IP is blocked by this recipient. Not every bounce is equal.
 
-Currently, if the message hard bounces, the event is logged and that's it.
+If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL.
 
 ## Error Recovery
 
