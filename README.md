@@ -34,6 +34,8 @@ The goal of this project is to provide granular control over routing different m
 
 6. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
 
+7. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
+
 You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started). The user the server process runs as must have write permissions for the leveldb queue folder.
 
 ## Install as a service

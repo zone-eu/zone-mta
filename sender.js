@@ -111,6 +111,10 @@ function sender() {
                     statusParts.push('required=' + delivery.spam.default.required_score);
                 }
 
+                if (Array.isArray(delivery.spam.tests) && delivery.spam.tests.length) {
+                    statusParts.push('tests=[' + delivery.spam.tests.join(', ') + ']');
+                }
+
                 delivery.headers.add('X-Zone-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
             }
 
