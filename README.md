@@ -18,6 +18,7 @@ The goal of this project is to provide granular control over routing different m
 - Smarter bounce handling
 - Throttling per Sending Zone connection
 - Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
+- Spam detection using Rspamd
 
 ## Setup
 

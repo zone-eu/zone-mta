@@ -50,7 +50,8 @@ module.exports = {
 
     rspamd: {
         enabled: false,
-        url: 'http://localhost:11333/check'
+        url: 'http://localhost:11333/check',
+        rejectSpam: true
     },
 
     srs: {
