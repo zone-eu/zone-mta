@@ -10,9 +10,16 @@ const createAPIServer = require('./lib/api-server');
 const createQueueServer = require('./lib/queue-server');
 const createMailQueue = require('./lib/mail-queue');
 const sendingZone = require('./lib/sending-zone');
+const packageData = require('./package.json');
 
 process.title = 'zone-mta: master process';
 log.level = config.log.level;
+
+log.info('ZoneMTA', ' _____             _____ _____ _____ ');
+log.info('ZoneMTA', '|__   |___ ___ ___|     |_   _|  _  |');
+log.info('ZoneMTA', '|   __| . |   | -_| | | | | | |     |');
+log.info('ZoneMTA', '|_____|___|_|_|___|_|_|_| |_| |__|__|');
+log.info('ZoneMTA', '            --- v' + packageData.version + ' ---');
 
 let feederServer = createFeederServer();
 let apiServer = createAPIServer();
