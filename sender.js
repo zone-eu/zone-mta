@@ -96,13 +96,14 @@ function sender() {
 
             if (delivery.spam && delivery.spam.default) {
 
-                // add spam headers to the bottom
-
-
+                // insert spam headers to the bottom of the header section
                 let statusParts = [];
 
+                // This is ougtgoing message so the recipient would have exactly 0 reasons to trust our
+                // X-Spam-* headers, thus we use custom headers X-Zone-Spam-* and these are for debugging
+                // purposes only
+
                 if ('score' in delivery.spam.default) {
-                    delivery.headers.add('X-Spam-Score', delivery.spam.default.score, Infinity);
                     statusParts.push('score=' + delivery.spam.default.score);
                 }
 
@@ -110,8 +111,7 @@ function sender() {
                     statusParts.push('required=' + delivery.spam.default.required_score);
                 }
 
-                delivery.headers.add('X-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
-                delivery.headers.add('X-Spam-Flag', delivery.spam.default.is_spam ? 'YES' : 'NO', Infinity);
+                delivery.headers.add('X-Zone-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
             }
 
             zone.speedometer(ref, () => { // check throttling speed
