@@ -94,6 +94,26 @@ function sender() {
 
             delivery.headers = createHeaders(delivery.headers);
 
+            if (delivery.spam && delivery.spam.default) {
+
+                // add spam headers to the bottom
+
+
+                let statusParts = [];
+
+                if ('score' in delivery.spam.default) {
+                    delivery.headers.add('X-Spam-Score', delivery.spam.default.score, Infinity);
+                    statusParts.push('score=' + delivery.spam.default.score);
+                }
+
+                if ('required_score' in delivery.spam.default) {
+                    statusParts.push('required=' + delivery.spam.default.required_score);
+                }
+
+                delivery.headers.add('X-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
+                delivery.headers.add('X-Spam-Flag', delivery.spam.default.is_spam ? 'YES' : 'NO', Infinity);
+            }
+
             zone.speedometer(ref, () => { // check throttling speed
                 // Try to connect to the recipient MX
                 getConnection(zone, delivery, (err, connection) => {

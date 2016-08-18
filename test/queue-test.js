@@ -75,7 +75,7 @@ module.exports['Push and shift a bunch of messages to and from queue'] = test =>
         let message = new PassThrough();
         setImmediate(() => message.end(new Buffer(1024 * 10)));
 
-        queue.store(message, (err, id) => {
+        queue.store(false, message, (err, id) => {
             test.ifError(err);
 
             queue.push(id, envelope, err => {

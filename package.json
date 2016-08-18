@@ -21,7 +21,7 @@
     "libmime": "^2.0.3",
     "mkdirp": "^0.5.1",
     "msgpack-js": "^0.3.0",
-    "nodemailer-fetch": "^1.4.0",
+    "nodemailer-fetch": "^1.6.0",
     "npmlog": "^4.0.0",
     "restify": "^4.1.1",
     "seq-index": "^1.1.0",

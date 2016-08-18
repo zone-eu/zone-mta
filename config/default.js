@@ -1,7 +1,6 @@
 'use strict';
 
 const os = require('os');
-// const fs = require('fs');
 
 module.exports = {
 
@@ -47,6 +46,11 @@ module.exports = {
             key: './keys/private.key',
             cert: './keys/server.crt'
             */
+    },
+
+    rspamd: {
+        enabled: false,
+        url: 'http://localhost:11333/check'
     },
 
     srs: {

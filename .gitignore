@@ -6,4 +6,5 @@ data/
 keys/*.pem
 test/queuetest
 config/production.*
+config/development.*
 *v8.log
