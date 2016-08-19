@@ -61,6 +61,7 @@ function sendCommand(cmd, callback) {
     }
 
     Object.keys(cmd).forEach(key => data[key] = cmd[key]);
+    console.log(data);
     responseHandlers.set(id, callback);
     queueClient.send(data);
 }
@@ -82,6 +83,7 @@ queueClient.connect(err => {
     queueClient.onData = (data, next) => {
         let callback;
         if (responseHandlers.has(data.req)) {
+            console.log('running response cb %s', data.req);
             callback = responseHandlers.get(data.req);
             responseHandlers.delete(data.req);
             setImmediate(() => callback(data.error ? data.error : null, !data.error && data.response));
