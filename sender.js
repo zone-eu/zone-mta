@@ -61,7 +61,10 @@ function sendCommand(cmd, callback) {
     }
 
     Object.keys(cmd).forEach(key => data[key] = cmd[key]);
+
+    console.log('C: [%s/%s] sending', zone.name, process.pid);
     console.log(data);
+
     responseHandlers.set(id, callback);
     queueClient.send(data);
 }
@@ -83,7 +86,10 @@ queueClient.connect(err => {
     queueClient.onData = (data, next) => {
         let callback;
         if (responseHandlers.has(data.req)) {
-            console.log('running response cb %s', data.req);
+
+            console.log('C: [%s/%s] received', zone.name, process.pid);
+            console.log(data);
+
             callback = responseHandlers.get(data.req);
             responseHandlers.delete(data.req);
             setImmediate(() => callback(data.error ? data.error : null, !data.error && data.response));
@@ -93,6 +99,12 @@ queueClient.connect(err => {
 
     // Notify the server about the details of this client
     queueClient.send({
+        cmd: 'HELLO',
+        zone: zone.name,
+        id: clientId
+    });
+    console.log('C: [%s/%s] received', zone.name, process.pid);
+    console.log({
         cmd: 'HELLO',
         zone: zone.name,
         id: clientId
