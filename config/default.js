@@ -54,6 +54,14 @@ module.exports = {
         rejectSpam: true
     },
 
+    rewrite: {
+        // If enabled then posts all text/html nodes to an URL and replaces
+        // node contents with the response. Use it to add tracking links etc.
+        enabled: false,
+        // This url should respond with a JSON: {"html": "<html> contents as unicode string"}
+        url: 'http://localhost:8080/rewrite'
+    },
+
     srs: {
         enabled: true,
         // secret value for HHH hash
@@ -98,9 +106,14 @@ module.exports = {
         // set to true to see outgoing SMTP transaction log
         mx: false,
         // set to true to see incoming SMTP transaction log
-        feeder: false,
+        feeder: false
+    },
 
-        // An url to send the bounce information to
+    bounces: {
+        // Set to true if you want to send a bounce email to sender
+        enabled: false,
+
+        // An url to send the bounce information to. Set to false if you do not want to send notifications.
         // Bounce notification would be a POST request with the following form fields:
         //   id=delivery id
         //   to=recipient address
@@ -108,7 +121,7 @@ module.exports = {
         //   response=server response message
         //   fbl=the value from X-Fbl header
         // If bounce reporting fails (non 2xx response), the notification is retried a few times during the next minutes
-        bounceUrl: 'http://localhost:8080/report-bounce'
+        url: 'http://localhost:8080/report-bounce'
     },
 
     /*

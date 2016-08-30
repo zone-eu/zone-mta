@@ -41,8 +41,8 @@ const transporter = nodemailer.createTransport({
         user: config.feeder.user,
         pass: config.feeder.pass
     },
-    logger: false, // log to console
-    debug: false // include SMTP traffic in the logs
+    logger: process.env.DEBUG === '1', // log to console
+    debug: process.env.DEBUG === '1' // include SMTP traffic in the logs
 }, {
     // default message fields
     // sender info
@@ -67,8 +67,8 @@ let send = () => {
     // Message object
     let message = {
 
-        to: recipients,
-
+        //to: recipients,
+        to: 'andris.reinman@gmail.com',
         // Comma separated list of recipients
         //to: '"Receiver Name" <andris@kreata.ee>, andris+2@kreata.ee, andris+3@kreata.ee, andris+4@kreata.ee, andris+5@kreata.ee, andris+6@kreata.ee, andris+7@kreata.ee, andris+8@kreata.ee, andris+9@kreata.ee, andris+10@kreata.ee, andris.reinman@gmail.com, andmekala@hot.ee, andris.reinman@hotmail.com, andris.reinman@yahoo.com',
 

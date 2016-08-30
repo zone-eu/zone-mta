@@ -9,6 +9,7 @@ The goal of this project is to provide granular control over routing different m
 - Fast. Send hundreds of thousands messages per hour
 - Send large messages with low overhead
 - Automatic DKIM signing
+- Rewrite HTML content, add tracking links etc.
 - Adds Message-Id and Date headers if missing
 - Queue is stored in LevelDB
 - Sending Zone support: send different messages using different IP addresses
