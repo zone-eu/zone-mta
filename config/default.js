@@ -12,6 +12,11 @@ module.exports = {
     // App name to be used in the Received headers
     name: 'ZoneMTA',
 
+    mailerDaemon: {
+        name: 'Mail Delivery Subsystem',
+        address: 'mailer-daemon@' + os.hostname()
+    },
+
     // How many recipients to allow per message. This data is handled in batch,
     // so allowing too large lists of recipients might start blocking the thread.
     // 1000 or less recommended but can go up to tens of thousands if needed
@@ -111,7 +116,7 @@ module.exports = {
 
     bounces: {
         // Set to true if you want to send a bounce email to sender
-        enabled: false,
+        enabled: true,
 
         // An url to send the bounce information to. Set to false if you do not want to send notifications.
         // Bounce notification would be a POST request with the following form fields:
@@ -181,6 +186,16 @@ module.exports = {
                 address: '::',
                 name: os.hostname()
             }]
+        },
+        // Sending Zone for sending bounce messages
+        bounces: {
+            preferIPv6: true,
+            ignoreIPv6: false,
+            connections: 1,
+            processes: 1,
+            // zone specific logging
+            logger: true,
+            logLevel: 'silly'
         }
         /*
         loopback: {

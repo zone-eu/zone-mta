@@ -20,6 +20,7 @@
     "level": "^1.4.0",
     "level-stream-access": "^2.3.0",
     "libmime": "^2.1.0",
+    "mailcomposer": "^3.10.0",
     "mailsplit": "^1.4.3",
     "mkdirp": "^0.5.1",
     "msgpack-js": "^0.3.0",

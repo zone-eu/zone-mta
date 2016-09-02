@@ -21,10 +21,10 @@ log.info('ZoneMTA', '|   __| . |   | -_| | | | | | |     |');
 log.info('ZoneMTA', '|_____|___|_|_|___|_|_|_| |_| |__|__|');
 log.info('ZoneMTA', '            --- v' + packageData.version + ' ---');
 
-let feederServer = createFeederServer();
-let apiServer = createAPIServer();
-let queueServer = createQueueServer();
-let queue = createMailQueue(config.queue);
+const feederServer = createFeederServer();
+const apiServer = createAPIServer();
+const queueServer = createQueueServer();
+const queue = createMailQueue(config.queue);
 
 // Starts the queueing MTA
 feederServer.start(err => {
@@ -80,9 +80,9 @@ feederServer.start(err => {
                 }
                 log.info('Queue', 'Sending queue initialized');
 
-                feederServer.queue = queue;
+                feederServer.setQueue(queue);
                 apiServer.queue = queue;
-                queueServer.queue = queue;
+                queueServer.setQueue(queue);
                 sendingZone.init(queue);
             });
         });
