@@ -2,23 +2,23 @@
 
 Tiny outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
-The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower "sending zones" or through IP addresses with less reputation.
+The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (multiple parallel connections) "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (fewer connections) "sending zones" or through IP addresses with less reputation.
 
 ## Features
 
-- Fast. Send hundreds of thousands messages per hour
+- Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
 - Rewrite HTML content, add tracking links etc.
 - Adds Message-Id and Date headers if missing
-- Queue is stored in LevelDB
 - Sending Zone support: send different messages using different IP addresses
+- Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
 - Assign specific recipient domains to specific Sending Zones
+- Queue is stored in LevelDB
 - Built in IPv6 support
 - Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
 - Smarter bounce handling
 - Throttling per Sending Zone connection
-- Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
 - Spam detection using Rspamd
 
 ## Setup
@@ -175,3 +175,11 @@ node –max-old-space-size=8192 app.js
 ```
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
+
+## License
+
+**European Union Public License 1.1** (license [homepage](https://joinup.ec.europa.eu/community/eupl/og_page/european-union-public-licence-eupl-v11))
+
+### Whats up with the license?
+
+EUPL v1.1 is a *copyleft* license and it's compatible with GPLv2, so if you're fine with GPL you should be fine with EUPL as well. Unlike GPL it has a legally binding translation in every official language of the European Union which is the reason why ZoneMTA is licensed under EUPL.

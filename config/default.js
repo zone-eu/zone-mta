@@ -196,6 +196,14 @@ module.exports = {
             // zone specific logging
             logger: true,
             logLevel: 'silly'
+
+            // * send through next MTA instead of MX
+            // port: 587,
+            // host: 'smtp.gmail.com',
+            // auth: { // optional
+            //    user: 'username@gmail.com',
+            //    pass: 'ssssss'
+            //}
         }
         /*
         loopback: {
