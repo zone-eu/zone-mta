@@ -31,7 +31,7 @@ module.exports = {
         host: '127.0.0.1',
 
         // Set to false to not require authentication
-        authentication: true,
+        authentication: false,
 
         // ZoneMTA makes an Authentication:Basic request against that url
         // and if the response is positive (in the 2xx range), then then user
