@@ -31,7 +31,7 @@ module.exports = {
         host: '127.0.0.1',
 
         // Set to false to not require authentication
-        authentication: false,
+        authentication: true,
 
         // ZoneMTA makes an Authentication:Basic request against that url
         // and if the response is positive (in the 2xx range), then then user
@@ -139,7 +139,7 @@ module.exports = {
         // even if there is no key available for this sender
         enabled: true,
         // Set hash for the DKIM signature, eg. "sha1" or "sha256"
-        hash: 'sha256',
+        hashAlgo: 'sha256',
         // Key folder
         keys: './keys'
     },

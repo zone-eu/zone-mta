@@ -24,7 +24,7 @@ The goal of this project is to provide granular control over routing different m
 
 ## Setup
 
-1. Requirements: Node.js v6+ for running the app + compiler for building leveldb and snappy bindings
+1. Requirements: Node.js v6+ for running the app + compiler for building LevelDB bindings
 
 2. Open ZoneMTA folder and install required dependencies: `npm install`
 
@@ -64,11 +64,7 @@ Using LeveldDB means that you do not run out of inodes when you have a large que
 
 ### DKIM signing
 
-DKIM signing support is built in to ZoneMTA. All you need to do is to provide signing keys to use it. DKIM private keys are stored in _./keys_ as _{DOMAIN}.{SELECTOR}.pem_.
-
-For example if you want to use a key for "kreata.ee" with selector "test" then this private key should be available at ./keys/kreata.ee.test.pem
-
-DKIM signature is based on the domain name of the From: address or if there is no From: address then by the domain name of the envelope MAIL FROM:. If a matching key can not be found then the message is not signed.
+DKIM signing support is built in to ZoneMTA. If a new mail transaction is initiated a HTTP call is made against configuration server with the transaction info (includes MAIL FROM address, authenticated username and connection info). If the configuration server responds with DKIM keys (multiple keys allowed) then these keys are used to sign the outgoing message.
 
 ### Sending Zone
 
@@ -170,19 +166,15 @@ curl -H "Content-Type: application/json" -X POST  http://localhost:8080/send -d 
 
 ## TODO
 
-### 1\. Better handling of DKIM keys
-
-Currently all DKIM keys are loaded into memory on startup by all processes which is not cool, especially if you have a large number of keys
-
-### 2\. Domain based throttling
+### 1\. Domain based throttling
 
 Currently it is possible to limit active connections against a domain and you can limit sending speed per connection (eg. 10 messages/min per connection) but you can't limit sending speed per domain. If you have set 3 processes, 5 connections and limit sending with 10 messages / minute then what you actually get is 3 _5_ 10 = 150 messages per minute for a Sending Zone.
 
-### 3\. Web interface
+### 2\. Web interface
 
 It should be possible to administer queues using an easy to use web interface.
 
-### 4\. Replace LevelDB with RocksDB
+### 3\. Replace LevelDB with RocksDB
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
 
