@@ -81,7 +81,7 @@ feederServer.start(err => {
                 log.info('Queue', 'Sending queue initialized');
 
                 feederServer.setQueue(queue);
-                apiServer.queue = queue;
+                apiServer.setQueue(queue);
                 queueServer.setQueue(queue);
                 sendingZone.init(queue);
             });

@@ -87,7 +87,10 @@ module.exports = {
         // bind to localhost only
         host: '127.0.0.1',
         // domain name to access the API server
-        hostname: 'localhost'
+        hostname: 'localhost',
+
+        // if true, allow posting message data in Nodemailer format to /send
+        maildrop: true
     },
 
     // Data channel server for retrieving info about messages to be delivered
