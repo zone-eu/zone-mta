@@ -1,6 +1,6 @@
 # ZoneMTA (project X-699)
 
-Tiny outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
+Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
 The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower "sending zones" or through IP addresses with less reputation.
 
@@ -20,6 +20,7 @@ The goal of this project is to provide granular control over routing different m
 - Throttling per Sending Zone connection
 - Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
 - Spam detection using Rspamd
+- HTTP API to send messages
 
 ## Setup
 
@@ -39,7 +40,7 @@ The goal of this project is to provide granular control over routing different m
 
 You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started). The user the server process runs as must have write permissions for the leveldb queue folder.
 
-## Install as a service
+### Install as a service
 
 1. Move zone-mta folder to /opt/zone-mta
 2. Copy Systemd service file: `cp ./setup/zone-mta.service /etc/systemd/system/`
@@ -47,15 +48,21 @@ You can run the server using any user account. If you want to bind to a low port
 4. Start the service: `service zone-mta start`
 5. Send a message to application host port 2525, using username 'test' and password 'zone'
 
-## Large message support
+## Features
+
+### HTTP usage
+
+All communication between ZoneMTA and your actual configuration server is handled over HTTP. For example when a user needs to be authenticated then ZoneMTA makes a HTTP request with user info to a provided HTTP address. If ZoneMTA wants to notify about a bounced message then a HTTP request is made. If ZoneMTA wants to check if an user can send messages another HTTP request is made etc. It also means that ZoneMTA does not have a built in user database, this is left entirely to your own application.
+
+### Large message support
 
 All data is processed in chunks without reading the entire message into memory, so it does not matter if the message is 1kB or 1GB in size.
 
-## LevelDB backend
+### LevelDB backend
 
 Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first)
 
-## DKIM signing
+### DKIM signing
 
 DKIM signing support is built in to ZoneMTA. All you need to do is to provide signing keys to use it. DKIM private keys are stored in _./keys_ as _{DOMAIN}.{SELECTOR}.pem_.
 
@@ -63,11 +70,11 @@ For example if you want to use a key for "kreata.ee" with selector "test" then t
 
 DKIM signature is based on the domain name of the From: address or if there is no From: address then by the domain name of the envelope MAIL FROM:. If a matching key can not be found then the message is not signed.
 
-## Sending Zone
+### Sending Zone
 
 You can define as many Sending Zones as you want. Every Sending Zone can have its own local address IP pool that is used to send out messages designated for that Zone. You can also specify the amount of max parallel outgoing connections for a Sending Zone.
 
-### Routing by Zone name
+#### Routing by Zone name
 
 To preselect a Zone to be used for a specific message you can use the `X-Sending-Zone` header key
 
@@ -77,7 +84,7 @@ X-Sending-Zone: zone-identifier
 
 For example if you have a Sending Zone called "zone-identifier" set then messages with such header are routed through this Sending Zone.
 
-### Routing based on specific header value
+#### Routing based on specific header value
 
 You can define specific header values in the Sending Zone configuration with the `routingHeaders` option. For example if you want to send messages that contain the header 'X-User-ID' with value '123' then you can configure it like this:
 
@@ -91,7 +98,7 @@ You can define specific header values in the Sending Zone configuration with the
 }
 ```
 
-### Routing based on sender domain name
+#### Routing based on sender domain name
 
 You also define that all senders with a specific From domain name are routed through a specific domain. Use `senderDomains` option in the Zone config.
 
@@ -103,7 +110,7 @@ You also define that all senders with a specific From domain name are routed thr
 }
 ```
 
-### Routing based on recipient domain name
+#### Routing based on recipient domain name
 
 You also define that all recipients with a specific domain name are routed through a specific domain. Use `recipientDomains` option in the Zone config.
 
@@ -115,7 +122,7 @@ You also define that all recipients with a specific domain name are routed throu
 }
 ```
 
-### Default routing
+#### Default routing
 
 The routing priority is the following:
 
@@ -126,27 +133,40 @@ The routing priority is the following:
 
 If no routing can be detected, then the "default" zone is used.
 
-## IPv6 support
+### IPv6 support
 
 IPv6 is supported by default. You can disable it per Sending Zone if you don't need to or can't send messages over IPv6.
 
-## HTTP based authentication
+### HTTP based authentication
 
 If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated.
 
-## Per-Zone domain connection limits
+### Per-Zone domain connection limits
 
 You can set connection limits for recipient domains per Sending Zone. For example if you have set max 2 connections to a specific domain then even if your queue processor has free slots and there are a lot of messages queued for that domain it will not create more connections than allowed.
 
-## Bounce handling
+### Bounce handling
 
 ZoneMTA tries to guess the reason behind rejecting a message – maybe the message was greylisted or maybe your sending IP is blocked by this recipient. Not every bounce is equal.
 
-If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL.
+If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL. You can also define that a bounce email is sent to the sender address.
 
-## Error Recovery
+### Error Recovery
 
 Child processes keep file based logs of delivered messages. Whenever a child process crashes or master process goes down this log is used to identify messages that are successfully delivered but are still in the queue. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process dies exactly on the moment when the MX server acknowledges the message and the process is starting to write to the log file. This risk of preferred multiple deliveries is preferred over losing messages completely.
+
+### HTTP API
+
+You can post a JSON structure to a HTTP endpoint (if enabled) and it will be converted into a rfc822 formatted message and delivered to destination. The JSON structure follows Nodemailer email config (see [here](https://github.com/nodemailer/nodemailer#e-mail-message-fields)) except that file and url access is disabled which means that you can't define an attachment that loads its contents from file path, you need to provide the file contents as base64 encoded string.
+
+```
+curl -H "Content-Type: application/json" -X POST  http://localhost:8080/send -d '{
+    "from": "andris@kreata.ee",
+    "to": "andris.reinman@gmail.com, andmekala@hot.ee",
+    "subject": "hello",
+    "text": "hello world!"
+}'
+```
 
 ## TODO
 

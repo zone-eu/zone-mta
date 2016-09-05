@@ -17,20 +17,22 @@ module.exports = {
         address: 'mailer-daemon@' + os.hostname()
     },
 
-    // How many recipients to allow per message. This data is handled in batch,
-    // so allowing too large lists of recipients might start blocking the thread.
-    // 1000 or less recommended but can go up to tens of thousands if needed
-    // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
-    maxRecipients: 1000,
+    // The user running this server mush have read/write access to the following folders
+    queue: {
+        // Leveldb folder location. Created if it does not exist
+        db: './data/queue'
+    },
 
     // SMTP relay server that accepts messages for the outgoing queue
     feeder: {
         port: 2525,
+
         // bind to localhost only
         host: '127.0.0.1',
 
         // Set to false to not require authentication
-        authentication: true,
+        authentication: false,
+
         // ZoneMTA makes an Authentication:Basic request against that url
         // and if the response is positive (in the 2xx range), then then user
         // is considered as authenticated
@@ -39,10 +41,6 @@ module.exports = {
         authUrl: 'http://localhost:8080/test-auth',
         user: 'zone', // username for the static example auth url
         pass: 'test', // password for the static example auth url
-
-        // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
-        // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
-        allowFutureMessages: true,
 
         starttls: false, // set to true to enable STARTTLS (port 587)
         secure: false // set to true to start in TLS mode (port 465)
@@ -68,7 +66,7 @@ module.exports = {
     },
 
     srs: {
-        enabled: true,
+        enabled: false,
         // secret value for HHH hash
         secret: 'a cat',
         // which domain name to use for the rewritten addresses
@@ -100,12 +98,6 @@ module.exports = {
         host: '127.0.0.1',
         // this is where the clients connect to
         hostname: 'localhost'
-    },
-
-    // The user running this server mush have read/write access to the following folders
-    queue: {
-        // Leveldb folder location. Created if it does not exist
-        db: './data/queue'
     },
 
     log: {
@@ -151,6 +143,19 @@ module.exports = {
         // Key folder
         keys: './keys'
     },
+
+    // How many recipients to allow per message. This data is handled in batch,
+    // so allowing too large lists of recipients might start blocking the thread.
+    // 1000 or less recommended but can go up to tens of thousands if needed
+    // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
+    maxRecipients: 1000,
+
+    // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
+    // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
+    allowFutureMessages: false,
+
+    // An URL to check sender configuration from. Set to false if you do not want to use sender specific config
+    getSenderConfig: 'http://localhost:8080/get-config',
 
     // Sending Zone definitions
     // Every Sending Zone can have multiple IPs that are rotated between connections
