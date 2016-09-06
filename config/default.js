@@ -42,6 +42,9 @@ module.exports = {
         user: 'zone', // username for the static example auth url
         pass: 'test', // password for the static example auth url
 
+        // if true then do not show version number in SMTP greeting message
+        disableVersionString: false,
+
         starttls: false, // set to true to enable STARTTLS (port 587)
         secure: false // set to true to start in TLS mode (port 465)
             /*
