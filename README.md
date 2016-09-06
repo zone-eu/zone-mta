@@ -1,15 +1,39 @@
-# ZoneMTA (project X-699)
+# ZoneMTA (internal code name X-699)
 
-Tiny outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
+Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
-The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (multiple parallel connections) "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (fewer connections) "sending zones" or through IP addresses with less reputation.
+> This is a **labs project** meaning that ZoneMTA is **not tested in production**. In the future it should replace our outbound Postfix servers but so far no actual mail servers have been deployed with ZoneMTA. Handle with care!
+
+```
+ _____             _____ _____ _____
+|__   |___ ___ ___|     |_   _|  _  |
+|   __| . |   | -_| | | | | | |     |
+|_____|___|_|_|___|_|_|_| |_| |__|__|
+```
+
+The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. HTML rewriting or HTTP API for posting messages.
+
+## Birds-eye-view of the system
+
+### Incoming message pipeline
+
+Messages are dropped for delivery either by SMTP or HTTP API. Message is processed as a stream, so it shouldn't matter if the message is very large in size (except if a very large message is submitted using the JSON API). This applies also to DKIM body hash calculation – the hash is calculated chunk by chunk as the message stream flows through (actual signature is generated out of the body hash when delivering the message to destination). The incoming stream starts from incoming connection and ends in LevelDB, so if there's an error in any step between these two, the error is reported back to the client and the message is rejected. If impartial data is stored to LevelDB it gets garbage collected after some time (all message bodies without referencing delivery rows are deleted automatically)
+
+![](https://cldup.com/ISUngzfulL.png)
+
+### Outgoing message pipeline
+
+Delivering messages to destination
+
+![](https://cldup.com/9yEW3oNp3G.png)
 
 ## Features
 
+- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
-- Rewrite HTML content, add tracking links etc.
+- [Rewrite HTML content](https://github.com/zone-eu/zone-mta/wiki/How-to-use-HTML-rewrite%3F), add tracking links etc.
 - Adds Message-Id and Date headers if missing
 - Sending Zone support: send different messages using different IP addresses
 - Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
@@ -20,54 +44,82 @@ The goal of this project is to provide granular control over routing different m
 - Smarter bounce handling
 - Throttling per Sending Zone connection
 - Spam detection using Rspamd
+- HTTP API to send messages
+
+Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
 ## Setup
 
-1. Requirements: Node.js v6+ for running the app + compiler for building leveldb and snappy bindings
+1. Requirements: Node.js v6+ for running the app + compiler for building LevelDB bindings
+2. If running in Windows install the (free) build dependencies (Python, Visual Studio Build Tools etc). From elevated PowerShell (run as administrator) run `npm install --global --production windows-build-tools` to get these tools
+3. Open ZoneMTA folder and install required dependencies: `npm install --production`
+4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
+5. Run the server application: `node app.js`
+6. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections)
+7. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
+8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
 
-2. Open ZoneMTA folder and install required dependencies: `npm install`
+You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started).
 
-3. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
+**NB!** The user the server process runs as must have write permissions for the LevelDB queue folder
 
-4. Run the server application: `node app.js`
+### Configuration
 
-5. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS)
+Default configuration can be found from [default.js](config/default.js). Instead of changing values in that file you should create another config file that uses the name from NODE_ENV environment variable (defaults to 'development'). So for local development you should have a file called 'development.js' and in production 'production.js' in the same config folder. Values in these files override only the touched keys keeping everything else as by default.
 
-6. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
+For example if the default.js states an object with multiple properties like this:
 
-7. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
+```javascript
+{
+    mailerDaemon: {
+        name: 'Mail Delivery Subsystem',
+        address: 'mailer-daemon@' + os.hostname()
+    }
+}
+```
 
-You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started). The user the server process runs as must have write permissions for the leveldb queue folder.
+Then you can override only a single property without changing the other values like this in development.js:
 
-## Install as a service
+```
+{
+    mailerDaemon: {
+        name: 'Override default value'
+    }
+}
+```
+
+### Install as a service
 
 1. Move zone-mta folder to /opt/zone-mta
-2. Copy Systemd service file: `cp ./setup/zone-mta.service /etc/systemd/system/`
-3. Enable Systemd service: `systemctl enable zone-mta.service`
-4. Start the service: `service zone-mta start`
-5. Send a message to application host port 2525, using username 'test' and password 'zone'
+2. Ensure proper file permissions (server user must have write permissions for the queue folder)
+3. Copy Systemd service file: `cp ./setup/zone-mta.service /etc/systemd/system/`
+4. Enable Systemd service: `systemctl enable zone-mta.service`
+5. Start the service: `service zone-mta start`
+6. Send a message to application host port 2525, using username 'test' and password 'zone'
 
-## Large message support
+## Features
+
+### HTTP usage
+
+All communication between ZoneMTA and your actual configuration server is handled over HTTP. For example when a user needs to be authenticated then ZoneMTA makes a HTTP request with user info to a provided HTTP address. If ZoneMTA wants to notify about a bounced message then a HTTP request is made. If ZoneMTA wants to check if an user can send messages another HTTP request is made etc. It also means that ZoneMTA does not have a built in user database, this is left entirely to your own application.
+
+### Large message support
 
 All data is processed in chunks without reading the entire message into memory, so it does not matter if the message is 1kB or 1GB in size.
 
-## LevelDB backend
+### LevelDB backend
 
 Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first)
 
-## DKIM signing
+### DKIM signing
 
-DKIM signing support is built in to ZoneMTA. All you need to do is to provide signing keys to use it. DKIM private keys are stored in _./keys_ as _{DOMAIN}.{SELECTOR}.pem_.
+DKIM signing support is built in to ZoneMTA. If a new mail transaction is initiated a HTTP call is made against configuration server with the transaction info (includes MAIL FROM address, authenticated username and connection info). If the configuration server responds with DKIM keys (multiple keys allowed) then these keys are used to sign the outgoing message. See more [here](https://github.com/zone-eu/zone-mta/wiki/Handling-DKIM-keys)
 
-For example if you want to use a key for "kreata.ee" with selector "test" then this private key should be available at ./keys/kreata.ee.test.pem
+### Sending Zone
 
-DKIM signature is based on the domain name of the From: address or if there is no From: address then by the domain name of the envelope MAIL FROM:. If a matching key can not be found then the message is not signed.
+You can define as many Sending Zones as you want. Every Sending Zone can have its own local address IP pool that is used to send out messages designated for that Zone (IP addresses are not locked, you can assign the same IP for multiple Zones or multiple times for a single Zone). You can also specify the amount of max parallel outgoing connections for a Sending Zone.
 
-## Sending Zone
-
-You can define as many Sending Zones as you want. Every Sending Zone can have its own local address IP pool that is used to send out messages designated for that Zone. You can also specify the amount of max parallel outgoing connections for a Sending Zone.
-
-### Routing by Zone name
+#### Routing by Zone name
 
 To preselect a Zone to be used for a specific message you can use the `X-Sending-Zone` header key
 
@@ -77,13 +129,12 @@ X-Sending-Zone: zone-identifier
 
 For example if you have a Sending Zone called "zone-identifier" set then messages with such header are routed through this Sending Zone.
 
-### Routing based on specific header value
+#### Routing based on specific header value
 
 You can define specific header values in the Sending Zone configuration with the `routingHeaders` option. For example if you want to send messages that contain the header 'X-User-ID' with value '123' then you can configure it like this:
 
 ```javascript
-{
-    name: 'sending-zone',
+'sending-zone': {
     ...
     routingHeaders: {
         'x-user-id': '123'
@@ -91,31 +142,29 @@ You can define specific header values in the Sending Zone configuration with the
 }
 ```
 
-### Routing based on sender domain name
+#### Routing based on sender domain name
 
 You also define that all senders with a specific From domain name are routed through a specific domain. Use `senderDomains` option in the Zone config.
 
 ```javascript
-{
-    name: 'sending-zone',
+'sending-zone': {
     ...
     senderDomains: ['example.com']
 }
 ```
 
-### Routing based on recipient domain name
+#### Routing based on recipient domain name
 
 You also define that all recipients with a specific domain name are routed through a specific domain. Use `recipientDomains` option in the Zone config.
 
 ```javascript
-{
-    name: 'sending-zone',
+'sending-zone': {
     ...
     recipientDomains: ['gmail.com', 'kreata.ee']
 }
 ```
 
-### Default routing
+#### Default routing
 
 The routing priority is the following:
 
@@ -126,43 +175,64 @@ The routing priority is the following:
 
 If no routing can be detected, then the "default" zone is used.
 
-## IPv6 support
+### IPv6 support
 
 IPv6 is supported by default. You can disable it per Sending Zone if you don't need to or can't send messages over IPv6.
 
-## HTTP based authentication
+### HTTP based authentication
 
-If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated.
+If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated. See more [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users)
 
-## Per-Zone domain connection limits
+### Per-Zone domain connection limits
 
 You can set connection limits for recipient domains per Sending Zone. For example if you have set max 2 connections to a specific domain then even if your queue processor has free slots and there are a lot of messages queued for that domain it will not create more connections than allowed.
 
-## Bounce handling
+### Bounce handling
 
 ZoneMTA tries to guess the reason behind rejecting a message – maybe the message was greylisted or maybe your sending IP is blocked by this recipient. Not every bounce is equal.
 
-If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL.
+If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL. You can also define that a bounce response is sent to the sender email address. See more [here](https://github.com/zone-eu/zone-mta/wiki/Receiving-bounce-notifications)
 
-## Error Recovery
+### Error Recovery
 
-Child processes keep file based logs of delivered messages. Whenever a child process crashes or master process goes down this log is used to identify messages that are successfully delivered but are still in the queue. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process dies exactly on the moment when the MX server acknowledges the message and the process is starting to write to the log file. This risk of preferred multiple deliveries is preferred over losing messages completely.
+ZoneMTA is an _at-least-one delivery_ system. Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message. This risk of multiple deliveries is preferred over losing messages completely.
+
+### HTTP API
+
+You can post a JSON structure to a HTTP endpoint (if enabled) and it will be converted into a rfc822 formatted message and delivered to destination. The JSON structure follows Nodemailer email config (see [here](https://github.com/nodemailer/nodemailer#e-mail-message-fields)) except that file and url access is disabled – you can't define an attachment that loads its contents from a file path or from an url, you need to provide the file contents as base64 encoded string.
+
+```
+curl -H "Content-Type: application/json" -X POST  http://localhost:8080/send -d '{
+    "from": "andris@nodemailer.com",
+    "to": "andris.reinman@gmail.com",
+    "subject": "hello",
+    "text": "Hello world!",
+    "html": "<p>Hello world!</p>"
+}'
+```
+
+Or if authentication is required, provide the basic authorization headers as well
+
+```
+curl -H "Content-Type: application/json" -X POST  http://zone:test@localhost:8080/send -d '{
+    "from": "andris@kreata.ee",
+    "to": "andris.reinman@gmail.com, andmekala@hot.ee",
+    "subject": "hello",
+    "text": "hello world!"
+}'
+```
 
 ## TODO
 
-### 1\. Better handling of DKIM keys
-
-Currently all DKIM keys are loaded into memory on startup by all processes which is not cool, especially if you have a large number of keys
-
-### 2\. Domain based throttling
+### 1\. Domain based throttling
 
 Currently it is possible to limit active connections against a domain and you can limit sending speed per connection (eg. 10 messages/min per connection) but you can't limit sending speed per domain. If you have set 3 processes, 5 connections and limit sending with 10 messages / minute then what you actually get is 3 _5_ 10 = 150 messages per minute for a Sending Zone.
 
-### 3\. Web interface
+### 2\. Web interface
 
 It should be possible to administer queues using an easy to use web interface.
 
-### 4\. Replace LevelDB with RocksDB
+### 3\. Replace LevelDB with RocksDB
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
 
@@ -178,8 +248,6 @@ This is mostly needed if you want to allow large SMTP envelopes on submission (e
 
 ## License
 
-**European Union Public License 1.1** (license [homepage](https://joinup.ec.europa.eu/community/eupl/og_page/european-union-public-licence-eupl-v11))
+European Union Public License 1.1 ([details](http://ec.europa.eu/idabc/eupl.html))
 
-### Whats up with the license?
-
-EUPL v1.1 is a *copyleft* license and it's compatible with GPLv2, so if you're fine with GPL you should be fine with EUPL as well. Unlike GPL it has a legally binding translation in every official language of the European Union which is the reason why ZoneMTA is licensed under EUPL.
+In general, EUPLv1.1 is compatible with GPLv2, so it's a _copyleft_ license. Unlike GPL the EUPL license has legally binding translations in every official language of the European Union, including the Estonian language. This is why it was preferred over GPL.

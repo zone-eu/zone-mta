@@ -15,7 +15,7 @@ module.exports['Calculate body hash byte by byte'] = test => {
         message = Buffer.from(message);
 
         let s = new DkimRelaxedBody({
-            hash: 'sha256',
+            hashAlgo: 'sha256',
             debug: true
         });
 
@@ -50,7 +50,7 @@ module.exports['Calculate body hash byte all at once'] = test => {
         message = Buffer.from(message);
 
         let s = new DkimRelaxedBody({
-            hash: 'sha256',
+            hashAlgo: 'sha256',
             debug: true
         });
 
