@@ -13,13 +13,27 @@ Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
 The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. HTML rewriting or HTTP API for posting messages.
 
+## Birds-eye-view of the system
+
+### Incoming message pipeline
+
+Messages are dropped for delivery either by SMTP or HTTP API. Message is processed as a stream, so it shouldn't matter if the message is very large in size (except if a very large message is submitted using the JSON API). This applies also to DKIM body hash calculation – the hash is calculated chunk by chunk as the message stream flows through (actual signature is generated out of the body hash when delivering the message to destination). The incoming stream starts from incoming connection and ends in LevelDB, so if there's an error in any step between these two, the error is reported back to the client and the message is rejected. If impartial data is stored to LevelDB it gets garbage collected after some time (all message bodies without referencing delivery rows are deleted automatically)
+
+![](https://cldup.com/ISUngzfulL.png)
+
+### Outgoing message pipeline
+
+Delivering messages to destination
+
+![](https://cldup.com/9yEW3oNp3G.png)
+
 ## Features
 
 - Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
-- Rewrite HTML content, add tracking links etc.
+- [Rewrite HTML content](https://github.com/zone-eu/zone-mta/wiki/How-to-use-HTML-rewrite%3F), add tracking links etc.
 - Adds Message-Id and Date headers if missing
 - Queue is stored in LevelDB
 - Sending Zone support: send different messages using different IP addresses
@@ -41,7 +55,7 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 3. Open ZoneMTA folder and install required dependencies: `npm install --production`
 4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
 5. Run the server application: `node app.js`
-6. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS)
+6. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections)
 7. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
 8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
 
@@ -99,7 +113,7 @@ Using LeveldDB means that you do not run out of inodes when you have a large que
 
 ### DKIM signing
 
-DKIM signing support is built in to ZoneMTA. If a new mail transaction is initiated a HTTP call is made against configuration server with the transaction info (includes MAIL FROM address, authenticated username and connection info). If the configuration server responds with DKIM keys (multiple keys allowed) then these keys are used to sign the outgoing message.
+DKIM signing support is built in to ZoneMTA. If a new mail transaction is initiated a HTTP call is made against configuration server with the transaction info (includes MAIL FROM address, authenticated username and connection info). If the configuration server responds with DKIM keys (multiple keys allowed) then these keys are used to sign the outgoing message. See more [here](https://github.com/zone-eu/zone-mta/wiki/Handling-DKIM-keys)
 
 ### Sending Zone
 
@@ -167,7 +181,7 @@ IPv6 is supported by default. You can disable it per Sending Zone if you don't n
 
 ### HTTP based authentication
 
-If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated.
+If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated. See more [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users)
 
 ### Per-Zone domain connection limits
 
@@ -177,7 +191,7 @@ You can set connection limits for recipient domains per Sending Zone. For exampl
 
 ZoneMTA tries to guess the reason behind rejecting a message – maybe the message was greylisted or maybe your sending IP is blocked by this recipient. Not every bounce is equal.
 
-If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL. You can also define that a bounce response is sent to the sender email address.
+If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL. You can also define that a bounce response is sent to the sender email address. See more [here](https://github.com/zone-eu/zone-mta/wiki/Receiving-bounce-notifications)
 
 ### Error Recovery
 
