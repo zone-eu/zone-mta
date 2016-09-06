@@ -49,7 +49,7 @@ You can run the server using any user account. If you want to bind to a low port
 
 ### Configuration
 
-Default configuration can be found from <config/default.js>. Instead of changing values in that file you should create another config file that uses the name from NODE_ENV environment variable (defaults to 'development'). So for local development you should have a file called 'development.js' and in production 'production.js' in the same config folder. Values in these files override only the touched keys keeping everything else as by default.
+Default configuration can be found from [default.js](config/default.js). Instead of changing values in that file you should create another config file that uses the name from NODE_ENV environment variable (defaults to 'development'). So for local development you should have a file called 'development.js' and in production 'production.js' in the same config folder. Values in these files override only the touched keys keeping everything else as by default.
 
 For example if the default.js states an object with multiple properties like this:
 
