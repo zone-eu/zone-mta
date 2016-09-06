@@ -15,6 +15,7 @@ The goal of this project is to provide granular control over routing different m
 
 ## Features
 
+- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
