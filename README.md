@@ -36,12 +36,13 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 ## Setup
 
 1. Requirements: Node.js v6+ for running the app + compiler for building LevelDB bindings
-2. Open ZoneMTA folder and install required dependencies: `npm install --production`
-3. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
-4. Run the server application: `node app.js`
-5. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS)
-6. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
-7. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
+2. If running in Windows install the (free) build dependencies (Python, Visual Studio Build Tools etc). From elevated PowerShell (run as administrator) run `npm install --global --production windows-build-tools` to get these tools
+3. Open ZoneMTA folder and install required dependencies: `npm install --production`
+4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
+5. Run the server application: `node app.js`
+6. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS)
+7. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
+8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
 
 You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started).
 
