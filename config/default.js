@@ -125,7 +125,9 @@ module.exports = {
     },
 
     /*
-        DKIM private keys are stored in ./keys as {DOMAIN}.{SELECTOR}.pem
+        DKIM keys are provided by sender config response.
+
+        Defualt DKIM private keys are stored in ./keys as {DOMAIN}.{SELECTOR}.pem
 
         For example if you want to use a key for "kreata.ee" with selector "test" then
         the private.key should be available from ./keys/kreata.ee.test.pem
@@ -138,9 +140,10 @@ module.exports = {
         // If DKIM signing is turned on then body hash is calculated for every message,
         // even if there is no key available for this sender
         enabled: true,
-        // Set hash for the DKIM signature, eg. "sha1" or "sha256"
+        // Set default hash for the DKIM signature, eg. "sha1" or "sha256". This can be
+        // overriden by
         hashAlgo: 'sha256',
-        // Key folder
+        // Key folder for the default keys
         keys: './keys'
     },
 

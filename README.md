@@ -157,6 +157,17 @@ You can post a JSON structure to a HTTP endpoint (if enabled) and it will be con
 
 ```
 curl -H "Content-Type: application/json" -X POST  http://localhost:8080/send -d '{
+    "from": "andris@zone.ee",
+    "to": "andris.reinman@gmail.com, andmekala@hot.ee",
+    "subject": "hello",
+    "text": "hello world!"
+}'
+```
+
+Or if authentication is required, provide the basic authorization headers as well
+
+```
+curl -H "Content-Type: application/json" -X POST  http://zone:test@localhost:8080/send -d '{
     "from": "andris@kreata.ee",
     "to": "andris.reinman@gmail.com, andmekala@hot.ee",
     "subject": "hello",
