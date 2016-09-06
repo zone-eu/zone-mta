@@ -9,9 +9,10 @@ module.exports = {
     user: 'nobody',
     group: 'nogroup',
 
-    // App name to be used in the Received headers
+    // App name to be used in the Received headers and greeting messages
     name: 'ZoneMTA',
 
+    // From: address for the bounce emails
     mailerDaemon: {
         name: 'Mail Delivery Subsystem',
         address: 'mailer-daemon@' + os.hostname()
