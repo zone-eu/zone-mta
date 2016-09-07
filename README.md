@@ -250,6 +250,8 @@ This is mostly needed if you want to allow large SMTP envelopes on submission (e
 
 ZoneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZOneMTA to start over with a fresh and empty queue folder.
 
+If LevelDB is in a corrupt state then no messages are accepted for delivery. A positive response is sent to the client only after the entire contents of the message to send are processed and successfully stored to disk.
+
 ## License
 
 European Union Public License 1.1 ([details](http://ec.europa.eu/idabc/eupl.html))
