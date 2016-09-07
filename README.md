@@ -195,7 +195,11 @@ If the message hard bounces (or after too many retries for soft bounces) a bounc
 
 ### Error Recovery
 
-ZoneMTA is an _at-least-one delivery_ system. Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message. This risk of multiple deliveries is preferred over losing messages completely.
+ZoneMTA is an _at-least-once delivery_ system, so messages are deleted from the queue only after positive response from the receiving MX server. If a child starts processing a message the child locks the message and the lock is released automatically if the child dies or master dies. Once normal operations are resumed, the same message can be fetched from the queue again.
+
+Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message and the notification does not get propagated to the master. This risk of multiple deliveries is preferred over losing messages completely.
+
+Messages might get lost if the database gets into a corrupted state and it is not possible to recover data from it.
 
 ### HTTP API
 
