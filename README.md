@@ -55,7 +55,7 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 3. Open ZoneMTA folder and install required dependencies: `npm install --production`
 4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
 5. Run the server application: `node app.js`
-6. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections)
+6. If everything worked then you should have a relay SMTP server running at localhost:2525 (no authentication, no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections and [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users) about setting up authentication)
 7. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
 8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
 
@@ -95,7 +95,7 @@ Then you can override only a single property without changing the other values l
 3. Copy Systemd service file: `cp ./setup/zone-mta.service /etc/systemd/system/`
 4. Enable Systemd service: `systemctl enable zone-mta.service`
 5. Start the service: `service zone-mta start`
-6. Send a message to application host port 2525, using username 'test' and password 'zone'
+6. Send a message to application host port 2525 (no authentication, no TLS/STARTTLS)
 
 ## Features
 
@@ -245,6 +245,10 @@ node –max-old-space-size=8192 app.js
 ```
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
+
+## Potential issues
+
+ZOneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZOneMTA to start over with a fresh and empty queue folder.
 
 ## License
 
