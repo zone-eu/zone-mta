@@ -55,7 +55,7 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 3. Open ZoneMTA folder and install required dependencies: `npm install --production`
 4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
 5. Run the server application: `node app.js`
-6. If everything worked then you should have a relay SMTP server running at localhost:2525 (user "test", password "zone", no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections)
+6. If everything worked then you should have a relay SMTP server running at localhost:2525 (no authentication, no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections and [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users) about setting up authentication)
 7. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
 8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
 
@@ -95,7 +95,7 @@ Then you can override only a single property without changing the other values l
 3. Copy Systemd service file: `cp ./setup/zone-mta.service /etc/systemd/system/`
 4. Enable Systemd service: `systemctl enable zone-mta.service`
 5. Start the service: `service zone-mta start`
-6. Send a message to application host port 2525, using username 'test' and password 'zone'
+6. Send a message to application host port 2525 (no authentication, no TLS/STARTTLS)
 
 ## Features
 
@@ -195,7 +195,11 @@ If the message hard bounces (or after too many retries for soft bounces) a bounc
 
 ### Error Recovery
 
-ZoneMTA is an _at-least-one delivery_ system. Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message. This risk of multiple deliveries is preferred over losing messages completely.
+ZoneMTA is an _at-least-once delivery_ system, so messages are deleted from the queue only after positive response from the receiving MX server. If a child starts processing a message the child locks the message and the lock is released automatically if the child dies or master dies. Once normal operations are resumed, the same message can be fetched from the queue again.
+
+Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message and the notification does not get propagated to the master. This risk of multiple deliveries is preferred over losing messages completely.
+
+Messages might get lost if the database gets into a corrupted state and it is not possible to recover data from it.
 
 ### HTTP API
 
@@ -245,6 +249,12 @@ node –max-old-space-size=8192 app.js
 ```
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
+
+## Potential issues
+
+ZoneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZOneMTA to start over with a fresh and empty queue folder.
+
+If LevelDB is in a corrupt state then no messages are accepted for delivery. A positive response is sent to the client only after the entire contents of the message to send are processed and successfully stored to disk.
 
 ## License
 
