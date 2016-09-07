@@ -248,7 +248,7 @@ This is mostly needed if you want to allow large SMTP envelopes on submission (e
 
 ## Potential issues
 
-ZOneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZOneMTA to start over with a fresh and empty queue folder.
+ZoneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZOneMTA to start over with a fresh and empty queue folder.
 
 ## License
 
