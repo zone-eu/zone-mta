@@ -8,3 +8,5 @@ test/queuetest
 config/production.*
 config/development.*
 *v8.log
+plugins/**/**
+!plugins/README.md
