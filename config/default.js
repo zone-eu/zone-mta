@@ -81,7 +81,7 @@ module.exports = {
 
     // Sets DNS servers to use for resolving MX/A/AAAA records
     // Use only IP addresses
-    //nameservers: ['127.0.0.1']
+    //nameservers: ['127.0.0.1'],
 
     // Simple HTTP server for fetching info about messages
     api: {
