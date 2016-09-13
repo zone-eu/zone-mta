@@ -59,7 +59,8 @@ feederServer.start(err => {
                     process.setgid(config.group);
                     log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
                 } catch (E) {
-                    log.info('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
+                    log.error('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
+                    return process.exit(1);
                 }
             }
             if (config.user) {
@@ -67,7 +68,8 @@ feederServer.start(err => {
                     process.setuid(config.user);
                     log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
                 } catch (E) {
-                    log.info('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
+                    log.error('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
+                    return process.exit(1);
                 }
             }
 

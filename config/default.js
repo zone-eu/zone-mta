@@ -6,8 +6,8 @@ module.exports = {
 
     // If started as root then privileges are dropped after all ports are bound
     // This user must have read+write rights for the leveldb folder
-    user: 'nobody',
-    group: 'nogroup',
+    //user: 'nobody',
+    //group: 'nogroup',
 
     // App name to be used in the Received headers and greeting messages
     name: 'ZoneMTA',
