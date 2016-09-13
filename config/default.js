@@ -24,6 +24,15 @@ module.exports = {
         db: './data/queue'
     },
 
+    // plugin files to load into mailtrain, relative to ./plugins folder
+    // such a plugin should expose a method
+    plugins: {
+        // numeric value defines loading order, lower numbers first
+        // the value must be true (equals to 1) or at least 1, values lower than 1 or non-numeric
+        // values are not loaded
+        './example-plugin': 1
+    },
+
     // SMTP relay server that accepts messages for the outgoing queue
     feeder: {
         port: 2525,

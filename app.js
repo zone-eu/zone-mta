@@ -10,6 +10,7 @@ const createAPIServer = require('./lib/api-server');
 const createQueueServer = require('./lib/queue-server');
 const createMailQueue = require('./lib/mail-queue');
 const sendingZone = require('./lib/sending-zone');
+const plugins = require('./lib/plugins');
 const packageData = require('./package.json');
 
 process.title = 'zone-mta: master process';
@@ -86,6 +87,11 @@ feederServer.start(err => {
                 apiServer.setQueue(queue);
                 queueServer.setQueue(queue);
                 sendingZone.init(queue);
+
+                plugins.queue = queue;
+                plugins.load(() => {
+                    log.info('Plugins', 'Plugins loaded');
+                });
             });
         });
     });

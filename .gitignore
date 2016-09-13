@@ -10,3 +10,4 @@ config/development.*
 *v8.log
 plugins/**/**
 !plugins/README.md
+!plugins/example-plugin.js
