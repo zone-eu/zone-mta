@@ -46,6 +46,9 @@ module.exports = {
         // if true then do not show version number in SMTP greeting message
         disableVersionString: false,
 
+        // If set to true validates recipient MX server and rejects if can't find it
+        validateRcptMX: false,
+
         starttls: false, // set to true to enable STARTTLS (port 587)
         secure: false // set to true to start in TLS mode (port 465)
             /*
