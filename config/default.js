@@ -30,7 +30,7 @@ module.exports = {
         // numeric value defines loading order, lower numbers first
         // the value must be true (equals to 1) or at least 1, values lower than 1 or non-numeric
         // values are not loaded
-        './example-plugin': 1
+        './example-plugin': true
     },
 
     // SMTP relay server that accepts messages for the outgoing queue
@@ -71,14 +71,6 @@ module.exports = {
         enabled: false,
         url: 'http://localhost:11333/check',
         rejectSpam: true
-    },
-
-    rewrite: {
-        // If enabled then posts all text/html nodes to an URL and replaces
-        // node contents with the response. Use it to add tracking links etc.
-        enabled: false,
-        // This url should respond with a JSON: {"html": "<html> contents as unicode string"}
-        url: 'http://localhost:8080/rewrite'
     },
 
     srs: {
