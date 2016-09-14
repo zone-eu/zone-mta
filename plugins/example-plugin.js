@@ -39,17 +39,16 @@ module.exports.init = (app, done) => {
 
     app.addRewriteHook((envelope, node) => {
         // check if the node is text/html and is not an attachment
-        if(node.contentType === 'text/html' && node.disposition !== 'attachment'){
+        if (node.contentType === 'text/html' && node.disposition !== 'attachment') {
             // we want to process this node
             return true;
         }
-    }, (envelope, data) => {
+    }, (envelope, node, message) => {
         // add an header for this node
-        data.node.headers.add('X-Processed', 'yes');
-        // If you want to process the data, then decoder is a stream (Buffer) of node data as a raw bytestream.
-        // Once you have finished with the data pass it over to the decoder as is, no not apply any
-        // transfer encoding to the data yourself
-        data.decoder.pipe(data.encoder);
+        node.headers.add('X-Processed', 'yes');
+        // you can read the contents of the node from `message` and write
+        // the updated contents to the same object (it's a duplex stream)
+        message.pipe(message);
     });
 
     // all set up regarding this plugin

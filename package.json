@@ -15,6 +15,7 @@
     "config": "^1.21.0",
     "crc-32": "^0.4.1",
     "dnscache": "0.0.4",
+    "duplexer3": "^0.1.4",
     "iconv-lite": "^0.4.13",
     "isemail": "^2.2.1",
     "level": "^1.4.0",
