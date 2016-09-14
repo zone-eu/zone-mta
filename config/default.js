@@ -30,7 +30,7 @@ module.exports = {
         // numeric value defines loading order, lower numbers first
         // the value must be true (equals to 1) or at least 1, values lower than 1 or non-numeric
         // values are not loaded
-        './example-plugin': true
+        './example-plugin': false
     },
 
     // SMTP relay server that accepts messages for the outgoing queue

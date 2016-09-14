@@ -1,6 +1,6 @@
 'use strict';
 
-// Module
+// This plugin is disabled by default
 
 // Set module title
 module.exports.title = 'ExamplePlugin';
