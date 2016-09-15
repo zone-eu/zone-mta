@@ -1,6 +1,8 @@
 'use strict';
 
-// This plugin is disabled by default
+// This plugin is disabled by default. See config.plugins to enable it
+
+const spawn = require('child_process').spawn;
 
 // Set module title
 module.exports.title = 'ExamplePlugin';
@@ -49,6 +51,23 @@ module.exports.init = (app, done) => {
         // you can read the contents of the node from `message` and write
         // the updated contents to the same object (it's a duplex stream)
         message.pipe(message);
+    });
+
+
+    // This example rewrites all jpg images into png images
+    // Assumes that you have imagemagick installed
+    app.addRewriteHook((envelope, node) => node.contentType === 'image/jpeg', (envelope, node, message) => {
+        // update content type
+        node.setContentType('application/pdf');
+        // update filename (if set)
+        if (node.filename) {
+            node.filename = node.filename.replace(/\.jpe?g$/i, '.pdf');
+            node.setFilename(node.filename);
+        }
+
+        let convert = spawn('convert', ['jpeg:-', '-page', 'a4', 'pdf:-']);
+        message.pipe(convert.stdin);
+        convert.stdout.pipe(message);
     });
 
     // all set up regarding this plugin
