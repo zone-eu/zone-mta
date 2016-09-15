@@ -54,8 +54,7 @@ module.exports.init = (app, done) => {
     });
 
 
-    // This example converts all jpg images into pdf documents
-    // Assumes that you have imagemagick installed
+    // This example converts all jpg images into zip compressed files
     app.addRewriteHook((envelope, node) => node.contentType === 'image/jpeg', (envelope, node, source, destination) => {
 
         let archive = new Packer();
@@ -63,7 +62,7 @@ module.exports.init = (app, done) => {
         // update content type of the resulting mime node
         node.setContentType('application/zip');
 
-        // update filename (if set), replace the .jpeg extension with .pdf
+        // update filename (if set), replace the .jpeg extension with .zip
         let filename = node.filename;
         if (filename) {
             let newFilename = node.filename.replace(/\.jpe?g$/i, '.zip');
