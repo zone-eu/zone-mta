@@ -2,7 +2,7 @@
 
 // This plugin is disabled by default. See config.plugins to enable it
 
-const spawn = require('child_process').spawn;
+const Packer = require('zip-stream');
 
 // Set module title
 module.exports.title = 'ExamplePlugin';
@@ -45,29 +45,37 @@ module.exports.init = (app, done) => {
             // we want to process this node
             return true;
         }
-    }, (envelope, node, message) => {
+    }, (envelope, node, decoder, encoder) => {
         // add an header for this node
         node.headers.add('X-Processed', 'yes');
         // you can read the contents of the node from `message` and write
         // the updated contents to the same object (it's a duplex stream)
-        message.pipe(message);
+        decoder.pipe(encoder);
     });
 
 
-    // This example rewrites all jpg images into png images
+    // This example converts all jpg images into pdf documents
     // Assumes that you have imagemagick installed
-    app.addRewriteHook((envelope, node) => node.contentType === 'image/jpeg', (envelope, node, message) => {
-        // update content type
-        node.setContentType('application/pdf');
-        // update filename (if set)
-        if (node.filename) {
-            node.filename = node.filename.replace(/\.jpe?g$/i, '.pdf');
-            node.setFilename(node.filename);
+    app.addRewriteHook((envelope, node) => node.contentType === 'image/jpeg', (envelope, node, source, destination) => {
+
+        let archive = new Packer();
+
+        // update content type of the resulting mime node
+        node.setContentType('application/zip');
+
+        // update filename (if set), replace the .jpeg extension with .pdf
+        let filename = node.filename;
+        if (filename) {
+            let newFilename = node.filename.replace(/\.jpe?g$/i, '.zip');
+            node.setFilename(newFilename);
         }
 
-        let convert = spawn('convert', ['jpeg:-', '-page', 'a4', 'pdf:-']);
-        message.pipe(convert.stdin);
-        convert.stdout.pipe(message);
+        archive.pipe(destination);
+        archive.entry(source, {
+            name: filename || 'image.jpg'
+        }, () => {
+            archive.finish();
+        });
     });
 
     // all set up regarding this plugin

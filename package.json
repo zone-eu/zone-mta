@@ -15,7 +15,6 @@
     "config": "^1.21.0",
     "crc-32": "^0.4.1",
     "dnscache": "0.0.4",
-    "duplexer3": "^0.1.4",
     "iconv-lite": "^0.4.13",
     "isemail": "^2.2.1",
     "level": "^1.4.0",
@@ -42,7 +41,8 @@
     "moment": "^2.15.0",
     "node-deb": "^0.1.16",
     "nodemailer": "^2.6.0",
-    "random-message": "^1.1.0"
+    "random-message": "^1.1.0",
+    "zip-stream": "^1.1.0"
   },
   "engines": {
     "node": ">=6.0.0"

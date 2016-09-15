@@ -42,8 +42,12 @@ You can modify individual message nodes by setting up a message rewriter hook
 Where
 
   * **filter** is a function that is called for every found mime node. If the function returns true, than this node will be processed, otherwise it is skipped. The function gets two arguments: `envelope` and `node`
-  * **handler** is a function that provides the envelope data. The function gets two arguments: `envelope` and `data` where `data` is an object with the following properties: `node`, `decoder`, `encoder`.
+  * **handler** is a function that provides the envelope data. The function gets two arguments: `envelope` and `data` where `data` is an object with the following properties: `envelope`, `node`, `source`, `destination`.
+    * **envelope** is an object with the sender and recipient info
+    * **node** is an object that references the current mime tree leaf, it includes the headers but not the body
+    * **source** is a readable stream for reading attachment content as a byte stream
+    * **destination** is a writable stream for generating new contents for the attachment
 
-**NB** once you have written something to the `encoder` stream, you can't modify node headers anymore. If you modify headers after sending data to the encoder you might run into race conditions where you can not know if the updated header data was actually used or not.
+**NB** once you have written something to the `encoder` stream, you can't modify node headers anymore. If you modify headers after writing data to the `message` stream you might run into race conditions where you can not know if the updated header data was actually used or not.
 
 See example plugin [here](example-plugin.js)
