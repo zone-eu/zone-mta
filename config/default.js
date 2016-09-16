@@ -101,6 +101,8 @@ module.exports = {
 
     // Data channel server for retrieving info about messages to be delivered
     queueServer: {
+        // Set to false to disable any queue processing. Server would accept messages but would not send anything
+        enabled: true,
         port: 8081,
         // bind to localhost only
         host: '127.0.0.1',
