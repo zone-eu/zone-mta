@@ -27,10 +27,13 @@ module.exports = {
     // plugin files to load into mailtrain, relative to ./plugins folder
     // such a plugin should expose a method
     plugins: {
-        // numeric value defines loading order, lower numbers first
-        // the value must be true (equals to 1) or at least 1, values lower than 1 or non-numeric
-        // values are not loaded
-        './example-plugin': false
+        // key is path to plugin to `require` (relative to ./plugins folder), value is the configuration
+        // for this plugin. Special keys are `enabled` (if false then the plugin is not loaded)
+        // and `ordering`, plugins are enabled in the order of lower ordering keys first
+        './example-plugin': {
+            enabled: false,
+            ordering: 123
+        }
     },
 
     // SMTP relay server that accepts messages for the outgoing queue
