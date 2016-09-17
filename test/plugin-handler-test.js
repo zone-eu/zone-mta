@@ -2,6 +2,7 @@
 
 const PluginHandler = require('../lib/plugin-handler');
 const mailsplit = require('mailsplit');
+const PassThrough = require('stream').PassThrough;
 
 module.exports['Loading empty plugin with no init method should fail'] = test => {
     let plugins = new PluginHandler({
@@ -73,6 +74,7 @@ module.exports['Load plugins with a rewriter hook'] = test => {
     plugins.load(() => {
         let splitter = new mailsplit.Splitter();
         let joiner = new mailsplit.Joiner();
+
         plugins.runRewriteHooks({
             test: true
         }, splitter, joiner);
@@ -81,11 +83,39 @@ module.exports['Load plugins with a rewriter hook'] = test => {
         joiner.on('data', chunk => {
             output += chunk.toString();
         });
-        joiner.on('end',()=>{
-            console.log(output);
-            test.ok(1);
+        joiner.on('end', () => {
+            test.ok(/HELL0 W0RLD/.test(output));
             test.done();
         });
         splitter.end('Subject: text\nContent-Type: text/plain\n\nHello world!');
+    });
+};
+
+module.exports['Load plugin with an analyzer hook'] = test => {
+    let plugins = new PluginHandler({
+        pluginsPath: __dirname + '/plugins',
+        plugins: {
+            'analyzer-1': true,
+            'analyzer-2': true
+        }
+    });
+    plugins.load(() => {
+        let source = new PassThrough();
+        let destination = new PassThrough();
+
+        plugins.runAnalyzerHooks({
+            test: true
+        }, source, destination);
+
+        let output = '';
+        destination.on('data', chunk => {
+            output += chunk.toString();
+        });
+        destination.on('end', () => {
+            test.ok(/X-Step-1/.test(output));
+            test.ok(/X-Step-2/.test(output));
+            test.done();
+        });
+        source.end('Subject: text\nContent-Type: text/plain\n\nHello world!');
     });
 };

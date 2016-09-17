@@ -3,6 +3,7 @@
 // This plugin is disabled by default. See config.plugins to enable it
 
 const Packer = require('zip-stream');
+const crypto = require('crypto');
 
 // Set module title
 module.exports.title = 'ExamplePlugin';
@@ -53,6 +54,21 @@ module.exports.init = (app, done) => {
         decoder.pipe(encoder);
     });
 
+    // This example calculates a md5 hash of the original unprocessed message
+    // NB! this is not a good example stream-wise as it does not handle piping correctly
+    app.addAnalyzerHook((envelope, source, destination) => {
+        let hash = crypto.createHash('md5');
+
+        source.on('data', chunk => {
+            hash.update(chunk);
+            destination.write(chunk);
+        });
+
+        source.on('end', () => {
+            envelope.sourceMd5 = hash.digest('hex');
+            destination.end();
+        });
+    });
 
     // This example converts all jpg images into zip compressed files
     app.addRewriteHook((envelope, node) => node.contentType === 'image/jpeg', (envelope, node, source, destination) => {

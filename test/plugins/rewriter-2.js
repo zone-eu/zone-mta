@@ -7,7 +7,6 @@ module.exports.init = (app, done) => {
         (envelope, node) => node.contentType === 'text/plain',
         (envelope, node, source, destination) => {
             source.on('data', chunk => {
-                console.log(chunk.toString());
                 // replace all O's with 0's
                 destination.write(Buffer.from(chunk.toString().replace(/O/g, '0')));
             });

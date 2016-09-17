@@ -7,11 +7,12 @@ module.exports.init = (app, done) => {
         (envelope, node) => node.contentType === 'text/plain',
         (envelope, node, source, destination) => {
             source.on('data', chunk => {
-                console.log(chunk.toString());
                 // convert all chars to uppercase
                 destination.write(Buffer.from(chunk.toString().toUpperCase()));
             });
-            source.on('end', () => destination.end());
+            source.on('end', () => {
+                destination.end();
+            });
         });
     done();
 };
