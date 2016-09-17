@@ -1,6 +1,6 @@
 # ZoneMTA plugins
 
-This is the folder for plugins
+This is the folder for plugins. Files that reside here can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it.
 
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
@@ -11,11 +11,37 @@ module.exports.title = 'My Awesome Plugin';
 module.exports.init = function(app, next){
     // handle plugin initialization
     app.addHook(...);
-    done();
+    next();
 };
 ```
 
 Plugins are loaded in the order defined in `config.plugins` object
+
+## Configuration
+
+Whatever you pass to the plugin key in config.plugins section is provided as `app.config`
+
+Config file:
+
+```json
+{
+    "plugins": {
+        "./my-plugin": {
+            "enabled": true,
+            "my-value": 123
+        }
+    }
+}
+```
+
+Plugin file "my-plugin.js":
+
+```javascript
+module.exports.init = function(app, next){
+    console.log(app.config['my-value']); // 123
+    next();
+}
+```
 
 ## Available hooks
 
