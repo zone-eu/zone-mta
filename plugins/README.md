@@ -2,13 +2,15 @@
 
 This is the folder for plugins
 
-Plugin files should expose a property called 'title' to identify themselves
+Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
-Plugins should expose an `init` method. This method should register to all the required hooks
+Plugins must expose an `init` method. This method should be used to register the plugin to all required hooks
 
-```
+```javascript
+module.exports.title = 'My Awesome Plugin';
 module.exports.init = function(app, next){
     // handle plugin initialization
+    app.addHook(...);
     done();
 };
 ```
@@ -17,10 +19,10 @@ Plugins are loaded in the order defined in `config.plugins` object
 
 ## Available hooks
 
-Hookes can be set up with the following command
+Hooks can be set up with the following command
 
-```
-app.addHook(name, handler)
+```javascript
+app.addHook(name, handler);
 ```
 
 Where
@@ -39,8 +41,8 @@ Possible hook names are the following:
 
 If you want to check the original data stream coming from the feeder you can process it with the analyzer hook. You can modify the data inside the hook but this affects the next analyzers as these get their input from the output of your hook
 
-```
-app.addAnalyzerHook(handler)
+```javascript
+app.addAnalyzerHook(handler);
 ```
 
 Where
@@ -55,8 +57,8 @@ Where
 
 You can modify individual message nodes by setting up a message rewriter hook
 
-```
-app.addRewriteHook(filter, handler)
+```javascript
+app.addRewriteHook(filter, handler);
 ```
 
 Where

@@ -11,7 +11,7 @@ Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 |_____|___|_|_|___|_|_|_| |_| |__|__|
 ```
 
-The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. HTML rewriting or HTTP API for posting messages.
+The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting or HTTP API for posting messages.
 
 ## Birds-eye-view of the system
 
@@ -33,7 +33,6 @@ Delivering messages to destination
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
-- [Rewrite HTML content](https://github.com/zone-eu/zone-mta/wiki/How-to-use-HTML-rewrite%3F), add tracking links etc.
 - Adds Message-Id and Date headers if missing
 - Sending Zone support: send different messages using different IP addresses
 - Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
@@ -45,6 +44,7 @@ Delivering messages to destination
 - Throttling per Sending Zone connection
 - Spam detection using Rspamd
 - HTTP API to send messages
+- Custom [plugins](plugins)
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
