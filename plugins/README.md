@@ -8,14 +8,14 @@ Plugins must expose an `init` method. This method should be used to register the
 
 ```javascript
 module.exports.title = 'My Awesome Plugin';
-module.exports.init = function(app, next){
+module.exports.init = function(app, done){
     // handle plugin initialization
     app.addHook(...);
-    next();
+    done();
 };
 ```
 
-Plugins are loaded in the order defined in `config.plugins` object
+Plugins are loaded in the order defined in `config.plugins` object. Plugins are loaded to the context of the main process but only after the running user is downgraded from root.
 
 ## Configuration
 
@@ -37,9 +37,9 @@ Config file:
 Plugin file "my-plugin.js":
 
 ```javascript
-module.exports.init = function(app, next){
+module.exports.init = function(app, done){
     console.log(app.config['my-value']); // 123
-    next();
+    done();
 }
 ```
 
