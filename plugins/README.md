@@ -1,8 +1,10 @@
 # ZoneMTA plugins
 
-This is the folder for plugins. Core plugins reside in the [./core](./core) folder and user plugins reside in the [./user](folder). Files in the user plugins folder are excluded from ZoneMTA git, so you can put whatever you like into it without messing up the git state of the ZoneMTA folder.
+This is the folder for plugins. Core plugins reside in the [./core](./core) folder and user plugins reside in the [./user](user) folder. Files in the user folder are excluded from ZoneMTA git, so you can put whatever you like into it without messing up the git state of the ZoneMTA folder (this means that you can run `git pull` to update ZoneMTA).
 
 Files that reside in the plugin folders can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to this folder, so using "./user/my-plugin" would point to "zone-mta/plugins/user/my-plugin".
+
+> **NB!** Actually you should never edit the `default.js` configuration file. Instead make a new file to the config folder using NODE_ENV environment variable as the file name (defaults to `development`) and only touch the relevant keys in that file. For example, create a file called `config/development.json` and use the contents `{ "plugins": {"./user/example-plugin": {"enabled": true}}}` to enable the example plugin.
 
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
@@ -17,7 +19,7 @@ module.exports.init = function(app, done){
 };
 ```
 
-Plugins are loaded in the order defined in `config.plugins` object. Plugins are loaded to the context of the main process but only after the running user is downgraded from root.
+Plugins are loaded in the order defined in `config.plugins` object. Plugins are loaded to the context of the main process but only after the current user is downgraded from root.
 
 ## Configuration
 
