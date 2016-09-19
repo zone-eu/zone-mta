@@ -1,6 +1,7 @@
 'use strict';
 
 // This plugin is disabled by default. See config.plugins to enable it
+// The main objective for this plugin is to make sure that ./user is not empty (otherwise it would be excluded from git)
 
 const Packer = require('zip-stream');
 const crypto = require('crypto');

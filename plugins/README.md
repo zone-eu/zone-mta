@@ -163,7 +163,31 @@ Where
   - **source** is a readable stream for that contains the data sent by client
   - **destination** is a writable stream where you must write the message stream. This becomes the input for the following stream handlers
 
-If you want to
+If you want to reject the message based on something detected from the message then you have 2 options
+
+  * emit an error in the stream (not recommended)
+  * store the information somewhere and set up a hook for *'message:store'* where you can check the stored information and reject the message
+
+```javascript
+module.exports.title = 'My Awesome Plugin';
+module.exports.init = function(app, done){
+    let state = new WeakMap();
+    app.addAnalyzerHook((envelope, source, destination)=>{
+        // store a random boolean to the WeakMap structure using envelope value as the key
+        state.set(envelope, Math.random() >= 0.5);
+        source.pipe(destination);
+    });
+    app.addHook('message:store', (envelope, headers, next)=>{
+        // check from the WeakMap structure if there's a `true` for the envelope
+        if(!state.get(envelope)){
+            // do not accept the message for delivery
+            return next(new Error('You have been randomly denied'));
+        }
+        next(); // everything OK
+    });
+    done();
+};
+```
 
 ## Using Message Rewriter
 
