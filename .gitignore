@@ -8,8 +8,5 @@ test/queuetest
 config/production.*
 config/development.*
 *v8.log
-plugins/**/**
-!plugins/README.md
-!plugins/example-plugin.js
-!plugins/core
-plugins/core/**/.DS_Store
+plugins/user/**/**
+!plugins/user/example-plugin.js

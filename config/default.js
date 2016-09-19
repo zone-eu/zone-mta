@@ -30,7 +30,7 @@ module.exports = {
         // key is path to plugin to `require` (relative to ./plugins folder), value is the configuration
         // for this plugin. Special keys are `enabled` (if false then the plugin is not loaded)
         // and `ordering`, plugins are enabled in the order of lower ordering keys first
-        './example-plugin': {
+        './user/example-plugin': {
             enabled: false,
             ordering: 123
         },

@@ -1,6 +1,8 @@
 # ZoneMTA plugins
 
-This is the folder for plugins. Files that reside here can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it.
+This is the folder for plugins. Core plugins reside in the [./core](./core) folder and user plugins reside in the [./user](folder). Files in the user plugins folder are excluded from ZoneMTA git, so you can put whatever you like into it without messing up the git state of the ZoneMTA folder.
+
+Files that reside in the plugin folders can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to this folder, so using "./user/my-plugin" would point to "zone-mta/plugins/user/my-plugin".
 
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
