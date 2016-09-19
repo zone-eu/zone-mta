@@ -114,7 +114,7 @@ In most cases you probably only care about the `address.address` email address a
 
 ### _envelope_ object
 
-`envelope` object includes all properties that get stored about the message to the queue. If you want to store your own data as well, you can edit the object, just do not put anything in it that can not be converted to JSON (circular references, host objects etc).
+`envelope` object includes all properties that get stored about the message to the queue. If you want to store your own data as well, you can edit the object, just do not put anything in it that can not be converted to JSON (circular references, host objects like Buffers etc).
 
 The object builds up in different steps, you can see the final envelope data in _message:store_ hook, until then some of the data is missing or might change.
 
@@ -128,7 +128,7 @@ The object builds up in different steps, you can see the final envelope data in 
 - **user** username of the authenticated user (if authentication is used)
 - **time** date object of the envelope creation time
 - **tls** cipher string if client is using secure connection
-- **deferDelivery** timestamp in milliseconds for the minimal delivery time. The message is not sent out before this deadline
+- **deferDelivery** timestamp in milliseconds for the minimal delivery time. The message is not sent out before this deadline. If not set or the timestamp is the past then the message is sent out as soon as possible
 - **date** includes the value of the Date: header
 - **from** the first address from the From: header (email address string without name part)
 - **to** the addresses as an array from the To: header (email address strings without name part)
