@@ -33,6 +33,21 @@ module.exports = {
         './example-plugin': {
             enabled: false,
             ordering: 123
+        },
+
+        // If authentication is enabled (config.feeder.authentication is true) then make a HTTP
+        // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
+        // the the user is considered as authenticated
+        './core/http-auth': {
+            enabled: true, // load the plugin
+            url: 'http://localhost:8080/test-auth'
+        },
+
+        // If enabled then checks message against a Rspamd server
+        './core/rspamd': {
+            enabled: false,
+            url: 'http://localhost:11333/check',
+            rejectSpam: true // if false, then the message is passed on with a spam header, otherwise message is rejected
         }
     },
 
@@ -45,15 +60,6 @@ module.exports = {
 
         // Set to false to not require authentication
         authentication: false,
-
-        // ZoneMTA makes an Authentication:Basic request against that url
-        // and if the response is positive (in the 2xx range), then then user
-        // is considered as authenticated
-        // The test auth url authenticates users as zone:test
-        // Use "AUTH PLAIN em9uZQB6b25lAHRlc3Q=" for telnet
-        authUrl: 'http://localhost:8080/test-auth',
-        user: 'zone', // username for the static example auth url
-        pass: 'test', // password for the static example auth url
 
         // if true then do not show version number in SMTP greeting message
         disableVersionString: false,
@@ -68,12 +74,6 @@ module.exports = {
             key: './keys/private.key',
             cert: './keys/server.crt'
             */
-    },
-
-    rspamd: {
-        enabled: false,
-        url: 'http://localhost:11333/check',
-        rejectSpam: true
     },
 
     srs: {
@@ -99,7 +99,11 @@ module.exports = {
         hostname: 'localhost',
 
         // if true, allow posting message data in Nodemailer format to /send
-        maildrop: true
+        maildrop: true,
+
+        // hardcoded user credentials for the example authentication URL 'http://localhost:8080/test-auth'
+        user: 'zone', // username for the static example auth url
+        pass: 'test' // password for the static example auth url
     },
 
     // Data channel server for retrieving info about messages to be delivered

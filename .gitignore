@@ -11,3 +11,5 @@ config/development.*
 plugins/**/**
 !plugins/README.md
 !plugins/example-plugin.js
+!plugins/core
+plugins/core/**/.DS_Store
