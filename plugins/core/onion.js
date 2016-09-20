@@ -3,23 +3,29 @@
 const Socks = require('socks');
 
 // This module allows sending mail to the Onion network
-// If enabled then
+// If enabled then messages to *.onion addresses are not sent using normal connections
+// but through a SOCKS5 proxy
 
 module.exports.title = 'Onion routing';
 module.exports.init = function (app, done) {
 
-    let deliveries = new WeakMap();
+    // We use a WeakSet structure to store references for deliveries that should be routed to the onion network
+    // So instead of checking in every hook if the recipient address ends with .onion we check if the delivery
+    // is added to the Set or not. If the delivery gets cancelled we do not care about it as
+    // it's a WeakSet, so the value gets garbage collected automatically
+    let deliveries = new WeakSet();
 
     // If the recipient email is targeted to an onion address, store a reference of this delivery
     // and set exchange against localhost. This prevents resolving the IP for the MX host
     app.addHook('sender:mx', (delivery, exchanges, next) => {
         if ((delivery.recipient || '').substr(-6) === '.onion') {
+            // push fake entry with an IP to prevent any actual resolving
             exchanges.push({
                 exchange: '127.0.0.1',
                 priority: 0
             });
             // store delivery to a weak map
-            deliveries.set(delivery, true);
+            deliveries.add(delivery);
         }
         next();
     });
