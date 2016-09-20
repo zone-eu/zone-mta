@@ -1,6 +1,6 @@
 # ZoneMTA plugins
 
-This is the folder for plugins. Core plugins reside in the [./core](./core) folder and user plugins reside in the [./user](user) folder. Files in the user folder are excluded from ZoneMTA git, so you can put whatever you like into it without messing up the git state of the ZoneMTA folder (this means that you can run `git pull` to update ZoneMTA).
+This is the folder for plugins. Core plugins reside in the <./core> folder and user plugins reside in the [./user](user) folder. Files in the user folder are excluded from ZoneMTA git, so you can put whatever you like into it without messing up the git state of the ZoneMTA folder (this means that you can run `git pull` to update ZoneMTA).
 
 Files that reside in the plugin folders can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to this folder, so using "./user/my-plugin" would point to "zone-mta/plugins/user/my-plugin".
 
@@ -47,7 +47,7 @@ module.exports.init = function(app, done){
 }
 ```
 
-The property `enabled` indicates if the plugin must be loaded or not. The value indicates the context where this plugins should be loaded, if you pass `true` then the plugin is loaded in *'feeder'* context (eg. when accepting messages to the queue). To use also delivery hooks you should set the value as *'sender'* or if you want to use hooks in both contexts, use an array of context strings
+The property `enabled` indicates if the plugin must be loaded or not. The value indicates the context where this plugins should be loaded, if you pass `true` then the plugin is loaded in _'feeder'_ context (eg. when accepting messages to the queue). To use also delivery hooks you should set the value as _'sender'_ or if you want to use hooks in both contexts, use an array of context strings
 
 ```json
 {
@@ -74,14 +74,25 @@ Where
 
 Possible hook names are the following:
 
+**'feeder' context**
+
+To use these hooks you need to set `enabled` to `true` or `'feeder'` or `['feeder',...]`
+
 - **'feeder:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
 - **'feeder:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
 - **'feeder:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
 - **'feeder:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
 - **'message:headers'** with arguments `envelope`, `headers`, called when rfc822 headers are found from the incoming message
 - **'message:store'** with arguments `envelope`, `headers` called when message is processed and ready to be pushed to queue
-- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope (uses 'sender' context)
 - **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery
+
+**'sender' context**
+
+To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
+
+- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope
+- **'sender:mx'** with arguments `delivery`, `exchanges` is called when ZoneMTA needs to resolve MX addresses for a recipient (see [onion.js](core/onion.js) for example)
+- **'sender:connect'** with arguments `delivery`, `options` is called when ZoneMTA needs to set up the smtp-connection configuration object (see [onion.js](core/onion.js) for example)
 
 ### Errors
 
@@ -181,8 +192,8 @@ Where
 
 If you want to reject the message based on something detected from the message then you have 2 options
 
-  * emit an error in the stream (not recommended)
-  * store the information somewhere and set up a hook for *'message:store'* where you can check the stored information and reject the message
+- emit an error in the stream (not recommended)
+- store the information somewhere and set up a hook for _'message:store'_ where you can check the stored information and reject the message
 
 ```javascript
 module.exports.title = 'My Awesome Plugin';

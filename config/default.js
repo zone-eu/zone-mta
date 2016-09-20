@@ -33,13 +33,13 @@ module.exports = {
         // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
         // the the user is considered as authenticated
         'core/http-auth': {
-            enabled: true, // load the plugin
+            enabled: false,
             url: 'http://localhost:8080/test-auth'
         },
 
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
-            enabled: ['feeder', 'sender'],
+            enabled: false, // ['feeder', 'sender'], // spam is checked in 'feeder' context, headers are added in 'sender' context
             url: 'http://localhost:11333/check',
             rejectSpam: true // if false, then the message is passed on with a spam header, otherwise message is rejected
         },
@@ -57,7 +57,7 @@ module.exports = {
 
         // Send bounce message to the sender
         'core/email-bounce': {
-            enabled: true,
+            enabled: false,
             // From: address for the bounce emails
             mailerDaemon: {
                 name: 'Mail Delivery Subsystem',
@@ -82,7 +82,7 @@ module.exports = {
 
         // Send mail addressed to .onion addresses through a SOCKS5 proxy
         'core/onion': {
-            enabled: 'sender',
+            enabled: false, //'sender', // routing to the onion network is handled in 'sender' context
             // SOCKS5 proxy host
             host: '127.0.0.1',
             // SOCKS5 proxy port
