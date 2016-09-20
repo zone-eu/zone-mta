@@ -34,6 +34,7 @@ class RspamdClient extends Transform {
             }
             this.req.finished = true;
             this.emit('fail', err);
+            this.body.emit('drain');
         });
 
         this.chunks = [];
@@ -106,7 +107,6 @@ class RspamdClient extends Transform {
             } catch (E) {
                 this.emit('fail', E);
             }
-
             callback();
         });
 

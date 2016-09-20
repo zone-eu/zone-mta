@@ -12,12 +12,6 @@ module.exports = {
     // App name to be used in the Received headers and greeting messages
     name: 'ZoneMTA',
 
-    // From: address for the bounce emails
-    mailerDaemon: {
-        name: 'Mail Delivery Subsystem',
-        address: 'mailer-daemon@' + os.hostname()
-    },
-
     // The user running this server mush have read/write access to the following folders
     queue: {
         // Leveldb folder location. Created if it does not exist
@@ -30,7 +24,7 @@ module.exports = {
         // key is path to plugin to `require` (relative to ./plugins folder), value is the configuration
         // for this plugin. Special keys are `enabled` (if false then the plugin is not loaded)
         // and `ordering`, plugins are enabled in the order of lower ordering keys first
-        './user/example-plugin': {
+        'user/example-plugin': {
             enabled: false,
             ordering: 123
         },
@@ -38,16 +32,71 @@ module.exports = {
         // If authentication is enabled (config.feeder.authentication is true) then make a HTTP
         // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
         // the the user is considered as authenticated
-        './core/http-auth': {
+        'core/http-auth': {
             enabled: true, // load the plugin
             url: 'http://localhost:8080/test-auth'
         },
 
         // If enabled then checks message against a Rspamd server
-        './core/rspamd': {
-            enabled: false,
+        'core/rspamd': {
+            enabled: ['feeder', 'sender'],
             url: 'http://localhost:11333/check',
             rejectSpam: true // if false, then the message is passed on with a spam header, otherwise message is rejected
+        },
+
+        // Rewrite MAIL FROM address using SRS
+        'core/srs': {
+            enabled: false, // 'sender', // rewriting is handled in the sending phase
+            // secret value for HHH hash
+            secret: 'a cat',
+            // which domain name to use for the rewritten addresses
+            rewriteDomain: 'example.com',
+            // which addresses to not rewrite (in addition to addresses for rewriteDomain)
+            excludeDomains: ['blurdybloop.com']
+        },
+
+        // Send bounce message to the sender
+        'core/email-bounce': {
+            enabled: true,
+            // From: address for the bounce emails
+            mailerDaemon: {
+                name: 'Mail Delivery Subsystem',
+                address: 'mailer-daemon@' + os.hostname()
+            },
+            sendingZone: 'bounces'
+        },
+
+        // POST bounce data to a HTTP URL
+        'core/http-bounce': {
+            enabled: true,
+            // An url to send the bounce information to
+            // Bounce notification would be a POST request with the following form fields:
+            //   id=delivery id
+            //   to=recipient address
+            //   returnPath=envelope FROM address
+            //   response=server response message
+            //   fbl=the value from X-Fbl header
+            // If bounce reporting fails (non 2xx response), the notification is retried a few times during the next minutes
+            url: 'http://localhost:8080/report-bounce'
+        },
+
+        // Send mail addressed to .onion addresses through a SOCKS5 proxy
+        'core/onion': {
+            enabled: 'sender',
+            // SOCKS5 proxy host
+            host: '127.0.0.1',
+            // SOCKS5 proxy port
+            port: 9150
+                /*
+                    // additional config
+                    name: 'foobar.onion', // identifier for the EHLO call
+                    mtaPort: 25, // MX port to connect to
+                    auth: {
+                        // authentication for the SOCKS proxy (if needed)
+                        username: 'socks user',
+                        password: 'socks pass'
+                    }
+                 */
         }
     },
 
@@ -74,16 +123,6 @@ module.exports = {
             key: './keys/private.key',
             cert: './keys/server.crt'
             */
-    },
-
-    srs: {
-        enabled: false,
-        // secret value for HHH hash
-        secret: 'a cat',
-        // which domain name to use for the rewritten addresses
-        rewriteDomain: 'kreata.ee',
-        // which addresses to not rewrite
-        excludeDomains: ['kreata.ee']
     },
 
     // Sets DNS servers to use for resolving MX/A/AAAA records
@@ -124,21 +163,6 @@ module.exports = {
         mx: false,
         // set to true to see incoming SMTP transaction log
         feeder: false
-    },
-
-    bounces: {
-        // Set to true if you want to send a bounce email to sender
-        enabled: true,
-
-        // An url to send the bounce information to. Set to false if you do not want to send notifications.
-        // Bounce notification would be a POST request with the following form fields:
-        //   id=delivery id
-        //   to=recipient address
-        //   returnPath=envelope FROM address
-        //   response=server response message
-        //   fbl=the value from X-Fbl header
-        // If bounce reporting fails (non 2xx response), the notification is retried a few times during the next minutes
-        url: 'http://localhost:8080/report-bounce'
     },
 
     /*

@@ -5,16 +5,17 @@
 
 const SendingZone = require('./lib/sending-zone').SendingZone;
 const config = require('config');
+
+// initialize plugin system
+const plugins = require('./lib/plugins');
+plugins.init('sender');
+
 const log = require('npmlog');
 const Sender = require('./lib/sender');
 const crypto = require('crypto');
+
 const QueueClient = require('./lib/transport/client');
 const queueClient = new QueueClient(config.queueServer);
-const SRS = require('srs.js');
-
-const srsRewriter = new SRS({
-    secret: config.srs.secret
-});
 
 const senders = new Set();
 
@@ -96,11 +97,15 @@ queueClient.connect(err => {
         id: clientId
     });
 
+    plugins.handler.load(() => {
+        log.info('Sender/' + zone.name + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
+    });
+
     // start sending instances
     for (let i = 0; i < zone.connections; i++) {
         // use artificial delay to lower the chance of races
         setTimeout(() => {
-            let sender = new Sender(clientId, i + 1, zone, sendCommand, srsRewriter);
+            let sender = new Sender(clientId, i + 1, zone, sendCommand);
             senders.add(sender);
             sender.on('error', () => {
                 closing = true;
@@ -112,8 +117,4 @@ queueClient.connect(err => {
             });
         }, Math.random() * 1500);
     }
-    setInterval(() => {
-        log.info('TIME', new Date().toISOString());
-        senders.forEach(sender => sender.getTimers());
-    }, 5 * 60 * 1000).unref();
 });

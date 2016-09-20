@@ -35,7 +35,34 @@ module.exports.init = function (app, done) {
             let err = new Error('This message was classified as SPAM and may not be delivered');
             err.responseCode = 550;
             app.logger.info('Feeder', 'REJECTED as spam %s: score %s, tests=[%s] (From: %s; To: %s)', envelope.messageId || envelope.id, envelope.spam.default.score, envelope.spam.tests.join(','), envelope.from, envelope.to.join(','));
-            return next(err);
+        }
+        next();
+    });
+
+    app.addHook('sender:headers', (delivery, next) => {
+        if (delivery.spam && delivery.spam.default) {
+
+            // insert spam headers to the bottom of the header section
+            let statusParts = [];
+
+            // This is ougtgoing message so the recipient would have exactly 0 reasons to trust our
+            // X-Spam-* headers, thus we use custom headers X-Zone-Spam-* and these are for debugging
+            // purposes only
+
+            if ('score' in delivery.spam.default) {
+                statusParts.push('score=' + delivery.spam.default.score);
+            }
+
+            if ('required_score' in delivery.spam.default) {
+                statusParts.push('required=' + delivery.spam.default.required_score);
+            }
+
+            if (Array.isArray(delivery.spam.tests) && delivery.spam.tests.length) {
+                statusParts.push('tests=[' + delivery.spam.tests.join(', ') + ']');
+            }
+
+            delivery.headers.add('X-Zone-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
+
         }
         next();
     });

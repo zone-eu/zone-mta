@@ -27,6 +27,8 @@ const apiServer = createAPIServer();
 const queueServer = createQueueServer();
 const queue = createMailQueue(config.queue);
 
+plugins.init('feeder');
+
 // Starts the queueing MTA
 feederServer.start(err => {
     if (err) {
@@ -88,8 +90,8 @@ feederServer.start(err => {
                 queueServer.setQueue(queue);
                 sendingZone.init(queue);
 
-                plugins.queue = queue;
-                plugins.load(() => {
+                plugins.handler.queue = queue;
+                plugins.handler.load(() => {
                     log.info('Plugins', 'Plugins loaded');
                 });
             });

@@ -4,7 +4,7 @@ This is the folder for plugins. Core plugins reside in the [./core](./core) fold
 
 Files that reside in the plugin folders can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to this folder, so using "./user/my-plugin" would point to "zone-mta/plugins/user/my-plugin".
 
-> **NB!** Actually you should never edit the `default.js` configuration file. Instead make a new file to the config folder using NODE_ENV environment variable as the file name (defaults to `development`) and only touch the relevant keys in that file. For example, create a file called `config/development.json` and use the contents `{ "plugins": {"./user/example-plugin": {"enabled": true}}}` to enable the example plugin.
+> **NB!** Actually you should never edit the `default.js` configuration file. Instead make a new file to the config folder using NODE_ENV environment variable as the file name (defaults to `development`) and only touch the relevant keys in that file. For example, create a file called `config/development.json` and use the contents `{ "plugins": {"user/example-plugin": {"enabled": true}}}` to enable the example plugin.
 
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
@@ -23,14 +23,14 @@ Plugins are loaded in the order defined in `config.plugins` object. Plugins are 
 
 ## Configuration
 
-Whatever you pass to the plugin key in config.plugins section is provided as `app.config`
+Whatever you pass to the plugin key in config.plugins section is provided as `app.config`. You can pass `true` as the configuration if you do not need to set anything besides the default but want to enable it.
 
 Config file:
 
 ```json
 {
     "plugins": {
-        "./my-plugin": {
+        "user/my-plugin": {
             "enabled": true,
             "my-value": 123
         }
@@ -38,12 +38,24 @@ Config file:
 }
 ```
 
-Plugin file "my-plugin.js":
+Plugin file "./plugins/user/my-plugin.js":
 
 ```javascript
 module.exports.init = function(app, done){
     console.log(app.config['my-value']); // 123
     done();
+}
+```
+
+The property `enabled` indicates if the plugin must be loaded or not. The value indicates the context where this plugins should be loaded, if you pass `true` then the plugin is loaded in *'feeder'* context (eg. when accepting messages to the queue). To use also delivery hooks you should set the value as *'sender'* or if you want to use hooks in both contexts, use an array of context strings
+
+```json
+{
+    "plugins": {
+        "user/my-plugin": {
+            "enabled": ["feeder", "sender"]
+        }
+    }
 }
 ```
 
@@ -68,6 +80,8 @@ Possible hook names are the following:
 - **'feeder:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
 - **'message:headers'** with arguments `envelope`, `headers`, called when rfc822 headers are found from the incoming message
 - **'message:store'** with arguments `envelope`, `headers` called when message is processed and ready to be pushed to queue
+- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope (uses 'sender' context)
+- **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery
 
 ### Errors
 
