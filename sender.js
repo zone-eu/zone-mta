@@ -5,12 +5,12 @@
 
 const SendingZone = require('./lib/sending-zone').SendingZone;
 const config = require('config');
+const log = require('npmlog');
 
 // initialize plugin system
 const plugins = require('./lib/plugins');
 plugins.init('sender');
 
-const log = require('npmlog');
 const Sender = require('./lib/sender');
 const crypto = require('crypto');
 
@@ -40,12 +40,14 @@ Object.keys(config.zones || {}).find(zoneName => {
 });
 
 if (!zone) {
+    require('./lib/logger'); // eslint-disable-line global-require
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
     return process.exit(5);
+} else {
+    log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
+    require('./lib/logger'); // eslint-disable-line global-require
+    log.info('Sender/' + zone.name + '/' + process.pid, 'Starting sending for %s', zone.name);
 }
-
-log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
-log.info('Sender/' + zone.name + '/' + process.pid, 'Starting sending for %s', zone.name);
 
 process.title = 'zone-mta: sender process [' + currentZone + ']';
 

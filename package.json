@@ -40,12 +40,14 @@
     "grunt-contrib-nodeunit": "^1.0.0",
     "grunt-eslint": "^19.0.0",
     "moment": "^2.15.1",
-    "node-deb": "^0.1.16",
-    "nodemailer": "^2.6.0",
+    "nodemailer": "^2.6.4",
     "random-message": "^1.1.0",
     "zip-stream": "^1.1.0"
   },
   "engines": {
     "node": ">=6.0.0"
+  },
+  "optionalDependencies": {
+    "modern-syslog": "^1.1.3"
   }
 }

@@ -160,9 +160,14 @@ module.exports = {
             */
     },
 
-    // Sets DNS servers to use for resolving MX/A/AAAA records
-    // Use only IP addresses
-    //nameservers: ['127.0.0.1'],
+    dns: {
+        // cache lookup results
+        caching: true,
+        // Sets DNS servers to use for resolving MX/A/AAAA records
+        // Use only IP addresses
+        //nameservers: ['127.0.0.1'],
+        nameservers: false
+    },
 
     // Simple HTTP server for fetching info about messages
     api: {
@@ -194,6 +199,8 @@ module.exports = {
     log: {
         // silly, verbose, info, error
         level: 'info',
+        // log to syslog if true, otherwise to console
+        syslog: true,
         // set to true to see outgoing SMTP transaction log
         mx: false,
         // set to true to see incoming SMTP transaction log

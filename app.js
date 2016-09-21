@@ -5,6 +5,9 @@
 
 const config = require('config');
 const log = require('npmlog');
+log.level = config.log.level;
+require('./lib/logger');
+
 const createFeederServer = require('./lib/feeder-server');
 const createAPIServer = require('./lib/api-server');
 const createQueueServer = require('./lib/queue-server');
@@ -14,7 +17,6 @@ const plugins = require('./lib/plugins');
 const packageData = require('./package.json');
 
 process.title = 'zone-mta: master process';
-log.level = config.log.level;
 
 log.info('ZoneMTA', ' _____             _____ _____ _____ ');
 log.info('ZoneMTA', '|__   |___ ___ ___|     |_   _|  _  |');
