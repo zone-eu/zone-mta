@@ -82,6 +82,7 @@ To use these hooks you need to set `enabled` to `true` or `'feeder'` or `['feede
 - **'feeder:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
 - **'feeder:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
 - **'feeder:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
+- **'api:mail'** with arguments `envelope`, `session`, called when an email is dropped to HTTP
 - **'message:headers'** with arguments `envelope` called when rfc822 headers are found from the incoming message (see `envelope.headers` property for the headers)
 - **'message:store'** with arguments `envelope` called when message is processed and ready to be pushed to queue
 - **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery

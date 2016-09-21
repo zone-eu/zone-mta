@@ -20,7 +20,7 @@ module.exports.init = function (app, done) {
         let req = fetch(urllib.format(urlparts));
 
         req.on('data', () => false); // ignore response data
-        req.on('error', err => {
+        req.once('error', err => {
             if (returned) {
                 return;
             }

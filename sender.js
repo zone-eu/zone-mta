@@ -107,7 +107,7 @@ queueClient.connect(err => {
         setTimeout(() => {
             let sender = new Sender(clientId, i + 1, zone, sendCommand);
             senders.add(sender);
-            sender.on('error', () => {
+            sender.once('error', () => {
                 closing = true;
                 senders.forEach(sender => {
                     sender.removeAllListeners('error');

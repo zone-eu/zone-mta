@@ -117,22 +117,40 @@ module.exports.init = function (app, done) {
                 envelope.sendingZone = sZone;
             }
         }
+
         next();
     });
 
     app.addHook('sender:headers', (delivery, next) => {
         // Ensure that there is at least one recipient header
 
+        let hasRecipient = false;
+        let hasContent = false;
+        let hasMime = false;
+
         let keys = delivery.headers.getList().map(line => line.key);
         for (let i = 0, len = keys.length; i < len; i++) {
-            if (['to', 'cc', 'bcc'].includes(keys[i])) {
-                return next();
+            if (!hasRecipient && ['to', 'cc', 'bcc'].includes(keys[i])) {
+                hasRecipient = true;
+            }
+            if (!hasMime && keys[i] === 'mime-version') {
+                hasMime = true;
+            }
+            if (!hasContent && ['content-transfer-encoding', 'content-type', 'content-disposition'].includes(keys[i])) {
+                hasContent = true;
             }
         }
 
-        // No recipient addresses found, add a To:
-        // This should not conflict DKIM signature
-        delivery.headers.add('To', delivery.envelope.to);
+        if (!hasRecipient) {
+            // No recipient addresses found, add a To:
+            // This should not conflict DKIM signature
+            delivery.headers.add('To', delivery.envelope.to);
+        }
+
+        if (hasContent && !hasMime) {
+            // Add MIME-Version to bottom
+            delivery.headers.add('MIME-Version', '1.0', Infinity);
+        }
 
         next();
     });

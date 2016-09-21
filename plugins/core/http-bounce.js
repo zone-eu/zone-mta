@@ -35,7 +35,7 @@ module.exports.init = function (app, done) {
                 }
             });
 
-            stream.on('error', err => {
+            stream.once('error', err => {
                 if (returned) {
                     return;
                 }

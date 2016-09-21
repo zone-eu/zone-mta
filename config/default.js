@@ -47,6 +47,23 @@ module.exports = {
             url: 'http://localhost:8080/test-auth'
         },
 
+        // Load sender config (eg. DKIM key from a HTTP URL)
+        'core/http-config': {
+            enabled: true,
+            // An URL to check sender configuration from
+            url: 'http://localhost:8080/get-config'
+        },
+
+        // Validate message dropped to the API
+        'core/api-send': {
+            enabled: true,
+            // How many recipients to allow per message when sending through the API
+            maxRecipients: 100
+        },
+
+        // Check if recipient MX exists when RCPT TO command is called
+        'core/rcpt-mx': false,
+
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
             enabled: false, // ['feeder', 'sender'], // spam is checked in 'feeder' context, headers are added in 'sender' context
@@ -114,17 +131,25 @@ module.exports = {
     feeder: {
         port: 2525,
 
+        // max message size in bytes
+        maxSize: 30 * 1024 * 1024, // 30 MB
+
         // bind to localhost only
         host: '127.0.0.1',
 
         // Set to false to not require authentication
+        // If authentication is enabled then you need to set up an authentication hook,
+        // otherwise any username is considered as valid
         authentication: false,
 
         // if true then do not show version number in SMTP greeting message
         disableVersionString: false,
 
-        // If set to true validates recipient MX server and rejects if can't find it
-        validateRcptMX: false,
+        // How many recipients to allow per message. This data is handled in batch,
+        // so allowing too large lists of recipients might start blocking the thread.
+        // 1000 or less recommended but can go up to tens of thousands if needed
+        // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
+        maxRecipients: 1000,
 
         starttls: false, // set to true to enable STARTTLS (port 587)
         secure: false // set to true to start in TLS mode (port 465)
@@ -197,15 +222,6 @@ module.exports = {
         // Key folder for the default keys
         keys: './keys'
     },
-
-    // How many recipients to allow per message. This data is handled in batch,
-    // so allowing too large lists of recipients might start blocking the thread.
-    // 1000 or less recommended but can go up to tens of thousands if needed
-    // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
-    maxRecipients: 1000,
-
-    // An URL to check sender configuration from. Set to false if you do not want to use sender specific config
-    getSenderConfig: 'http://localhost:8080/get-config',
 
     // Sending Zone definitions
     // Every Sending Zone can have multiple IPs that are rotated between connections

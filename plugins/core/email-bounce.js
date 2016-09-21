@@ -43,7 +43,7 @@ module.exports.init = function (app, done) {
                 headers.build().toString().trim() + '\n\n----- Message truncated -----'
         });
 
-        maildrop.add(false, envelope, mail.createReadStream(), err => {
+        maildrop.add(envelope, mail.createReadStream(), err => {
             if (err) {
                 app.logger.error('Bounce', err.message);
             }
