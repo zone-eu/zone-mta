@@ -26,7 +26,17 @@ module.exports = {
         // and `ordering`, plugins are enabled in the order of lower ordering keys first
         'user/example-plugin': {
             enabled: false,
-            ordering: 123
+            ordering: 123 // lower values are loaded first
+        },
+
+        // Make sure messages have all required headers like Date or Message-ID
+        'core/default-headers': {
+            enabled: ['feeder', 'sender'],
+            // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
+            // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
+            // This should probably be a separate plugin
+            futureDate: false,
+            xOriginatingIP: true
         },
 
         // If authentication is enabled (config.feeder.authentication is true) then make a HTTP
@@ -193,10 +203,6 @@ module.exports = {
     // 1000 or less recommended but can go up to tens of thousands if needed
     // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
     maxRecipients: 1000,
-
-    // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
-    // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
-    allowFutureMessages: false,
 
     // An URL to check sender configuration from. Set to false if you do not want to use sender specific config
     getSenderConfig: 'http://localhost:8080/get-config',

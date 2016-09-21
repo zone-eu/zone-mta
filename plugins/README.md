@@ -82,15 +82,15 @@ To use these hooks you need to set `enabled` to `true` or `'feeder'` or `['feede
 - **'feeder:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
 - **'feeder:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
 - **'feeder:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
-- **'message:headers'** with arguments `envelope`, `headers`, called when rfc822 headers are found from the incoming message
-- **'message:store'** with arguments `envelope`, `headers` called when message is processed and ready to be pushed to queue
+- **'message:headers'** with arguments `envelope` called when rfc822 headers are found from the incoming message (see `envelope.headers` property for the headers)
+- **'message:store'** with arguments `envelope` called when message is processed and ready to be pushed to queue
 - **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery
 
 **'sender' context**
 
 To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
-- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope
+- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use *'sender:connect'* hook to perform actions that take more time
 - **'sender:mx'** with arguments `delivery`, `exchanges` is called when ZoneMTA needs to resolve MX addresses for a recipient (see [onion.js](core/onion.js) for example)
 - **'sender:connect'** with arguments `delivery`, `options` is called when ZoneMTA needs to set up the smtp-connection configuration object (see [onion.js](core/onion.js) for example)
 
@@ -204,7 +204,7 @@ module.exports.init = function(app, done){
         state.set(envelope, Math.random() >= 0.5);
         source.pipe(destination);
     });
-    app.addHook('message:store', (envelope, headers, next)=>{
+    app.addHook('message:store', (envelope, next)=>{
         // check from the WeakMap structure if there's a `true` for the envelope
         if(!state.get(envelope)){
             // do not accept the message for delivery
