@@ -17,16 +17,18 @@ ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka i
 
 ## Quickstart
 
-Assuming Node.js, build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel).
+Assuming Node.js, build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
+
+Run as any user (does not need to be root):
 
 ```bash
-git clone git://github.com/zone-eu/zone-mta.git
-cd zone-mta
-npm install --production
-npm start
+$ git clone git://github.com/zone-eu/zone-mta.git
+$ cd zone-mta
+$ npm install --production
+$ npm start
 ```
 
-If everything succeeds then you should have a SMTP relay with no authentication running on localhost (does not accept remote connections).
+If everything succeeds then you should have a SMTP relay with no authentication running on localhost port 2525 (does not accept remote connections).
 
 ## Birds-eye-view of the system
 
