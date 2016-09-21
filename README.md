@@ -15,6 +15,19 @@ The goal of this project is to provide granular control over routing different m
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
 
+## Quickstart
+
+Assuming Node.js, build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel).
+
+```bash
+git clone git://github.com/zone-eu/zone-mta.git
+cd zone-mta
+npm install --production
+npm start
+```
+
+If everything succeeds then you should have a SMTP relay with no authentication running on localhost (does not accept remote connections).
+
 ## Birds-eye-view of the system
 
 ### Incoming message pipeline
@@ -46,6 +59,7 @@ Delivering messages to destination
 - Throttling per Sending Zone connection
 - Spam detection using Rspamd
 - HTTP API to send messages
+- Route messages to the onion network
 - Custom <plugins>
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
