@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- v0.1.0-alpha.4 2016-09-21
+  * Added option to log to syslog instead of stderr
+
 - v0.1.0-alpha.3 2016-09-21
   * Added plugin system to be able to easily extend ZoneMTA
   * Added plugin to use Rspamd for message scanning
