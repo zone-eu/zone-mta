@@ -15,13 +15,28 @@ The goal of this project is to provide granular control over routing different m
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
 
+## Quickstart
+
+Assuming Node.js, build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
+
+Run as any user (does not need to be root):
+
+```bash
+$ git clone git://github.com/zone-eu/zone-mta.git
+$ cd zone-mta
+$ npm install --production
+$ npm start
+```
+
+If everything succeeds then you should have a SMTP relay with no authentication running on localhost port 2525 (does not accept remote connections).
+
 ## Birds-eye-view of the system
 
 ### Incoming message pipeline
 
 Messages are dropped for delivery either by SMTP or HTTP API. Message is processed as a stream, so it shouldn't matter if the message is very large in size (except if a very large message is submitted using the JSON API). This applies also to DKIM body hash calculation – the hash is calculated chunk by chunk as the message stream flows through (actual signature is generated out of the body hash when delivering the message to destination). The incoming stream starts from incoming connection and ends in LevelDB, so if there's an error in any step between these two, the error is reported back to the client and the message is rejected. If impartial data is stored to LevelDB it gets garbage collected after some time (all message bodies without referencing delivery rows are deleted automatically)
 
-![](https://cldup.com/ISUngzfulL.png)
+![](https://cldup.com/jepwxrWwXc.png)
 
 ### Outgoing message pipeline
 
@@ -46,6 +61,7 @@ Delivering messages to destination
 - Throttling per Sending Zone connection
 - Spam detection using Rspamd
 - HTTP API to send messages
+- Route messages to the onion network
 - Custom <plugins>
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
