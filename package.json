@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": true,
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -32,14 +32,14 @@
     "smtp-server": "^1.14.2",
     "socks": "^1.1.9",
     "srs.js": "^0.1.0",
-    "uuid": "^2.0.2"
+    "uuid": "^2.0.3"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-nodeunit": "^1.0.0",
     "grunt-eslint": "^19.0.0",
-    "moment": "^2.15.0",
+    "moment": "^2.15.1",
     "node-deb": "^0.1.16",
     "nodemailer": "^2.6.0",
     "random-message": "^1.1.0",
