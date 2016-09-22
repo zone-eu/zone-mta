@@ -49,7 +49,7 @@ if (!zone) {
     log.info('Sender/' + zone.name + '/' + process.pid, 'Starting sending for %s', zone.name);
 }
 
-process.title = 'zone-mta: sender process [' + currentZone + ']';
+process.title = config.ident + ': sender/' + currentZone;
 
 function sendCommand(cmd, callback) {
     let id = ++cmdId;

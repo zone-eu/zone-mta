@@ -84,14 +84,15 @@ To use these hooks you need to set `enabled` to `true` or `'feeder'` or `['feede
 - **'feeder:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
 - **'api:mail'** with arguments `envelope`, `session`, called when an email is dropped to HTTP
 - **'message:headers'** with arguments `envelope` called when rfc822 headers are found from the incoming message (see `envelope.headers` property for the headers)
-- **'message:store'** with arguments `envelope` called when message is processed and ready to be pushed to queue
+- **'message:store'** with arguments `envelope`, `body` _(stream)_ called when message is about to be stored to disk. You should not modify the `body` stream in any way, otherwise you break the body hash, this hook is provided in case you want to store a message somewhere else than the outbound queue
+- **'message:queue'** with arguments `envelope` called when message is processed and ready to be pushed to queue. You should not modify the `body` stream in any way, otherwise you break the body hash
 - **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery
 
 **'sender' context**
 
 To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
-- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use *'sender:connect'* hook to perform actions that take more time
+- **'sender:headers'** with arguments `delivery` called when message is about to be sent, this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connect'_ hook to perform actions that take more time
 - **'sender:mx'** with arguments `delivery`, `exchanges` is called when ZoneMTA needs to resolve MX addresses for a recipient (see [onion.js](core/onion.js) for example)
 - **'sender:connect'** with arguments `delivery`, `options` is called when ZoneMTA needs to set up the smtp-connection configuration object (see [onion.js](core/onion.js) for example)
 
@@ -205,7 +206,7 @@ module.exports.init = function(app, done){
         state.set(envelope, Math.random() >= 0.5);
         source.pipe(destination);
     });
-    app.addHook('message:store', (envelope, next)=>{
+    app.addHook('message:store', (envelope, body, next)=>{
         // check from the WeakMap structure if there's a `true` for the envelope
         if(!state.get(envelope)){
             // do not accept the message for delivery

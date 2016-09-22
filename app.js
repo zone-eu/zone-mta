@@ -16,7 +16,7 @@ const sendingZone = require('./lib/sending-zone');
 const plugins = require('./lib/plugins');
 const packageData = require('./package.json');
 
-process.title = 'zone-mta: master process';
+process.title = config.ident + ': master process';
 
 log.info('ZoneMTA', ' _____             _____ _____ _____ ');
 log.info('ZoneMTA', '|__   |___ ___ ___|     |_   _|  _  |');

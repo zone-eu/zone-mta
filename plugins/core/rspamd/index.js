@@ -30,7 +30,7 @@ module.exports.init = function (app, done) {
         source.pipe(rspamdStream).pipe(destination);
     });
 
-    app.addHook('message:store', (envelope, next) => {
+    app.addHook('message:queue', (envelope, next) => {
         if (app.config.rejectSpam && envelope.spam && envelope.spam.default && envelope.spam.default.is_spam) {
             let err = new Error('This message was classified as SPAM and may not be delivered');
             err.responseCode = 550;

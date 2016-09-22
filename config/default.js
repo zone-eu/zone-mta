@@ -12,6 +12,9 @@ module.exports = {
     // App name to be used in the Received headers and greeting messages
     name: 'ZoneMTA',
 
+    // App key for process name, syslog ident etc
+    ident: 'zone-mta',
+
     // The user running this server mush have read/write access to the following folders
     queue: {
         // Leveldb folder location. Created if it does not exist
@@ -43,7 +46,7 @@ module.exports = {
         // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
         // the the user is considered as authenticated
         'core/http-auth': {
-            enabled: false,
+            enabled: true,
             url: 'http://localhost:8080/test-auth'
         },
 
@@ -140,7 +143,7 @@ module.exports = {
         // Set to false to not require authentication
         // If authentication is enabled then you need to set up an authentication hook,
         // otherwise any username is considered as valid
-        authentication: false,
+        authentication: true,
 
         // if true then do not show version number in SMTP greeting message
         disableVersionString: false,
