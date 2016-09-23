@@ -29,7 +29,7 @@
     "restify": "4.1.1",
     "seq-index": "^1.1.0",
     "smtp-connection": "^2.12.0",
-    "smtp-server": "^1.14.2",
+    "smtp-server": "^1.15.0",
     "socks": "^1.1.9",
     "srs.js": "^0.1.0",
     "uuid": "^2.0.3"

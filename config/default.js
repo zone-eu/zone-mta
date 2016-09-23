@@ -46,7 +46,7 @@ module.exports = {
         // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
         // the the user is considered as authenticated
         'core/http-auth': {
-            enabled: true,
+            enabled: false,
             url: 'http://localhost:8080/test-auth'
         },
 
@@ -143,7 +143,7 @@ module.exports = {
         // Set to false to not require authentication
         // If authentication is enabled then you need to set up an authentication hook,
         // otherwise any username is considered as valid
-        authentication: true,
+        authentication: false,
 
         // if true then do not show version number in SMTP greeting message
         disableVersionString: false,

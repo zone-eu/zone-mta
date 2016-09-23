@@ -93,6 +93,7 @@ feederServer.start(err => {
                 sendingZone.init(queue);
 
                 plugins.handler.queue = queue;
+                plugins.handler.apiServer = apiServer;
                 plugins.handler.load(() => {
                     log.info('Plugins', 'Plugins loaded');
                 });
