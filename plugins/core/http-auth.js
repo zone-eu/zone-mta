@@ -8,7 +8,7 @@ module.exports.init = function (app, done) {
 
     // Listen for AUTH command
     // Make a Authorization:Basic call against an HTTP URL to authenticate an user
-    app.addHook('feeder:auth', (auth, session, next) => {
+    app.addHook('smtp:auth', (auth, session, next) => {
 
         let urlparts = urllib.parse(app.config.url, true, true);
 

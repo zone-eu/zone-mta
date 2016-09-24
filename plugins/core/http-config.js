@@ -82,7 +82,7 @@ module.exports.init = function (app, done) {
 
     // Listen for MAIL FROM command
     // Requests sender config from an API server
-    app.addHook('feeder:mail_from', (address, session, next) => {
+    app.addHook('smtp:mail_from', (address, session, next) => {
         let mailFrom = addressTools.normalizeAddress(address && address.address || address);
 
         getConfig(mailFrom, session, next);
@@ -98,7 +98,7 @@ module.exports.init = function (app, done) {
         });
     });
 
-    app.addHook('feeder:data', updateConfig);
+    app.addHook('smtp:data', updateConfig);
 
     done();
 };

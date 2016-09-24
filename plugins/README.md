@@ -47,13 +47,13 @@ module.exports.init = function(app, done){
 }
 ```
 
-The property `enabled` indicates if the plugin must be loaded or not. The value indicates the context where this plugins should be loaded, if you pass `true` then the plugin is loaded in _'feeder'_ context (eg. when accepting messages to the queue). To use also delivery hooks you should set the value as _'sender'_ or if you want to use hooks in both contexts, use an array of context strings
+The property `enabled` indicates if the plugin must be loaded or not. The value indicates the context where this plugins should be loaded, if you pass `true` then the plugin is loaded in _'main'_ context (eg. when accepting messages to the queue). To use also delivery hooks you should set the value as _'sender'_ or if you want to use hooks in both contexts, use an array of context strings
 
 ```json
 {
     "plugins": {
         "user/my-plugin": {
-            "enabled": ["feeder", "sender"]
+            "enabled": ["main", "sender"]
         }
     }
 }
@@ -74,14 +74,14 @@ Where
 
 Possible hook names are the following:
 
-**'feeder' context**
+**'main' context**
 
-To use these hooks you need to set `enabled` to `true` or `'feeder'` or `['feeder',...]`
+To use these hooks you need to set `enabled` to `true` or `'main'` or `['main',...]`
 
-- **'feeder:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
-- **'feeder:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
-- **'feeder:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
-- **'feeder:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
+- **'smtp:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
+- **'smtp:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
+- **'smtp:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
+- **'smtp:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
 - **'api:mail'** with arguments `envelope`, `session`, called when an email is dropped to HTTP
 - **'message:headers'** with arguments `envelope` called when rfc822 headers are found from the incoming message (see `envelope.headers` property for the headers)
 - **'message:store'** with arguments `envelope`, `body` _(stream)_ called when message is about to be stored to disk. You should not modify the `body` stream in any way, otherwise you break the body hash, this hook is provided in case you want to store a message somewhere else than the outbound queue
@@ -98,10 +98,10 @@ To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
 ### Errors
 
-If you return an error with the feeder hook callback then the error message is returned to the client as the SMTP response. To set a specific return code to be returned, use `responseCode` property. Hook is processed until first error occurs.
+If you return an error with the smtp hook callback then the error message is returned to the client as the SMTP response. To set a specific return code to be returned, use `responseCode` property. Hook is processed until first error occurs.
 
 ```javascript
-app.addHook('feeder:auth', (auth, session, next) => {
+app.addHook('smtp:auth', (auth, session, next) => {
     let err = new Error('Invalid password');
     err.responseCode = 535;
     next(err);
@@ -110,11 +110,15 @@ app.addHook('feeder:auth', (auth, session, next) => {
 
 ### _session_ object
 
-`session` object is provided by feeder hooks. This is a state object provided by _smtp-server_ module, see details [here](https://github.com/andris9/smtp-server#session-object).
+`session` object is provided by smtp hooks. This is a state object provided by _smtp-server_ module, see details [here](https://github.com/andris9/smtp-server#session-object).
+
+Session object has the additional properties:
+
+- **interface** includes the key of the source interface (eg 'feeder' or 'mx')
 
 ### _auth_ object
 
-`auth` object is provided by the 'feeder:auth' hook and it includes credentials used for authentication.
+`auth` object is provided by the 'smtp:auth' hook and it includes credentials used for authentication.
 
 - **username** includes the username provided by the client
 - **password** includes the password provided by the client
@@ -122,7 +126,7 @@ app.addHook('feeder:auth', (auth, session, next) => {
 
 ### _address_ object
 
-Address objects are provided by the envelope hooks (_feeder:mail_from_ and _feeder:rcpt_to_). This is not just an address but also any extension data provided by the client. The object includes the following properties:
+Address objects are provided by the envelope hooks (_smtp:mail_from_ and _smtp:rcpt_to_). This is not just an address but also any extension data provided by the client. The object includes the following properties:
 
 - **address** is the email address as a string
 - **args** is an object with additional extension arguments (all key names are uppercase)
@@ -146,6 +150,7 @@ In most cases you probably only care about the `address.address` email address a
 The object builds up in different steps, you can see the final envelope data in _message:store_ hook, until then some of the data is missing or might change.
 
 - **id** is the queue ID for this message
+- **interface** includes the key of the source interface (eg 'feeder' or 'api')
 - **from** email address from MAIL FROM
 - **to** an array of email address strings from RCPT TO
 - **origin** remote IP address of the connecting client
@@ -178,7 +183,7 @@ The object builds up in different steps, you can see the final envelope data in 
 
 ## Using Message Analyzer
 
-If you want to check the original data stream coming from the feeder you can process it with the analyzer hook. You can modify the data inside the hook but this affects the next analyzers as these get their input from the output of your hook
+If you want to check the original data stream coming from the input you can process it with the analyzer hook. You can modify the data inside the hook but this affects the next analyzers as these get their input from the output of your hook
 
 ```javascript
 app.addAnalyzerHook(handler);

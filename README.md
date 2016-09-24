@@ -233,10 +233,10 @@ curl -H "Content-Type: application/json" -X POST  http://localhost:8080/send -d 
 }'
 ```
 
-Or if authentication is required, provide the basic authorization headers as well
+If the user is authenticated you can provide the username header as well
 
 ```
-curl -H "Content-Type: application/json" -X POST  http://zone:test@localhost:8080/send -d '{
+curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -X POST  http://zone:test@localhost:8080/send -d '{
     "from": "andris@kreata.ee",
     "to": "andris.reinman@gmail.com, andmekala@hot.ee",
     "subject": "hello",

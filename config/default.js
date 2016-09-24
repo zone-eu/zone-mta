@@ -34,7 +34,7 @@ module.exports = {
 
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
-            enabled: ['feeder', 'sender'],
+            enabled: ['main', 'sender'],
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
             // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
             // This should probably be a separate plugin
@@ -42,7 +42,7 @@ module.exports = {
             xOriginatingIP: true
         },
 
-        // If authentication is enabled (config.feeder.authentication is true) then make a HTTP
+        // If authentication is enabled (config.smtpInterfaces.feeder.authentication is true) then make a HTTP
         // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
         // the the user is considered as authenticated
         'core/http-auth': {
@@ -69,7 +69,7 @@ module.exports = {
 
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
-            enabled: false, // ['feeder', 'sender'], // spam is checked in 'feeder' context, headers are added in 'sender' context
+            enabled: false, // ['main', 'sender'], // spam is checked in 'main' context, headers are added in 'sender' context
             url: 'http://localhost:11333/check',
             rejectSpam: true // if false, then the message is passed on with a spam header, otherwise message is rejected
         },
@@ -130,37 +130,46 @@ module.exports = {
         }
     },
 
-    // SMTP relay server that accepts messages for the outgoing queue
-    feeder: {
-        port: 2525,
+    // You can define multiple listening SMTP interfaces, for example one for port 465, one for 587 etc
+    smtpInterfaces: {
 
-        // max message size in bytes
-        maxSize: 30 * 1024 * 1024, // 30 MB
+        // SMTP relay server that accepts messages for the outgoing queue
+        feeder: {
+            enabled: true,
 
-        // bind to localhost only
-        host: '127.0.0.1',
+            port: 2525,
 
-        // Set to false to not require authentication
-        // If authentication is enabled then you need to set up an authentication hook,
-        // otherwise any username is considered as valid
-        authentication: false,
+            // max message size in bytes
+            maxSize: 30 * 1024 * 1024, // 30 MB
 
-        // if true then do not show version number in SMTP greeting message
-        disableVersionString: false,
+            // bind to localhost only
+            host: '127.0.0.1',
 
-        // How many recipients to allow per message. This data is handled in batch,
-        // so allowing too large lists of recipients might start blocking the thread.
-        // 1000 or less recommended but can go up to tens of thousands if needed
-        // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
-        maxRecipients: 1000,
+            // Set to false to not require authentication
+            // If authentication is enabled then you need to set up an authentication hook,
+            // otherwise any username is considered as valid
+            authentication: false,
 
-        starttls: false, // set to true to enable STARTTLS (port 587)
-        secure: false // set to true to start in TLS mode (port 465)
-            /*
-            // define keys for STARTTLS/TLS
-            key: './keys/private.key',
-            cert: './keys/server.crt'
-            */
+            // if true then do not show version number in SMTP greeting message
+            disableVersionString: false,
+
+            // How many recipients to allow per message. This data is handled in batch,
+            // so allowing too large lists of recipients might start blocking the thread.
+            // 1000 or less recommended but can go up to tens of thousands if needed
+            // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
+            maxRecipients: 1000,
+
+            // set to true to see incoming SMTP transaction log
+            logger: false,
+
+            starttls: false, // set to true to enable STARTTLS (port 587)
+            secure: false // set to true to start in TLS mode (port 465)
+                /*
+                // define keys for STARTTLS/TLS
+                key: './keys/private.key',
+                cert: './keys/server.crt'
+                */
+        }
     },
 
     dns: {
@@ -205,9 +214,7 @@ module.exports = {
         // log to syslog if true, otherwise to console
         syslog: true,
         // set to true to see outgoing SMTP transaction log
-        mx: false,
-        // set to true to see incoming SMTP transaction log
-        feeder: false
+        queue: false
     },
 
     /*

@@ -22,6 +22,7 @@ module.exports.init = function (app, done) {
         }
 
         let envelope = {
+            interface: 'bounce',
             from: false,
             to: bounce.from,
             origin: '127.0.0.1',

@@ -8,10 +8,10 @@ const log = require('npmlog');
 log.level = config.log.level;
 require('./lib/logger');
 
-const createFeederServer = require('./lib/feeder-server');
-const createAPIServer = require('./lib/api-server');
-const createQueueServer = require('./lib/queue-server');
-const createMailQueue = require('./lib/mail-queue');
+const SMTPInterface = require('./lib/smtp-interface');
+const APIServer = require('./lib/api-server');
+const QueueServer = require('./lib/queue-server');
+const MailQueue = require('./lib/mail-queue');
 const sendingZone = require('./lib/sending-zone');
 const plugins = require('./lib/plugins');
 const packageData = require('./package.json');
@@ -24,21 +24,41 @@ log.info('ZoneMTA', '|   __| . |   | -_| | | | | | |     |');
 log.info('ZoneMTA', '|_____|___|_|_|___|_|_|_| |_| |__|__|');
 log.info('ZoneMTA', '            --- v' + packageData.version + ' ---');
 
-const feederServer = createFeederServer();
-const apiServer = createAPIServer();
-const queueServer = createQueueServer();
-const queue = createMailQueue(config.queue);
+const smtpInterfaces = [];
+const apiServer = new APIServer();
+const queueServer = new QueueServer();
+const queue = new MailQueue(config.queue);
 
-plugins.init('feeder');
+plugins.init('main');
+
+let startSMTPInterfaces = done => {
+    let keys = Object.keys(config.smtpInterfaces || {}).filter(key => config.smtpInterfaces[key].enabled);
+    let pos = 0;
+    let startNext = () => {
+        if (pos >= keys.length) {
+            return done();
+        }
+        let key = keys[pos++];
+        let smtp = new SMTPInterface(config.name, key, config.smtpInterfaces[key]);
+        smtp.start(err => {
+            if (err) {
+                log.error(smtp.logName, 'Could not start ' + key + ' MTA server');
+                log.error(smtp.logName, err);
+                return done(err);
+            }
+            log.info(smtp.logName, 'SMTP ' + key + ' MTA server started');
+            smtpInterfaces.push(smtp);
+            return startNext();
+        });
+    };
+    startNext();
+};
 
 // Starts the queueing MTA
-feederServer.start(err => {
+startSMTPInterfaces(err => {
     if (err) {
-        log.error('Feeder', 'Could not start feeder MTA server');
-        log.error('Feeder', err);
         return process.exit(1);
     }
-    log.info('Feeder', 'Feeder MTA server started');
 
     queueServer.start(err => {
         if (err) {
@@ -56,7 +76,6 @@ feederServer.start(err => {
                 return process.exit(2);
             }
             log.info('API', 'API server started');
-
 
             // downgrade user if needed
             if (config.group) {
@@ -87,7 +106,7 @@ feederServer.start(err => {
                 }
                 log.info('Queue', 'Sending queue initialized');
 
-                feederServer.setQueue(queue);
+                smtpInterfaces.forEach(smtpInterface => smtpInterface.setQueue(queue));
                 apiServer.setQueue(queue);
                 queueServer.setQueue(queue);
                 sendingZone.init(queue);
@@ -113,17 +132,18 @@ let stop = code => {
 
     let closed = 0;
     let checkClosed = () => {
-        if (++closed === 3) {
+        if (++closed === 2 + smtpInterfaces.length) {
             queue.db.close(() => process.exit(code));
         }
     };
 
     // Stop accepting any new connections
-    feederServer.close(() => {
-        // wait until all connections to the feeder SMTP are closed
-        log.info('Feeder', 'Service closed');
+    smtpInterfaces.forEach(smtpInterface => smtpInterface.close(() => {
+        // wait until all connections to the SMTP server are closed
+        log.info(smtpInterface.logName, 'Service closed');
         checkClosed();
-    });
+    }));
+
     apiServer.close(() => {
         // wait until all connections to the API HTTP are closed
         log.info('API', 'Service closed');

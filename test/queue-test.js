@@ -66,6 +66,7 @@ module.exports['Push and shift a bunch of messages to and from queue'] = test =>
     let insertNext = () => {
 
         let envelope = {
+            interface: 'test',
             from: 'sender@example.com',
             to: ['receiver@example.com', 'receiver@blurdybloop.com'],
             origin: '1.2.3.4',
