@@ -5,7 +5,7 @@ Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 > This is a **labs project** meaning that ZoneMTA is **not tested in production**. In the future it should replace our outbound Postfix servers but so far no actual mail servers have been deployed with ZoneMTA. Handle with care!
 
 ```
- _____             _____ _____ _____
+_____             _____ _____ _____
 |__   |___ ___ ___|     |_   _|  _  |
 |   __| . |   | -_| | | | | | |     |
 |_____|___|_|_|___|_|_|_| |_| |__|__|
@@ -62,7 +62,10 @@ Delivering messages to destination
 - Spam detection using Rspamd
 - HTTP API to send messages
 - Route messages to the onion network
-- Custom <plugins>
+- Custom
+
+  <plugins>
+  </plugins>
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
@@ -223,22 +226,12 @@ Messages might get lost if the database gets into a corrupted state and it is no
 
 You can post a JSON structure to a HTTP endpoint (if enabled) and it will be converted into a rfc822 formatted message and delivered to destination. The JSON structure follows Nodemailer email config (see [here](https://github.com/nodemailer/nodemailer#e-mail-message-fields)) except that file and url access is disabled – you can't define an attachment that loads its contents from a file path or from an url, you need to provide the file contents as base64 encoded string.
 
-```
-curl -H "Content-Type: application/json" -X POST  http://localhost:8080/send -d '{
-    "from": "andris@nodemailer.com",
-    "to": "andris.reinman@gmail.com",
-    "subject": "hello",
-    "text": "Hello world!",
-    "html": "<p>Hello world!</p>"
-}'
-```
+You can provide the authenticated username with `X-Authenticated-User` header and originating IP with `X-Originating-IP` header, both values are optional.
 
-If the user is authenticated you can provide the username header as well
-
-```
-curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -X POST  http://zone:test@localhost:8080/send -d '{
-    "from": "andris@kreata.ee",
-    "to": "andris.reinman@gmail.com, andmekala@hot.ee",
+```bash
+curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -H "X-Originating-IP: 123.123.123.123" -X POST  http://zone:test@localhost:8080/send -d '{
+    "from": "sender@example.com",
+    "to": "recipient1@example.com, recipient2@example.com",
     "subject": "hello",
     "text": "hello world!"
 }'

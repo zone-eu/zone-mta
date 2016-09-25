@@ -25,7 +25,6 @@ module.exports.init = function (app, done) {
             interface: 'bounce',
             from: false,
             to: bounce.from,
-            origin: '127.0.0.1',
             transtype: 'HTTP',
             time: Date.now()
         };
