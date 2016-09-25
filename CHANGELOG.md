@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- v0.1.0-alpha.5 2016-09-25
+  * Allow multiple SMTP interfaces (one for 465, one for 587 etc)
+
 - v0.1.0-alpha.4 2016-09-21
   * Added option to log to syslog instead of stderr
 
