@@ -212,7 +212,7 @@ module.exports = {
         // silly, verbose, info, error
         level: 'info',
         // log to syslog if true, otherwise to console
-        syslog: true,
+        syslog: false,
         // set to true to see outgoing SMTP transaction log
         queue: false
     },
