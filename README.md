@@ -17,7 +17,7 @@ ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka i
 
 ## Quickstart
 
-Assuming Node.js, build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
+Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
 
 Run as any user (does not need to be root):
 
@@ -62,10 +62,7 @@ Delivering messages to destination
 - Spam detection using Rspamd
 - HTTP API to send messages
 - Route messages to the onion network
-- Custom
-
-  <plugins>
-  </plugins>
+- Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
