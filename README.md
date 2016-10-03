@@ -225,12 +225,106 @@ You can post a JSON structure to a HTTP endpoint (if enabled) and it will be con
 You can provide the authenticated username with `X-Authenticated-User` header and originating IP with `X-Originating-IP` header, both values are optional.
 
 ```bash
-curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -H "X-Originating-IP: 123.123.123.123" -X POST  http://zone:test@localhost:8080/send -d '{
+curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -H "X-Originating-IP: 123.123.123.123" -X POST  http://localhost:8080/send -d '{
     "from": "sender@example.com",
     "to": "recipient1@example.com, recipient2@example.com",
     "subject": "hello",
     "text": "hello world!"
 }'
+```
+
+#### Zone status
+
+You can check the current state of a sending zone (for example "default") with the following query
+
+```bash
+curl http://localhost:8080/queue/default
+```
+
+The response includes counters about queued and deferred messages and also splits the counter by recipient domains
+
+```json
+{
+    "time": "2016-10-03T13:12:18.128Z",
+    "started": "2016-10-03T13:12:17.336Z",
+    "processed": 1,
+    "queued": 1,
+    "deferred": 1,
+    "domains": [{
+        "domain": "example.com",
+        "queued": 1,
+        "deferred": 1
+    }]
+}
+```
+
+#### Message status in Queue
+
+If you know the queue id (for example 1578a823de00009fbb) then you can check the current status with the following query
+
+```bash
+curl http://localhost:8080/message/1578a823de00009fbb
+```
+
+The response includes general information about the message and lists all recipients that are current queued (about to be sent) or deferred (are scheduled to send in the future). This does not include messages already sent or bounced.
+
+```json
+{
+    "meta": {
+        "id": "1578a823de00009fbb",
+        "interface": "feeder",
+        "from": "sender@example.com",
+        "to": ["recipient1@example.com", "recipient2@example.com"],
+        "origin": "127.0.0.1",
+        "originhost": "[127.0.0.1]",
+        "transhost": "foo",
+        "transtype": "ESMTP",
+        "time": 1475497588281,
+        "dkim": {
+            "hashAlgo": "sha256",
+            "bodyHash": "HAuESLcsVfL2FGQCUtFOwTL6Ax18XDXZO2vOeAz+DpI="
+        },
+        "headers": [{
+            "key": "date",
+            "line": "Date: Mon, 03 Oct 2016 12:26:32 +0000"
+        }, {
+            "key": "from",
+            "line": "From: Sender <sender@example.com>"
+        }, {
+            "key": "message-id",
+            "line": "Message-ID: <95dc84ae-ff9e-4e95-aa75-8ee707bc018d@example.com>"
+        }, {
+            "key": "subject",
+            "line": "subject: test"
+        }],
+        "messageId": "<95dc84ae-ff9e-4e95-aa75-8ee707bc018d@example.com>",
+        "date": "Mon, 03 Oct 2016 12:26:32 +0000",
+        "parsedEnvelope": {
+            "from": "sender@example.com",
+            "to": [],
+            "cc": [],
+            "bcc": [],
+            "replyTo": false,
+            "sender": false
+        },
+        "bodySize": 3458,
+        "created": 1475497593204
+    },
+    "messages": [{
+        "id": "1578a823de00009fbb",
+        "seq": "002",
+        "zone": "default",
+        "recipient": "recipient1@example.com",
+        "status": "DEFERRED",
+        "deferred": {
+            "first": 1475499253068,
+            "count": 2,
+            "last": 1475499774161,
+            "next": 1475501274161,
+            "response": "450 4.3.2 Service currently unavailable"
+        }
+    }]
+}
 ```
 
 ## TODO
