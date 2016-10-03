@@ -22,10 +22,9 @@ Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), b
 Run as any user (does not need to be root):
 
 ```bash
-$ git clone git://github.com/zone-eu/zone-mta.git
-$ cd zone-mta
-$ npm install --production
-$ npm start
+$ npm install -g zone-mta
+$ zone-mta create path/to/app
+$ zone-mta run -d path/to/app -c config.json
 ```
 
 If everything succeeds then you should have a SMTP relay with no authentication running on localhost port 2525 (does not accept remote connections).

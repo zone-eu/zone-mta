@@ -24,14 +24,6 @@ module.exports = {
     // plugin files to load into mailtrain, relative to ./plugins folder
     // such a plugin should expose a method
     plugins: {
-        // key is path to plugin to `require` (relative to ./plugins folder), value is the configuration
-        // for this plugin. Special keys are `enabled` (if false then the plugin is not loaded)
-        // and `ordering`, plugins are enabled in the order of lower ordering keys first
-        'user/example-plugin': {
-            enabled: false,
-            ordering: 123 // lower values are loaded first
-        },
-
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
             enabled: ['main', 'sender'],
@@ -52,14 +44,14 @@ module.exports = {
 
         // Load sender config (eg. DKIM key from a HTTP URL)
         'core/http-config': {
-            enabled: true,
+            enabled: false,
             // An URL to check sender configuration from
             url: 'http://localhost:8080/get-config'
         },
 
         // Validate message dropped to the API
         'core/api-send': {
-            enabled: true,
+            enabled: false,
             // How many recipients to allow per message when sending through the API
             maxRecipients: 100
         },
@@ -98,7 +90,7 @@ module.exports = {
 
         // POST bounce data to a HTTP URL
         'core/http-bounce': {
-            enabled: true,
+            enabled: false,
             // An url to send the bounce information to
             // Bounce notification would be a POST request with the following form fields:
             //   id=delivery id
@@ -237,7 +229,7 @@ module.exports = {
         // overriden by
         hashAlgo: 'sha256',
         // Key folder for the default keys
-        keys: './keys'
+        keys: __dirname + '/../keys'
     },
 
     // Sending Zone definitions
