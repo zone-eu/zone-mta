@@ -96,7 +96,7 @@ command('create [directory]', 'Create new ZoneMTA application', {
                     }
                 };
 
-                fs.writeFile(path.join(directory, 'config.json'), JSON.stringify(config, 2), err => {
+                fs.writeFile(path.join(directory, 'config.json'), JSON.stringify(config, false, 2), err => {
                     if (err) {
                         console.error(err);
                         return process.exit(1);

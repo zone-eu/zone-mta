@@ -46,7 +46,7 @@ let startSMTPInterfaces = done => {
                 log.error(smtp.logName, err);
                 return done(err);
             }
-            log.info(smtp.logName, 'SMTP ' + key + ' MTA server started');
+            log.info(smtp.logName, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
             smtpInterfaces.push(smtp);
             return startNext();
         });
