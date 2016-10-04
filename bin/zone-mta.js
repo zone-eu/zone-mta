@@ -11,7 +11,7 @@ const fs = require('fs');
 yargs.usage('$0 <cmd> [args]').
 command('run', 'Run ZoneMTA application', {
     'config-file': {
-        default: '',
+        default: 'config.json',
         alias: 'c',
         describe: 'Path to configuration file',
         type: 'string'
@@ -36,12 +36,13 @@ command('run', 'Run ZoneMTA application', {
             customPluginPath = customConfig.pluginPath;
             process.env.NODE_CONFIG = JSON.stringify(customConfig);
         } catch (E) {
-            console.error(E);
+            console.log(E.message);
+            yargs.showHelp();
             return process.exit(1);
         }
     }
     let config = require('config');
-    config.pluginPath = customPluginPath || path.join(directory, 'plugins');
+    config.pluginsPath = customPluginPath || path.join(directory, 'plugins');
 
     require('../app');
 }).
@@ -71,6 +72,39 @@ command('create [directory]', 'Create new ZoneMTA application', {
                     return process.exit(1);
                 }
 
+                let examplePlugin = `'use strict';
+
+// This is an exmaple plugin that is disabled by default. To enable it,
+// see the "plugins"."example" option in config.json
+
+// Set module title
+module.exports.title = 'ExamplePlugin';
+
+// Initialize the module
+module.exports.init = (app, done) => {
+
+    // register a new hook that fires when message headers have been parsed
+    app.addHook('message:headers', (envelope, headers, next) => {
+
+        // Check if the message has header "X-Block-Message: Yes"
+        if (/^Yes$/i.test(headers.getFirst('X-Block-Message'))) {
+            let err = new Error('This message was blocked');
+            err.responseCode = 500; // SMTP response code
+            return next(err);
+        }
+
+        // add a new header
+        headers.add('X-Blocked', 'no');
+
+        // allow the message to pass
+        return next();
+    });
+
+    // all set up regarding this plugin
+    done();
+};
+`;
+
                 // default config object
                 let config = {
                     log: {
@@ -92,7 +126,8 @@ command('create [directory]', 'Create new ZoneMTA application', {
                             enabled: ['main', 'sender'],
                             futureDate: false,
                             xOriginatingIP: true
-                        }
+                        },
+                        example: false
                     }
                 };
 
@@ -102,8 +137,15 @@ command('create [directory]', 'Create new ZoneMTA application', {
                         return process.exit(1);
                     }
 
-                    console.log('Application created at <%s>, run the following command to start the server:', directory);
-                    console.log('  %s run -d %s -c %s', argv.$0, path.relative(process.cwd(), directory), 'config.json');
+                    fs.writeFile(path.join(directory, 'plugins', 'example.js'), examplePlugin, err => {
+                        if (err) {
+                            console.error(err);
+                            return process.exit(1);
+                        }
+
+                        console.log('Application created at <%s>, run the following command to start the server:', directory);
+                        console.log('  %s run -d %s', argv.$0, path.relative(process.cwd(), directory));
+                    });
                 });
 
             });
@@ -113,3 +155,5 @@ command('create [directory]', 'Create new ZoneMTA application', {
 
 help().
 argv;
+
+yargs.showHelp();
