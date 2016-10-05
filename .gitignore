@@ -8,5 +8,3 @@ test/queuetest
 config/production.*
 config/development.*
 *v8.log
-plugins/user/**/**
-!plugins/user/example-plugin.js

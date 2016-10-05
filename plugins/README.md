@@ -1,10 +1,8 @@
 # ZoneMTA plugins
 
-This is the folder for plugins. Core plugins reside in the <./core> folder and user plugins reside in the [./user](user) folder. Files in the user folder are excluded from ZoneMTA git, so you can put whatever you like into it without messing up the git state of the ZoneMTA folder (this means that you can run `git pull` to update ZoneMTA).
+If you create a ZoneMTA app using the command line tool then you should have a folder called "plugins" in the application directory. This is where you can put your custom plugins that can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to the application plugins folder, so using "./my-plugin" would point to "path/to/app/plugins/my-plugin". Exception is core plugins (starts with "core/") which resolve to the core plugins folder in ZoneMTA source.
 
-Files that reside in the plugin folders can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to this folder, so using "./user/my-plugin" would point to "zone-mta/plugins/user/my-plugin".
-
-> **NB!** Actually you should never edit the `default.js` configuration file. Instead make a new file to the config folder using NODE_ENV environment variable as the file name (defaults to `development`) and only touch the relevant keys in that file. For example, create a file called `config/development.json` and use the contents `{ "plugins": {"user/example-plugin": {"enabled": true}}}` to enable the example plugin.
+> **NB!** Actually you should never edit the `default.js` configuration file. Instead make a new file to the config folder using NODE_ENV environment variable as the file name (defaults to `development`) and only touch the relevant keys in that file. For example, create a file called `config/development.json` and use the contents `{ "plugins": {"core/example-plugin": {"enabled": true}}}` to enable the example plugin.
 
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
@@ -30,7 +28,7 @@ Config file:
 ```json
 {
     "plugins": {
-        "user/my-plugin": {
+        "my-plugin": {
             "enabled": true,
             "my-value": 123
         }
@@ -245,7 +243,29 @@ See [here](https://github.com/andris9/mailsplit#manipulating-headers) for the fu
 
 **NB** once you have written something to the `encoder` stream, you can't modify node headers anymore. If you modify headers after writing data to the `message` stream you might run into race conditions where you can not know if the updated header data was actually used or not.
 
-See example plugin [here](example-plugin.js)
+## Using Message Streamer
+
+You can stream individual message nodes by setting up a message streamer hook that targets mime tree nodes that match a specific criteria. The input streams of the node is already processed so you do not have to decode anything yourself.
+
+```javascript
+app.addStreamHook(filter, handler);
+```
+
+Where
+
+- **filter** is a function that is called for every found mime node. If the function returns true, than this node will be processed, otherwise it is skipped. The function gets two arguments: `envelope` and `node`
+- **handler** is a function that processes the node. The function gets the following arguments:
+
+  - **envelope** is an object with the sender and recipient info
+  - **node** is an object that references the current mime tree leaf, it includes the headers but not the body
+  - **source** is a readable stream for reading attachment content as a byte stream
+  - **done** is a function to call once the stream is processed
+
+See [here](https://github.com/andris9/mailsplit#manipulating-headers) for the full list of methods and options available the `node` object.
+
+**NB** you can't modify headers of the node as these are already passed on
+
+See example plugin [here](core/example-plugin.js)
 
 ## Adding routes to API Server
 

@@ -8,6 +8,8 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
 
+let showhelp = true;
+
 yargs.usage('$0 <cmd> [args]').
 command('run', 'Run ZoneMTA application', {
     'config-file': {
@@ -23,6 +25,7 @@ command('run', 'Run ZoneMTA application', {
         type: 'string'
     }
 }, argv => {
+    showhelp = false;
     let directory = argv.directory.charAt(0) === '/' ? argv.directory : path.join(process.cwd(), argv.directory);
 
     //process.env.NODE_ENV = 'production';
@@ -53,6 +56,7 @@ command('create [directory]', 'Create new ZoneMTA application', {
         type: 'string'
     }
 }, argv => {
+    showhelp = false;
     let directory = argv.directory.charAt(0) === '/' ? argv.directory : path.join(process.cwd(), argv.directory);
     mkdirp(directory, err => {
         if (err) {
@@ -156,4 +160,6 @@ module.exports.init = (app, done) => {
 help().
 argv;
 
-yargs.showHelp();
+if (showhelp) {
+    yargs.showHelp();
+}

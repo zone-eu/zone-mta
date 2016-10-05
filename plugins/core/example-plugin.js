@@ -26,16 +26,15 @@ module.exports.init = (app, done) => {
         return next();
     });
 
-    app.addHook('message:headers', (envelope, headers, next) => {
-
-        if (/^Yes$/i.test(headers.getFirst('X-Block-Message'))) {
+    app.addHook('message:headers', (envelope, next) => {
+        if (/^Yes$/i.test(envelope.headers.getFirst('X-Block-Message'))) {
             let err = new Error('This message was blocked');
             err.responseCode = 500;
             return setTimeout(() => next(err), 10000);
         }
 
         // add a new header
-        headers.add('X-Blocked', 'no');
+        envelope.headers.add('X-Blocked', 'no');
 
         // allow the message to pass
         return next();
@@ -91,6 +90,16 @@ module.exports.init = (app, done) => {
             name: filename || 'image.jpg'
         }, () => {
             archive.finish();
+        });
+    });
+
+    // This example calculates MD5 hash for every png image
+    app.addStreamHook((envelope, node) => node.contentType === 'image/png', (envelope, node, source, done) => {
+        let hash = crypto.createHash('md5');
+        source.on('data', chunk => hash.update(chunk));
+        source.on('end', () => {
+            app.logger.info('MD5', 'Calculated hash for "%s": %s', node.filename, hash.digest('hex'));
+            done();
         });
     });
 
