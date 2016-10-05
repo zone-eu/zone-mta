@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- v0.1.0-alpha.8 2016-10-05
+  * Added cli command "zone-mta" to create and run ZoneMTA applications
+  * Added API endpoint to check message status in queue
+  * Added new plugin option (`app.addStreamHook`) to process attachment streams without modifying the message. This can be used to store attachments to disk or calculcating hashes etc. on the fly
+
 - v0.1.0-alpha.5 2016-09-25
   * Allow multiple SMTP interfaces (one for 465, one for 587 etc)
 

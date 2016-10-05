@@ -24,10 +24,12 @@ Run as any user (does not need to be root):
 ```bash
 $ npm install -g zone-mta
 $ zone-mta create path/to/app
-$ zone-mta run -d path/to/app -c config.json
+$ zone-mta run -d path/to/app
 ```
 
 If everything succeeds then you should have a SMTP relay with no authentication running on localhost port 2525 (does not accept remote connections).
+
+> See [default.js](config/default.js) for all possible config options that you can use for config.json in your app folder.
 
 ## Birds-eye-view of the system
 
