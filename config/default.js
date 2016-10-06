@@ -24,9 +24,7 @@ module.exports = {
     // plugin files to load into mailtrain, relative to ./plugins folder
     // such a plugin should expose a method
     plugins: {
-        'core/example-plugin': {
-            enabled: true
-        },
+        'core/example-plugin': false,
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
             enabled: ['main', 'sender'],
