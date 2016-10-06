@@ -6,6 +6,10 @@ module.exports.title = 'Rspamd Spam Check';
 module.exports.init = function (app, done) {
 
     app.addAnalyzerHook((envelope, source, destination) => {
+        if (!app.config.interfaces.includes(envelope.interface)) {
+            return source.pipe(destination);
+        }
+
         let rspamdStream = new RspamdClient({
             url: app.config.url,
             from: envelope.from,
@@ -24,13 +28,17 @@ module.exports.init = function (app, done) {
         });
 
         rspamdStream.once('error', err => {
-            destination.emit('error', err);
+            source.emit('error', err);
         });
 
         source.pipe(rspamdStream).pipe(destination);
     });
 
     app.addHook('message:queue', (envelope, next) => {
+        if (!app.config.interfaces.includes(envelope.interface)) {
+            return next();
+        }
+
         if (app.config.rejectSpam && envelope.spam && envelope.spam.default && envelope.spam.default.is_spam) {
             let err = new Error('This message was classified as SPAM and may not be delivered');
             err.responseCode = 550;

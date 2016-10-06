@@ -28,6 +28,8 @@ module.exports = {
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
             enabled: ['main', 'sender'],
+            // Add missing headers (Message-ID, Date, etc.)
+            addMissing: true,
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
             // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
             // This should probably be a separate plugin
@@ -64,6 +66,7 @@ module.exports = {
         'core/rspamd': {
             enabled: false, // ['main', 'sender'], // spam is checked in 'main' context, headers are added in 'sender' context
             url: 'http://localhost:11333/check',
+            interfaces: ['feeder'],
             rejectSpam: true // if false, then the message is passed on with a spam header, otherwise message is rejected
         },
 

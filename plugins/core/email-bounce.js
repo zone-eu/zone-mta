@@ -38,8 +38,8 @@ module.exports.init = function (app, done) {
                 'Auto-Submitted': 'auto-replied'
             },
             subject: 'Delivery Status Notification (Failure)',
-            text: 'Delivery to the following recipient failed permanently:\n    ' + bounce.to + '\n' +
-                'Technical details of permanent failure:\n' + bounce.response + '\n\n\n----- Original message -----\n' +
+            text: 'Delivery to the following recipient failed permanently:\n    ' + bounce.to + '\n\n' +
+                'Technical details of permanent failure:\n\n' + bounce.response + '\n\n\n----- Original message -----\n' +
                 headers.build().toString().trim() + '\n\n----- Message truncated -----'
         });
 

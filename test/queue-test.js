@@ -4,7 +4,7 @@ const levelup = require('levelup');
 const leveldown = require('leveldown');
 const path = require('path');
 const dbfolder = path.join(__dirname, 'queuetest');
-const createQueue = require('../lib/mail-queue');
+const MailQueue = require('../lib/mail-queue');
 const PassThrough = require('stream').PassThrough;
 
 let db;
@@ -15,7 +15,7 @@ module.exports.setUp = done => {
     //leveldown.destroy(dbfolder, () => {
     db = levelup(dbfolder);
     db.on('ready', () => {
-        queue = createQueue({
+        queue = new MailQueue({
             db
         });
         queue.init(done);
