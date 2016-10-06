@@ -35,6 +35,7 @@ module.exports.init = function (app, done) {
             let err = new Error('This message was classified as SPAM and may not be delivered');
             err.responseCode = 550;
             app.logger.info('Rspamd', '%s NOQUEUE spam score %s, tests=[%s] (from=%s to=%s)', envelope.id, envelope.spam.default.score, envelope.spam.tests.join(','), envelope.messageId, envelope.from, envelope.to.join(','));
+            return next(err);
         }
         next();
     });
