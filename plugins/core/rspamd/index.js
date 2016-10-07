@@ -39,6 +39,30 @@ module.exports.init = function (app, done) {
             return next();
         }
 
+        if (app.config.processSpam) {
+            switch (envelope.spam && envelope.spam.default && envelope.spam.default.action) {
+                case 'reject':
+                    app.logger.info('Queue', '%s DROPPED[spam] (message-id=%s from=%s to=%s)', envelope.id, envelope.messageId, envelope.from, envelope.to.join(','));
+                    // accept message and silently drop it
+                    next({
+                        name: 'SMTPResponse',
+                        message: 'Message accepted'
+                    });
+                    break;
+                case 'add header':
+                case 'rewrite subject':
+                case 'soft reject':
+                    {
+                        let subject = envelope.headers.getFirst('subject');
+                        let score = Number(envelope.spam.default.score) || 0;
+                        score = Math.round(score * 100) / 100;
+                        subject = ('[*** SPAM ' + score + ' ***] ' + subject).trim();
+                        envelope.headers.update('Subject', subject);
+                        break;
+                    }
+            }
+        }
+
         if (app.config.rejectSpam && envelope.spam && envelope.spam.default && envelope.spam.default.is_spam) {
             let err = new Error('This message was classified as SPAM and may not be delivered');
             err.responseCode = 550;

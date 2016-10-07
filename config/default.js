@@ -67,7 +67,8 @@ module.exports = {
             enabled: false, // ['main', 'sender'], // spam is checked in 'main' context, headers are added in 'sender' context
             url: 'http://localhost:11333/check',
             interfaces: ['feeder'],
-            rejectSpam: true // if false, then the message is passed on with a spam header, otherwise message is rejected
+            rejectSpam: false, // if false, then the message is passed on with a spam header, otherwise message is rejected
+            processSpam: false // if true then drops spam or modifies headers for suspicios messages
         },
 
         // Rewrite MAIL FROM address using SRS
