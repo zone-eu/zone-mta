@@ -68,7 +68,8 @@ module.exports = {
             url: 'http://localhost:11333/check',
             interfaces: ['feeder'],
             rejectSpam: false, // if false, then the message is passed on with a spam header, otherwise message is rejected
-            processSpam: false // if true then drops spam or modifies headers for suspicios messages
+            processSpam: false, // if true then drops spam or modifies headers for suspicios messages
+            maxAllowedScore: false // if Number then drop messages with higher score
         },
 
         // Rewrite MAIL FROM address using SRS
