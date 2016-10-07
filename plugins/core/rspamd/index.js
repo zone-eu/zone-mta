@@ -35,7 +35,7 @@ module.exports.init = function (app, done) {
     });
 
     app.addHook('message:queue', (envelope, next) => {
-        if (!app.config.interfaces.includes(envelope.interface) || !envelope.spam && !envelope.spam.default) {
+        if (!app.config.interfaces.includes(envelope.interface) || !envelope.spam || !envelope.spam.default) {
             return next();
         }
 
