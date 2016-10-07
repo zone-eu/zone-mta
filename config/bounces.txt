@@ -60,6 +60,12 @@
 ^550[ \-]+5\.7\.1\s+.*not authorized,reject,block,Sender IP blocked
 ^550[ \-]+5\.7\.1\s+.*policy that prohibited,reject,recipient,Blocked by recipient
 ^550[ \-]+5\.7\.1\s+.*IPv6 sending guidelines,reject,config,Invalid PTR or missing DKIM
+^452[ \-]+4\.2\.2\s+The email account that you tried to reach is over quota,reject,capacity,Gmail Mailbox is full
+
+# Hot.ee error messages
+^550[ \-]+5\.2\.1\s+.*is expired account,reject,recipient,Expired Email account
+^451[ \-]+4\.3\.5\s+Server configuration problem,reject,envelope,User Name In Email Address Not Valid
+^552[ \-]+5\.2\.2\s+<.*@hot.ee,reject,capacity,Hot.ee Mailbox is full
 
 # Specific errors
 
