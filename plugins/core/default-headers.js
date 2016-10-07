@@ -11,13 +11,15 @@ const hostname = os.hostname();
 module.exports.title = 'Default headers';
 module.exports.init = function (app, done) {
 
+    const addMissing = [].concat(app.config.addMissing || []).map(key => (key || '').toString().toLowerCase().trim());
+
     // Endusre default headers like Date, Message-ID etc
     app.addHook('message:headers', (envelope, next) => {
         // Check Message-ID: value. Add if missing
         let mId = envelope.headers.getFirst('message-id');
         if (!mId) {
             mId = '<' + uuid.v4() + '@' + (envelope.from.substr(envelope.from.lastIndexOf('@') + 1) || hostname) + '>';
-            if (app.config.addMissing) {
+            if (addMissing.includes('message-id')) {
                 envelope.headers.remove('message-id'); // in case there's an empty value
                 envelope.headers.add('Message-ID', mId);
             }
@@ -62,7 +64,7 @@ module.exports.init = function (app, done) {
             }
 
             from.address = rewriteFrom.address || from.address || envelope.from || ('auto-generated@' + hostname);
-            if (app.config.addMissing || envelope.rewriteFrom) {
+            if (addMissing.includes('from') || envelope.rewriteFrom) {
                 envelope.headers.update('From', from.name ? from.name + ' <' + from.address + '>' : from.address);
             }
 
@@ -76,7 +78,7 @@ module.exports.init = function (app, done) {
         let dateVal = new Date(date);
         if (!date || dateVal.toString() === 'Invalid Date' || dateVal < new Date(1000)) {
             date = new Date().toUTCString().replace(/GMT/, '+0000');
-            if (app.config.addMissing) {
+            if (addMissing.includes('date')) {
                 envelope.headers.remove('date'); // remove old empty or invalid values
                 envelope.headers.add('Date', date);
             }
@@ -127,41 +129,39 @@ module.exports.init = function (app, done) {
         next();
     });
 
-    if (app.config.addMissing) {
-        app.addHook('sender:headers', (delivery, next) => {
-            // Ensure that there is at least one recipient header
+    app.addHook('sender:headers', (delivery, next) => {
+        // Ensure that there is at least one recipient header
 
-            let hasRecipient = false;
-            let hasContent = false;
-            let hasMime = false;
+        let hasRecipient = false;
+        let hasContent = false;
+        let hasMime = false;
 
-            let keys = delivery.headers.getList().map(line => line.key);
-            for (let i = 0, len = keys.length; i < len; i++) {
-                if (!hasRecipient && ['to', 'cc', 'bcc'].includes(keys[i])) {
-                    hasRecipient = true;
-                }
-                if (!hasMime && keys[i] === 'mime-version') {
-                    hasMime = true;
-                }
-                if (!hasContent && ['content-transfer-encoding', 'content-type', 'content-disposition'].includes(keys[i])) {
-                    hasContent = true;
-                }
+        let keys = delivery.headers.getList().map(line => line.key);
+        for (let i = 0, len = keys.length; i < len; i++) {
+            if (!hasRecipient && ['to', 'cc', 'bcc'].includes(keys[i])) {
+                hasRecipient = true;
             }
-
-            if (!hasRecipient) {
-                // No recipient addresses found, add a To:
-                // This should not conflict DKIM signature
-                delivery.headers.add('To', delivery.envelope.to);
+            if (!hasMime && keys[i] === 'mime-version') {
+                hasMime = true;
             }
-
-            if (hasContent && !hasMime) {
-                // Add MIME-Version to bottom
-                delivery.headers.add('MIME-Version', '1.0', Infinity);
+            if (!hasContent && ['content-transfer-encoding', 'content-type', 'content-disposition'].includes(keys[i])) {
+                hasContent = true;
             }
+        }
 
-            next();
-        });
-    }
+        if (!hasRecipient && addMissing.includes('to')) {
+            // No recipient addresses found, add a To:
+            // This should not conflict DKIM signature
+            delivery.headers.add('To', delivery.envelope.to);
+        }
+
+        if (hasContent && !hasMime && addMissing.includes('mime-version')) {
+            // Add MIME-Version to bottom
+            delivery.headers.add('MIME-Version', '1.0', Infinity);
+        }
+
+        next();
+    });
 
     done();
 };

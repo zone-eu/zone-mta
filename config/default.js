@@ -29,7 +29,7 @@ module.exports = {
         'core/default-headers': {
             enabled: ['main', 'sender'],
             // Add missing headers (Message-ID, Date, etc.)
-            addMissing: true,
+            addMissing: ['message-id', 'date'],
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
             // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
             // This should probably be a separate plugin
