@@ -85,6 +85,7 @@ To use these hooks you need to set `enabled` to `true` or `'main'` or `['main',.
 - **'message:store'** with arguments `envelope`, `body` _(stream)_ called when message is about to be stored to disk. You should not modify the `body` stream in any way, otherwise you break the body hash, this hook is provided in case you want to store a message somewhere else than the outbound queue
 - **'message:queue'** with arguments `envelope` called when message is processed and ready to be pushed to queue. You should not modify the `body` stream in any way, otherwise you break the body hash
 - **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery
+- **'queue:release'** with arguments `zone`, `data` called when a message was removed from the queue
 
 **'sender' context**
 
