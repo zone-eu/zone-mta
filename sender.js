@@ -82,6 +82,14 @@ queueClient.connect(err => {
         }
     });
 
+    queueClient.on('error', err => {
+        if (!closing) {
+            log.error('Sender/' + zone.name + '/' + process.pid, 'Connection to Queue server ended with error %s', err.message);
+            process.exit(1);
+        }
+    });
+
+
     queueClient.onData = (data, next) => {
         let callback;
         if (responseHandlers.has(data.req)) {
