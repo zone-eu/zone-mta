@@ -49,7 +49,7 @@ module.exports.init = function (app, done) {
                 // accept message and silently drop it
                 return next({
                     name: 'SMTPResponse',
-                    message: 'Message accepted'
+                    message: 'Message queued as ' + envelope.id
                 });
             }
 
@@ -59,7 +59,7 @@ module.exports.init = function (app, done) {
                     // accept message and silently drop it
                     return next({
                         name: 'SMTPResponse',
-                        message: 'Message accepted'
+                        message: 'Message queued as ' + envelope.id
                     });
                 case 'add header':
                 case 'rewrite subject':
