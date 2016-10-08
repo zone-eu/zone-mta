@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "0.1.0-alpha.32",
+  "version": "0.1.0-alpha.33",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "dependencies": {
     "addressparser": "^1.0.1",
     "config": "^1.21.0",
-    "crc-32": "^0.4.1",
+    "crc-32": "^1.0.0",
     "dnscache": "0.0.4",
     "iconv-lite": "^0.4.13",
     "isemail": "^2.2.1",
@@ -24,7 +24,7 @@
     "mailsplit": "^3.1.0",
     "mkdirp": "^0.5.1",
     "msgpack-js": "^0.3.0",
-    "nodemailer-fetch": "^2.0.0",
+    "nodemailer-fetch": "^2.1.0",
     "npmlog": "^4.0.0",
     "restify": "4.1.1",
     "seq-index": "^1.1.0",

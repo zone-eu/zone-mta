@@ -26,6 +26,7 @@ class RspamdClient extends Transform {
             method: 'post',
             contentType: 'message/rfc822',
             body: this.body,
+            allowErrorResponse: true,
             headers
         });
         this.req.once('error', err => {
@@ -105,7 +106,7 @@ class RspamdClient extends Transform {
                 response.tests = tests;
                 this.emit('response', response);
             } catch (E) {
-                this.emit('fail', E);
+                this.emit('fail', new Error('Failed parsing server response (code ' + this.req.statusCode + ').' + E.message));
             }
             callback();
         });
