@@ -176,7 +176,9 @@ module.exports = {
         // Sets DNS servers to use for resolving MX/A/AAAA records
         // Use only IP addresses
         //nameservers: ['127.0.0.1'],
-        nameservers: false
+        nameservers: false,
+        blockLocalAddresses: true,
+        blockDomains: ['localhost']
     },
 
     // Simple HTTP server for fetching info about messages
