@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "0.1.0-alpha.34",
+  "version": "0.1.0-alpha.35",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "crc-32": "^1.0.0",
     "dnscache": "0.0.4",
     "iconv-lite": "^0.4.13",
+    "ipaddr.js": "^1.2.0",
     "isemail": "^2.2.1",
     "level": "^1.4.0",
     "level-stream-access": "^2.3.0",
