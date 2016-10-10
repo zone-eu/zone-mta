@@ -66,7 +66,7 @@ module.exports.init = function (app, done) {
                 case 'soft reject':
                     {
                         let subject = envelope.headers.getFirst('subject');
-                        subject = ('[*** SPAM ' + score + ' ***] ' + subject).trim();
+                        subject = ('[***SPAM(' + score.toFixed(2) + ')***] ' + subject).trim();
                         envelope.headers.update('Subject', subject);
                         break;
                     }

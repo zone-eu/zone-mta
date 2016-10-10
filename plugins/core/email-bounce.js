@@ -44,7 +44,7 @@ module.exports.init = function (app, done) {
         });
 
         maildrop.add(envelope, mail.createReadStream(), err => {
-            if (err) {
+            if (err && err.name !== 'SMTPResponse') {
                 app.logger.error('Bounce', err.message);
             }
             next();
