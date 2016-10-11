@@ -8,12 +8,14 @@ const PassThrough = require('stream').PassThrough;
 
 class RspamdClient extends Transform {
     constructor(options) {
-        super();
+        super({
+            highWaterMark: 8192
+        });
         this.options = options || {};
 
         let headers = {
             from: options.from,
-            rcpt: options.to,
+            'deliver-to': options.to,
             'queue-id': options.id
         };
 

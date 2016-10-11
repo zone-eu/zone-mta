@@ -25,14 +25,51 @@ module.exports.init = function (app, done) {
         rspamdStream.on('response', response => {
             // store spam result to the envelope
             envelope.spam = response;
-            app.logger.info('Rspamd', '%s RESULTS ', envelope.id, JSON.stringify(response));
+            let score = (Number(response && response.default && response.default.score) || 0).toFixed(2);
+            let tests = [].concat(response && response.tests || []).join(', ');
+            let action = response && response.default && response.default.action || 'unknown';
+            app.logger.info('Rspamd', '%s RESULTS score=%s action="%s" [%s]', envelope.id, score, action, tests);
         });
 
         rspamdStream.once('error', err => {
             source.emit('error', err);
         });
 
-        source.pipe(rspamdStream).pipe(destination);
+        let finished = false;
+        let reading = false;
+        let readNext = () => {
+            // Rspamd does not handle upload chunks larger than 12kb
+            let chunk = source.read(8192);
+            if (chunk === null) {
+                if (finished) {
+                    rspamdStream.end();
+                }
+                reading = false;
+                return;
+            }
+            if (!rspamdStream.write(chunk)) {
+                return rspamdStream.on('drain', readNext);
+            }
+            readNext();
+        };
+
+        source.on('readable', () => {
+            if (reading) {
+                return;
+            }
+            reading = true;
+            readNext();
+        });
+
+        source.once('end', () => {
+            finished = true;
+            if (reading) {
+                return;
+            }
+            rspamdStream.end();
+        });
+
+        rspamdStream.pipe(destination);
     });
 
     app.addHook('message:queue', (envelope, messageInfo, next) => {
