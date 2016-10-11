@@ -178,7 +178,7 @@ module.exports = {
         //nameservers: ['127.0.0.1'],
         nameservers: false,
         blockLocalAddresses: true,
-        blockDomains: ['localhost']
+        blockDomains: ['localhost', 'localhost.localdomain']
     },
 
     // Simple HTTP server for fetching info about messages
