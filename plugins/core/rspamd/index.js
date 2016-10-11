@@ -25,6 +25,7 @@ module.exports.init = function (app, done) {
         rspamdStream.on('response', response => {
             // store spam result to the envelope
             envelope.spam = response;
+            app.logger.info('Rspamd', '%s RESULTS ', envelope.id, JSON.stringify(response));
         });
 
         rspamdStream.once('error', err => {
