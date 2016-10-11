@@ -70,6 +70,7 @@
 # Specific errors
 
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
+^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
 
 # Temporary errors by Enhanced Status Codes
 

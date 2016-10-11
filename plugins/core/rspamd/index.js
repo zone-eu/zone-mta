@@ -34,7 +34,7 @@ module.exports.init = function (app, done) {
         source.pipe(rspamdStream).pipe(destination);
     });
 
-    app.addHook('message:queue', (envelope, next) => {
+    app.addHook('message:queue', (envelope, messageInfo, next) => {
         if (!app.config.interfaces.includes(envelope.interface) || !envelope.spam || !envelope.spam.default) {
             return next();
         }
@@ -44,8 +44,10 @@ module.exports.init = function (app, done) {
             let score = Number(envelope.spam.default.score) || 0;
             score = Math.round(score * 100) / 100;
 
+            messageInfo.score = score.toFixed(2);
+
             if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
-                app.logger.info('Queue', '%s DROPPED[spam] (score=%s message-id=%s from=%s to=%s)', envelope.id, score, envelope.messageId, envelope.from, envelope.to.join(','));
+                app.logger.info('Queue', '%s DROPPED[spam] (%)', envelope.id, messageInfo.format());
                 // accept message and silently drop it
                 return next({
                     name: 'SMTPResponse',
@@ -55,7 +57,7 @@ module.exports.init = function (app, done) {
 
             switch (envelope.spam.default.action) {
                 case 'reject':
-                    app.logger.info('Queue', '%s DROPPED[spam] (score=%s message-id=%s from=%s to=%s)', envelope.id, score, envelope.messageId, envelope.from, envelope.to.join(','));
+                    app.logger.info('Queue', '%s DROPPED[spam] (%s)', envelope.id, messageInfo.format());
                     // accept message and silently drop it
                     return next({
                         name: 'SMTPResponse',
@@ -76,7 +78,8 @@ module.exports.init = function (app, done) {
         if (app.config.rejectSpam && envelope.spam.default.is_spam) {
             let err = new Error('This message was classified as SPAM and may not be delivered');
             err.responseCode = 550;
-            app.logger.info('Rspamd', '%s NOQUEUE spam score %s, tests=[%s] (from=%s to=%s)', envelope.id, envelope.spam.default.score, envelope.spam.tests.join(','), envelope.from, envelope.to.join(','));
+            messageInfo.tests = envelope.spam.tests.join(',');
+            app.logger.info('Rspamd', '%s NOQUEUE (%s)', envelope.id, messageInfo.format());
             return next(err);
         }
         next();
