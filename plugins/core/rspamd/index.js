@@ -104,12 +104,12 @@ module.exports.init = function (app, done) {
                 case 'add header':
                 case 'rewrite subject':
                 case 'soft reject':
-                    {
+                    if (app.config.rewriteSubject) {
                         let subject = envelope.headers.getFirst('subject');
                         subject = ('[***SPAM(' + score.toFixed(2) + ')***] ' + subject).trim();
                         envelope.headers.update('Subject', subject);
-                        break;
                     }
+                    break;
             }
         }
 
@@ -145,6 +145,7 @@ module.exports.init = function (app, done) {
                 statusParts.push('tests=[' + delivery.spam.tests.join(', ') + ']');
             }
 
+            delivery.headers.add('X-Zone-Spam-Resolution', delivery.spam.default.action, Infinity);
             delivery.headers.add('X-Zone-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
 
         }

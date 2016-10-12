@@ -23,7 +23,7 @@ module.exports.init = function (app, done) {
 
         let envelope = {
             interface: 'bounce',
-            from: false,
+            from: '',
             to: bounce.from,
             transtype: 'HTTP',
             time: Date.now()
