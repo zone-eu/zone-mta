@@ -48,7 +48,7 @@ module.exports.init = function (app, done) {
                 return;
             }
             if (!rspamdStream.write(chunk)) {
-                return rspamdStream.on('drain', readNext);
+                return rspamdStream.once('drain', readNext);
             }
             readNext();
         };
