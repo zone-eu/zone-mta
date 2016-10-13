@@ -29,7 +29,7 @@
 # AOL error messages
 # https://postmaster.aol.com/error-codes
 ^554[ \-]+\(?RTR:(BB|DU),reject,block,Using dynamic IP range
-^554[ \-]+\(?RTR:CH,reject,spam,Virus found
+^554[ \-]+\(?RTR:CH,reject,virus,Virus found
 ^554[ \-]+\(?RTR:RD,reject,config,Invalid reverse DNS
 ^554[ \-]+\(?RTR:(SC|BL),reject,block,Sender IP blocked
 ^554[ \-]+\(?RTR:GE,defer,other,Technical error
@@ -60,17 +60,27 @@
 ^550[ \-]+5\.7\.1\s+.*not authorized,reject,block,Sender IP blocked
 ^550[ \-]+5\.7\.1\s+.*policy that prohibited,reject,recipient,Blocked by recipient
 ^550[ \-]+5\.7\.1\s+.*IPv6 sending guidelines,reject,config,Invalid PTR or missing DKIM
-^452[ \-]+4\.2\.2\s+The email account that you tried to reach is over quota,reject,capacity,Gmail Mailbox is full
+^452[ \-]+4\.2\.2\s+.*over quota,reject,capacity,Gmail Mailbox is full
+^552[ \-]+5\.7\.0\s+.*potential security issue,reject,virus,Suspicious attachment
 
 # Hot.ee error messages
 ^550[ \-]+5\.2\.1\s+.*is expired account,reject,recipient,Expired Email account
 ^451[ \-]+4\.3\.5\s+Server configuration problem,reject,envelope,User Name In Email Address Not Valid
 ^552[ \-]+5\.2\.2\s+<.*@hot.ee,reject,capacity,Hot.ee Mailbox is full
 
-# Specific errors
+# Mail.ee error messages
+^554[ \-]+5\.2\.1\s+.*Inactive user,reject,recipient,Disabled Email account
+
+# Mail.ru error messages
+^550 spam message rejected,reject,spam,Spam message
+
+# Other servers
 
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
 ^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
+^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
+^554 Invalid mailbox,reject,envelope,Invalid mailbox
+^554[ \-]+5\.7\.105\s.*SenderFilterConfig,reject,block,Blocked by recipient
 
 # Temporary errors by Enhanced Status Codes
 
