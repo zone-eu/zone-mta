@@ -81,6 +81,9 @@
 ^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
 ^554 Invalid mailbox,reject,envelope,Invalid mailbox
 ^554[ \-]+5\.7\.105\s.*SenderFilterConfig,reject,block,Blocked by recipient
+^554[ \-]+5\.7\.1\s.*Unknown recipient,reject,recipient,Unknown user
+^550[ \-]+5\.1\.1\s.*User unknown,reject,recipient,Unknown user
+
 
 # Temporary errors by Enhanced Status Codes
 
