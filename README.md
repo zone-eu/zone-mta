@@ -75,7 +75,7 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
 5. Run the server application: `node app.js`
 6. If everything worked then you should have a relay SMTP server running at localhost:2525 (no authentication, no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections and [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users) about setting up authentication)
-7. You can find the stats about queues at `http://hostname:8080/queue/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are approximate.
+7. You can find the stats about queues at `http://hostname:8080/counter/zone/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are calculated on request so try to not fetch these too often if you have large queues
 8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
 
 You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started).
@@ -240,23 +240,39 @@ curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -H "X
 You can check the current state of a sending zone (for example "default") with the following query
 
 ```bash
-curl http://localhost:8080/queue/default
+curl http://localhost:8080/counter/zone/default
 ```
 
-The response includes counters about queued and deferred messages and also splits the counter by recipient domains
+The response includes counters about queued and deferred messages
 
 ```json
 {
-    "time": "2016-10-03T13:12:18.128Z",
-    "started": "2016-10-03T13:12:17.336Z",
-    "processed": 1,
-    "queued": 1,
-    "deferred": 1,
-    "domains": [{
-        "domain": "example.com",
-        "queued": 1,
-        "deferred": 1
-    }]
+    "active": 13,
+    "deferred": 17
+}
+```
+
+#### Queued messages
+
+You can list the first 1000 messages queued or deferred for a queue
+
+```bash
+curl http://localhost:8080/queued/active/default
+```
+
+Replace _active_ with _deferred_ to get the list of deferred messages.
+
+The response includes an array of messages
+
+```json
+{
+    "list": [
+        {
+            "id":"157ca04cd5c000ddea",
+            "zone":"default",
+            "recipient":"example@example.com"
+        }
+    ]
 }
 ```
 
@@ -327,6 +343,30 @@ The response includes general information about the message and lists all recipi
         }
     }]
 }
+```
+
+#### Message body
+
+If you know the queue id (for example 1578a823de00009fbb) then you can fetch the entire message contents
+
+```bash
+curl http://localhost:8080/fetch/1578a823de00009fbb
+```
+
+The response is a *message/rfc822* message. It does not include a Received header for ZoneMTA or a DKIM signature header,
+these are added when sending out the message.
+
+```
+Content-Type: text/plain
+From: sender@example.com
+To: exmaple@example.com
+Subject: testmessage
+Message-ID: <4f7e73c3-009c-48c2-4b45-1cf20b2fe6d3@example.com>
+Date: Sat, 15 Oct 2016 20:24:54 +0000
+MIME-Version: 1.0
+
+Hello world! This is a test message
+...
 ```
 
 ## TODO
