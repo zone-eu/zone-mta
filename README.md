@@ -240,23 +240,39 @@ curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -H "X
 You can check the current state of a sending zone (for example "default") with the following query
 
 ```bash
-curl http://localhost:8080/queue/default
+curl http://localhost:8080/counter/zone/default
 ```
 
-The response includes counters about queued and deferred messages and also splits the counter by recipient domains
+The response includes counters about queued and deferred messages
 
 ```json
 {
-    "time": "2016-10-03T13:12:18.128Z",
-    "started": "2016-10-03T13:12:17.336Z",
-    "processed": 1,
-    "queued": 1,
-    "deferred": 1,
-    "domains": [{
-        "domain": "example.com",
-        "queued": 1,
-        "deferred": 1
-    }]
+    "active": 13,
+    "deferred": 17
+}
+```
+
+#### Queued messages
+
+You can list the first 1000 messages queued or deferred for a queue
+
+```bash
+curl http://localhost:8080/queued/active/default
+```
+
+Replace _active_ with _deferred_ to get the list of deferred messages.
+
+The response includes an array of messages
+
+```json
+{
+    "list": [
+        {
+            "id":"157ca04cd5c000ddea",
+            "zone":"default",
+            "recipient":"example@example.com"
+        }
+    ]
 }
 ```
 
@@ -327,6 +343,30 @@ The response includes general information about the message and lists all recipi
         }
     }]
 }
+```
+
+#### Message body
+
+If you know the queue id (for example 1578a823de00009fbb) then you can fetch the entire message contents
+
+```bash
+curl http://localhost:8080/fetch/1578a823de00009fbb
+```
+
+The response is a *message/rfc822* message. It does not include a Received header for ZoneMTA or a DKIM signature header,
+these are added when sending out the message.
+
+```
+Content-Type: text/plain
+From: sender@example.com
+To: exmaple@example.com
+Subject: testmessage
+Message-ID: <4f7e73c3-009c-48c2-4b45-1cf20b2fe6d3@example.com>
+Date: Sat, 15 Oct 2016 20:24:54 +0000
+MIME-Version: 1.0
+
+Hello world! This is a test message
+...
 ```
 
 ## TODO
