@@ -43,11 +43,18 @@ module.exports.init = function (app, done) {
                 headers.build().toString().trim() + '\n\n----- Message truncated -----'
         });
 
-        maildrop.add(envelope, mail.createReadStream(), err => {
-            if (err && err.name !== 'SMTPResponse') {
-                app.logger.error('Bounce', err.message);
+        app.getQueue().generateId((err, id) => {
+            if (err) {
+                return next(err);
             }
-            next();
+            envelope.id = id;
+
+            maildrop.add(envelope, mail.createReadStream(), err => {
+                if (err && err.name !== 'SMTPResponse') {
+                    app.logger.error('Bounce', err.message);
+                }
+                next();
+            });
         });
     });
 

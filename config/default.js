@@ -138,6 +138,9 @@ module.exports = {
 
             port: 2525,
 
+            // how many processes to spawn
+            processes: 2,
+
             // max message size in bytes
             maxSize: 30 * 1024 * 1024, // 30 MB
 

@@ -16,6 +16,7 @@ const crypto = require('crypto');
 
 const QueueClient = require('./lib/transport/client');
 const queueClient = new QueueClient(config.queueServer);
+const RemoteQueue = require('./lib/remote-queue');
 
 const senders = new Set();
 
@@ -51,7 +52,7 @@ if (!zone) {
 
 process.title = config.ident + ': sender/' + currentZone;
 
-function sendCommand(cmd, callback) {
+let sendCommand = (cmd, callback) => {
     let id = ++cmdId;
     let data = {
         req: id
@@ -66,7 +67,7 @@ function sendCommand(cmd, callback) {
     Object.keys(cmd).forEach(key => data[key] = cmd[key]);
     responseHandlers.set(id, callback);
     queueClient.send(data);
-}
+};
 
 queueClient.connect(err => {
     if (err) {
@@ -106,6 +107,8 @@ queueClient.connect(err => {
         zone: zone.name,
         id: clientId
     });
+
+    plugins.handler.queue = new RemoteQueue(sendCommand);
 
     plugins.handler.load(() => {
         log.info('Sender/' + zone.name + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
