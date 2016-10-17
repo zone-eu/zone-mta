@@ -1,58 +1,58 @@
 {
-    "name": "zone-mta",
-    "private": false,
-    "version": "0.1.0-alpha.70",
-    "description": "Tiny outbound MTA",
-    "main": "app.js",
-    "scripts": {
-        "test": "grunt",
-        "start": "node app.js"
-    },
-    "author": "Andris Reinman",
-    "license": "EUPL-1.1",
-    "dependencies": {
-        "addressparser": "^1.0.1",
-        "config": "^1.21.0",
-        "crc-32": "^1.0.1",
-        "dnscache": "0.0.4",
-        "iconv-lite": "^0.4.13",
-        "ipaddr.js": "^1.2.0",
-        "isemail": "^2.2.1",
-        "level": "^1.4.0",
-        "level-stream-access": "^2.3.0",
-        "libmime": "^2.1.0",
-        "mailcomposer": "^3.12.0",
-        "mailsplit": "^3.1.0",
-        "mkdirp": "^0.5.1",
-        "msgpack-js": "^0.3.0",
-        "nodemailer-fetch": "^2.1.0",
-        "npmlog": "^4.0.0",
-        "restify": "4.1.1",
-        "seq-index": "^1.1.0",
-        "smtp-connection": "^2.12.1",
-        "smtp-server": "^1.15.0",
-        "socks": "^1.1.9",
-        "srs.js": "^0.1.0",
-        "uuid": "^2.0.3",
-        "yargs": "^6.0.0"
-    },
-    "devDependencies": {
-        "grunt": "^1.0.1",
-        "grunt-cli": "^1.2.0",
-        "grunt-contrib-nodeunit": "^1.0.0",
-        "grunt-eslint": "^19.0.0",
-        "moment": "^2.15.1",
-        "nodemailer": "^2.6.4",
-        "random-message": "^1.1.0",
-        "zip-stream": "^1.1.0"
-    },
-    "engines": {
-        "node": ">=6.0.0"
-    },
-    "optionalDependencies": {
-        "modern-syslog": "^1.1.4"
-    },
-    "bin": {
-        "zone-mta": "./bin/zone-mta.js"
-    }
+  "name": "zone-mta",
+  "private": false,
+  "version": "0.1.0-alpha.70",
+  "description": "Tiny outbound MTA",
+  "main": "app.js",
+  "scripts": {
+    "test": "grunt",
+    "start": "node app.js"
+  },
+  "author": "Andris Reinman",
+  "license": "EUPL-1.1",
+  "dependencies": {
+    "addressparser": "^1.0.1",
+    "config": "^1.21.0",
+    "crc-32": "^1.0.1",
+    "dnscache": "0.0.4",
+    "iconv-lite": "^0.4.13",
+    "ipaddr.js": "^1.2.0",
+    "isemail": "^2.2.1",
+    "level": "^1.5.0",
+    "level-stream-access": "^2.3.0",
+    "libmime": "^2.1.0",
+    "mailcomposer": "^3.12.0",
+    "mailsplit": "^3.1.0",
+    "mkdirp": "^0.5.1",
+    "msgpack-js": "^0.3.0",
+    "nodemailer-fetch": "^2.1.0",
+    "npmlog": "^4.0.0",
+    "restify": "4.1.1",
+    "seq-index": "^1.1.0",
+    "smtp-connection": "^2.12.1",
+    "smtp-server": "^1.16.1",
+    "socks": "^1.1.9",
+    "srs.js": "^0.1.0",
+    "uuid": "^2.0.3",
+    "yargs": "^6.2.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-nodeunit": "^1.0.0",
+    "grunt-eslint": "^19.0.0",
+    "moment": "^2.15.1",
+    "nodemailer": "^2.6.4",
+    "random-message": "^1.1.0",
+    "zip-stream": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "optionalDependencies": {
+    "modern-syslog": "^1.1.4"
+  },
+  "bin": {
+    "zone-mta": "./bin/zone-mta.js"
+  }
 }
