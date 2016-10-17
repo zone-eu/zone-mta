@@ -16,6 +16,7 @@ const SMTPInterface = require('./lib/smtp-interface');
 
 const QueueClient = require('./lib/transport/client');
 const queueClient = new QueueClient(config.queueServer);
+const RemoteQueue = require('./lib/remote-queue');
 
 let currentInterface = (process.argv[2] || '').toString().trim().toLowerCase();
 let clientId = (process.argv[3] || '').toString().trim().toLowerCase() || crypto.randomBytes(10).toString('hex');
@@ -96,6 +97,8 @@ queueClient.connect(err => {
         smtp: currentInterface,
         id: clientId
     });
+
+    plugins.handler.queue = new RemoteQueue(sendCommand);
 
     plugins.handler.load(() => {
         log.info('SMTP/' + currentInterface + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
