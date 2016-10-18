@@ -110,6 +110,7 @@ startSMTPInterfaces(err => {
                 queueServer.setQueue(queue);
                 sendingZone.init(queue);
 
+                // spawn SMTP servers
                 smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
 
                 plugins.handler.queue = queue;
@@ -122,11 +123,21 @@ startSMTPInterfaces(err => {
     });
 });
 
+let forceStop = code => {
+    log.info('Process', 'Force closing...');
+    try {
+        queue.db.close(() => false);
+    } catch (E) {
+        // ignore
+    }
+    setTimeout(() => process.exit(code), 10);
+    return;
+};
+
 let stop = code => {
     code = code || 0;
     if (queue.closing) {
-        log.info('Process', 'Force closing...');
-        return process.exit(code);
+        return forceStop(code);
     }
     log.info('Process', 'Server closing down...');
     queue.closing = true;
@@ -150,6 +161,7 @@ let stop = code => {
         log.info('API', 'Service closed');
         checkClosed();
     });
+
     queueServer.close(() => {
         // wait until all connections to the API HTTP are closed
         log.info('QS', 'Service closed');
@@ -158,10 +170,7 @@ let stop = code => {
     queue.stop();
 
     // If we were not able to stop other stuff by 10 sec. force close
-    let forceExitTimer = setTimeout(() => {
-        log.info('Process', 'Timed out, force closing...');
-        process.exit(code);
-    }, 10 * 1000);
+    let forceExitTimer = setTimeout(() => forceStop(code), 10 * 1000);
     forceExitTimer.unref();
 };
 

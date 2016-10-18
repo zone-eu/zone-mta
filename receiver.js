@@ -80,7 +80,6 @@ queueClient.connect(err => {
         }
     });
 
-
     queueClient.onData = (data, next) => {
         let callback;
         if (responseHandlers.has(data.req)) {
