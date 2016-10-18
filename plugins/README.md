@@ -91,6 +91,7 @@ To use these hooks you need to set `enabled` to `true` or `'main'` or `['main',.
 
 To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
+- **'sender:fecth'** with arguments `delivery` called when message is retrieved from queue for delivery
 - **'sender:headers'** with arguments `delivery` called when message is about to be sent (but before DKIM signing), this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connect'_ hook to perform actions that take more time
 - **'sender:mx'** with arguments `delivery`, `exchanges` is called when ZoneMTA needs to resolve MX addresses for a recipient (see [onion.js](core/onion.js) for example)
 - **'sender:connect'** with arguments `delivery`, `options` is called when ZoneMTA needs to set up the smtp-connection configuration object (see [onion.js](core/onion.js) for example)
@@ -267,26 +268,3 @@ See [here](https://github.com/andris9/mailsplit#manipulating-headers) for the fu
 **NB** you can't modify headers of the node as these are already passed on
 
 See example plugin [here](core/example-plugin.js)
-
-## Adding routes to API Server
-
-You can access the Restify API server (by default runs on 8080) by calling `app.getApiServer()`. This function returns the Restify server instance.
-
-**NB!** the API server should be accessible from localhost only as it exposes sensitive endpoints.
-
-```javascript
-let server = app.getApiServer();
-server.get('/hello', (req, res, next) => {
-    res.json({
-        world: true
-    });
-    next();
-});
-```
-
-And then call
-
-```
-$ curl http://localhost:8080/hello
-> {"world":true}
-```

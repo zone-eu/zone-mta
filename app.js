@@ -39,14 +39,14 @@ let startSMTPInterfaces = done => {
             return done();
         }
         let key = keys[pos++];
-        let smtp = new SMTPInterface(config.name, key, config.smtpInterfaces[key]);
+        let smtp = new SMTPInterface(key, config.smtpInterfaces[key]);
         smtp.start(err => {
             if (err) {
-                log.error(smtp.logName, 'Could not start ' + key + ' MTA server');
-                log.error(smtp.logName, err);
+                log.error('SMTP/' + smtp.interface, 'Could not start ' + key + ' MTA server');
+                log.error('SMTP/' + smtp.interface, err);
                 return done(err);
             }
-            log.info(smtp.logName, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
+            log.info('SMTP/' + smtp.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
             smtpInterfaces.push(smtp);
             return startNext();
         });
@@ -106,10 +106,12 @@ startSMTPInterfaces(err => {
                 }
                 log.info('Queue', 'Sending queue initialized');
 
-                smtpInterfaces.forEach(smtpInterface => smtpInterface.setQueue(queue));
                 apiServer.setQueue(queue);
                 queueServer.setQueue(queue);
                 sendingZone.init(queue);
+
+                // spawn SMTP servers
+                smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
 
                 plugins.handler.queue = queue;
                 plugins.handler.apiServer = apiServer;
@@ -121,11 +123,21 @@ startSMTPInterfaces(err => {
     });
 });
 
+let forceStop = code => {
+    log.info('Process', 'Force closing...');
+    try {
+        queue.db.close(() => false);
+    } catch (E) {
+        // ignore
+    }
+    setTimeout(() => process.exit(code), 10);
+    return;
+};
+
 let stop = code => {
     code = code || 0;
     if (queue.closing) {
-        log.info('Process', 'Force closing...');
-        return process.exit(code);
+        return forceStop(code);
     }
     log.info('Process', 'Server closing down...');
     queue.closing = true;
@@ -149,6 +161,7 @@ let stop = code => {
         log.info('API', 'Service closed');
         checkClosed();
     });
+
     queueServer.close(() => {
         // wait until all connections to the API HTTP are closed
         log.info('QS', 'Service closed');
@@ -157,10 +170,7 @@ let stop = code => {
     queue.stop();
 
     // If we were not able to stop other stuff by 10 sec. force close
-    let forceExitTimer = setTimeout(() => {
-        log.info('Process', 'Timed out, force closing...');
-        process.exit(code);
-    }, 10 * 1000);
+    let forceExitTimer = setTimeout(() => forceStop(code), 10 * 1000);
     forceExitTimer.unref();
 };
 

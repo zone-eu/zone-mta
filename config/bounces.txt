@@ -25,6 +25,7 @@
 ^451[ \-]+VS1\-MF\b,reject,spam,From address is spammer
 ^553[ \-]+5\.7\.1 \[BL,reject,block,Blacklisted by Spamhaus
 ^554[ \-]+5\.7\.5 \(AU01\),reject,message,Invalid DKIM signature
+^554[ \-]+.*This user doesn't have,reject,recipient,Unknown user
 
 # AOL error messages
 # https://postmaster.aol.com/error-codes
@@ -43,7 +44,7 @@
 ^421[ \-]+\(?DYN:T\d,slowdown,rate,Rate limit exceeded
 ^554[ \-]+\(?CON:B1,reject,block,Sender IP blocked
 ^421[ \-]+\(?CON:B1,defer,block,Sender IP temporary blocked
-^554[ \-]+\(?DMARC:,reject,message,Message failed DMARC Evaluation
+^554[ \-]+\(?DMARC:,reject,dmarc,Message failed DMARC Evaluation
 ^421[ \-]+\(?MFF:,defer,message,Future date in message
 
 # Gmail error messages
@@ -58,10 +59,13 @@
 ^550[ \-]+5\.7\.1\s+.*unsolicited mail originating,reject,spam,Sender IP blocked for Spam
 ^550[ \-]+5\.7\.1\s+.*unsolicited mail,reject,spam,Spam detected
 ^550[ \-]+5\.7\.1\s+.*not authorized,reject,block,Sender IP blocked
-^550[ \-]+5\.7\.1\s+.*policy that prohibited,reject,recipient,Blocked by recipient
+^550[ \-]+5\.7\.1\s+.*policy that prohibited,reject,policy,Blocked by recipient
 ^550[ \-]+5\.7\.1\s+.*IPv6 sending guidelines,reject,config,Invalid PTR or missing DKIM
 ^452[ \-]+4\.2\.2\s+.*over quota,reject,capacity,Gmail Mailbox is full
 ^552[ \-]+5\.7\.0\s+.*potential security issue,reject,virus,Suspicious attachment
+^550[ \-]+5\.1\.1\s+.*does not exist,reject,recipient,The email account does not exist
+^552[ \-]+5\.7\.0\s+.*potential security issue,reject,virus,Message contains suspicious content
+^550[ \-]+5\.7\.1\s+.*due to domain's DMARC policy,reject,dmarc,Message rejected due to DMARC policy
 
 # Hot.ee error messages
 ^550[ \-]+5\.2\.1\s+.*is expired account,reject,recipient,Expired Email account
@@ -74,6 +78,9 @@
 # Mail.ru error messages
 ^550 spam message rejected,reject,spam,Spam message
 
+# Yandex error messages
+^451[ \-]+4\.7\.1\s+.*service is currently unavailable,defer,capacity,Server currently not available
+
 # Other servers
 
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
@@ -83,7 +90,10 @@
 ^554[ \-]+5\.7\.105\s.*SenderFilterConfig,reject,block,Blocked by recipient
 ^554[ \-]+5\.7\.1\s.*Unknown recipient,reject,recipient,Unknown user
 ^550[ \-]+5\.1\.1\s.*User unknown,reject,recipient,Unknown user
-
+^451[ \-]+4\.3\.0\s.*file write error,defer,capacity,Server can't write to queue
+^554 rejected due to virus,reject,virus,Message contains a virus
+^550[ \-]+5\.7\.512\s.*message must be RFC,reject,message,Malformed message
+^550[ \-]+5\.7\.0\s.*Local Policy Violation,reject,policy,Sender blocked by policy
 
 # Temporary errors by Enhanced Status Codes
 
@@ -136,7 +146,7 @@
 ^\d{3}[ \-]+4\.6\.8\b,defer,protocol,Email Servers Are Not Responding Appropriately
 ^\d{3}[ \-]+4\.6\.9\b,defer,protocol,Email Servers Are Not Communicating With Each Other
 ^\d{3}[ \-]+4\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
-^\d{3}[ \-]+4\.7\.0\b,defer,other,Unknown Security Or Policy Concern
+^\d{3}[ \-]+4\.7\.0\b,defer,policy,Unknown Security Or Policy Concern
 ^\d{3}[ \-]+4\.7\.1\b,reject,block,Message Sender Blocked By Receiving Server
 ^\d{3}[ \-]+4\.7\.2,reject,auth,Not Authorized To Send To Mailing List
 ^\d{3}[ \-]+4\.7\.3,defer,other,Security Features Could Not Be Interpreted
@@ -205,7 +215,7 @@
 ^\d{3}[ \-]+5\.6\.7\b,reject,envelope,Email Address Format Not Supported
 ^\d{3}[ \-]+5\.6\.8\b,reject,protocol,Email Servers Are Not Responding Appropriately
 ^\d{3}[ \-]+5\.6\.9\b,reject,protocol,Email Servers Are Not Communicating With Each Other
-^\d{3}[ \-]+5\.7\.0\b,reject,other,Unknown Security Or Policy Concern
+^\d{3}[ \-]+5\.7\.0\b,reject,policy,Unknown Security Or Policy Concern
 ^\d{3}[ \-]+5\.7\.1\b,reject,block,Message Sender Blocked By Receiving Server
 ^\d{3}[ \-]+5\.7\.2\b,reject,auth,Not Authorized To Send To Mailing List
 ^\d{3}[ \-]+5\.7\.3\b,reject,other,Security Features Could Not Be Interpreted
