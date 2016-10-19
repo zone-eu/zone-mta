@@ -8,6 +8,9 @@ const log = require('npmlog');
 log.level = config.log.level;
 require('./lib/logger');
 
+// do not pass node args to children (--inspect, --max-old-space-size etc.)
+process.execArgv = [];
+
 const SMTPInterface = require('./lib/smtp-interface');
 const APIServer = require('./lib/api-server');
 const QueueServer = require('./lib/queue-server');

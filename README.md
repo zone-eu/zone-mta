@@ -385,10 +385,10 @@ RocksDB has much better performance both for reading and writing but it's more d
 
 ## Notes
 
-In production you probably would want to allow Node.js to use more memory, so you should probably start the app with `–max-old-space-size` option
+In production you probably would want to allow Node.js to use more memory, so you should probably start the app with `--max-old-space-size` option
 
 ```
-node –max-old-space-size=8192 app.js
+node --max-old-space-size=8192 app.js
 ```
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
