@@ -131,7 +131,7 @@ module.exports = {
         'core/webadmin': {
             enabled: false, // 'main'
             port: 8082,
-            host: false,
+            host: '127.0.0.1',
             apiUrl: 'http://localhost:8080/'
         }
     },
