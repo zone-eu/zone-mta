@@ -27,7 +27,7 @@ module.exports = {
         'core/example-plugin': false,
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
-            enabled: ['main', 'sender'],
+            enabled: ['receiver', 'sender'],
             // Add missing headers (Message-ID, Date, etc.)
             addMissing: ['message-id', 'date'],
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
@@ -47,14 +47,14 @@ module.exports = {
 
         // Load sender config (eg. DKIM key from a HTTP URL)
         'core/http-config': {
-            enabled: false,
+            enabled: false, // ['main', 'receiver']
             // An URL to check sender configuration from
             url: 'http://localhost:8080/get-config'
         },
 
         // Validate message dropped to the API
         'core/api-send': {
-            enabled: false,
+            enabled: false, // 'main'
             // How many recipients to allow per message when sending through the API
             maxRecipients: 100
         },
@@ -64,7 +64,7 @@ module.exports = {
 
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
-            enabled: false, // ['main', 'sender'], // spam is checked in 'main' context, headers are added in 'sender' context
+            enabled: false, // ['receiver', 'sender'], // spam is checked in 'receiver' context, headers are added in 'sender' context
             url: 'http://localhost:11333/check',
             interfaces: ['feeder'],
             rejectSpam: false, // if false, then the message is passed on with a spam header, otherwise message is rejected
@@ -86,7 +86,7 @@ module.exports = {
 
         // Send bounce message to the sender
         'core/email-bounce': {
-            enabled: false,
+            enabled: false, // 'main'
             // From: address for the bounce emails
             mailerDaemon: {
                 name: 'Mail Delivery Subsystem',
@@ -97,7 +97,7 @@ module.exports = {
 
         // POST bounce data to a HTTP URL
         'core/http-bounce': {
-            enabled: false,
+            enabled: false, // 'main'
             // An url to send the bounce information to
             // Bounce notification would be a POST request with the following form fields:
             //   id=delivery id
@@ -126,6 +126,13 @@ module.exports = {
                         password: 'socks pass'
                     }
                  */
+        },
+
+        'core/webadmin': {
+            enabled: false, // 'main'
+            port: 8082,
+            host: false,
+            apiUrl: 'http://localhost:8080/'
         }
     },
 
