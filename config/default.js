@@ -126,13 +126,6 @@ module.exports = {
                         password: 'socks pass'
                     }
                  */
-        },
-
-        'core/webadmin': {
-            enabled: false, // 'main'
-            port: 8082,
-            host: '127.0.0.1',
-            apiUrl: 'http://localhost:8080/'
         }
     },
 
