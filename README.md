@@ -247,9 +247,19 @@ The response includes counters about queued and deferred messages
 
 ```json
 {
-    "active": 13,
-    "deferred": 17
+    "active": {
+        "rows": 13
+    },
+    "deferred": {
+        "rows": 17
+    }
 }
+```
+
+You can check counters for all zones with:
+
+```bash
+curl http://localhost:8080/counter/zone/
 ```
 
 #### Queued messages
