@@ -27,7 +27,7 @@ module.exports = {
         'core/example-plugin': false,
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
-            enabled: ['receiver', 'sender'],
+            enabled: ['receiver', 'main', 'sender'],
             // Add missing headers (Message-ID, Date, etc.)
             addMissing: ['message-id', 'date'],
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
@@ -64,7 +64,7 @@ module.exports = {
 
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
-            enabled: false, // ['receiver', 'sender'], // spam is checked in 'receiver' context, headers are added in 'sender' context
+            enabled: false, // ['receiver', 'main', 'sender'], // spam is checked in 'receiver' context, headers are added in 'sender' context
             url: 'http://localhost:11333/check',
             interfaces: ['feeder'],
             rejectSpam: false, // if false, then the message is passed on with a spam header, otherwise message is rejected
