@@ -85,22 +85,14 @@ module.exports.init = function (app, done) {
             messageInfo.score = score.toFixed(2);
 
             if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
-                app.logger.info('Queue', '%s DROPPED[spam] (%)', envelope.id, messageInfo.format());
                 // accept message and silently drop it
-                return next({
-                    name: 'SMTPResponse',
-                    message: 'Message queued as ' + envelope.id
-                });
+                return next(app.drop(envelope.id, 'spam', messageInfo));
             }
 
             switch (envelope.spam.default.action) {
                 case 'reject':
-                    app.logger.info('Queue', '%s DROPPED[spam] (%s)', envelope.id, messageInfo.format());
                     // accept message and silently drop it
-                    return next({
-                        name: 'SMTPResponse',
-                        message: 'Message queued as ' + envelope.id
-                    });
+                    return next(app.drop(envelope.id, 'spam', messageInfo));
                 case 'add header':
                 case 'rewrite subject':
                 case 'soft reject':
@@ -114,11 +106,8 @@ module.exports.init = function (app, done) {
         }
 
         if (app.config.rejectSpam && envelope.spam.default.is_spam) {
-            let err = new Error('This message was classified as SPAM and may not be delivered');
-            err.responseCode = 550;
             messageInfo.tests = envelope.spam.tests.join(',');
-            app.logger.info('Rspamd', '%s NOQUEUE (%s)', envelope.id, messageInfo.format());
-            return next(err);
+            return next(app.reject(envelope.id, 'spam', messageInfo, '550 This message was classified as SPAM and may not be delivered'));
         }
         next();
     });
