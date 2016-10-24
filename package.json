@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "0.1.0-alpha.89",
+  "version": "0.1.0-alpha.90",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -27,6 +27,8 @@
     "msgpack-js": "^0.3.0",
     "nodemailer-fetch": "^2.1.0",
     "npmlog": "^4.0.0",
+    "redis-stream-access": "^1.2.0",
+    "redisdown": "^0.1.12",
     "restify": "^4.1.1",
     "seq-index": "^1.1.0",
     "smtp-connection": "^2.12.1",
@@ -34,14 +36,14 @@
     "socks": "^1.1.9",
     "srs.js": "^0.1.0",
     "uuid": "^2.0.3",
-    "yargs": "^6.2.0"
+    "yargs": "^6.3.0"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-nodeunit": "^1.0.0",
     "grunt-eslint": "^19.0.0",
-    "moment": "^2.15.1",
+    "moment": "^2.15.2",
     "nodemailer": "^2.6.4",
     "random-message": "^1.1.0",
     "zip-stream": "^1.1.0"

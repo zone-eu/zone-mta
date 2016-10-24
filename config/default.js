@@ -18,7 +18,20 @@ module.exports = {
     // The user running this server mush have read/write access to the following folders
     queue: {
         // Leveldb folder location. Created if it does not exist
-        db: './data/queue'
+        db: './data/queue',
+        backend: 'leveldown', // 'leveldown', 'redisdown'
+        leveldown: {
+            concurrency: 5,
+            createIfMissing: true,
+            compression: true,
+            cacheSize: 512 * 1024 * 1024,
+            writeBufferSize: 60 * 1024 * 1024
+        },
+        redisdown: {
+            host: 'localhost',
+            port: 6379,
+            db: 3
+        }
     },
 
     // plugin files to load into mailtrain, relative to ./plugins folder
