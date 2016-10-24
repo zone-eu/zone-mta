@@ -95,6 +95,7 @@
 ^554 rejected due to virus,reject,virus,Message contains a virus
 ^550[ \-]+5\.7\.512\s.*message must be RFC,reject,message,Malformed message
 ^550[ \-]+5\.7\.0\s.*Local Policy Violation,reject,policy,Sender blocked by policy
+^554\s.*#5\.1\.1\b,reject,recipient,Unknown user
 
 # Temporary errors by Enhanced Status Codes
 

@@ -19,18 +19,12 @@ module.exports = {
     queue: {
         // Leveldb folder location. Created if it does not exist
         db: './data/queue',
-        backend: 'leveldown', // 'leveldown', 'redisdown'
+        backend: 'leveldown', // 'leveldown'
         leveldown: {
-            concurrency: 5,
             createIfMissing: true,
             compression: true,
             cacheSize: 512 * 1024 * 1024,
             writeBufferSize: 60 * 1024 * 1024
-        },
-        redisdown: {
-            host: 'localhost',
-            port: 6379,
-            db: 3
         }
     },
 
