@@ -14,7 +14,7 @@ module.exports.setUp = done => {
     db = levelup(dbfolder);
     db.on('ready', () => {
         queue = new MailQueue({
-            db
+            dbinstance: db
         });
         queue.init(done);
     });
