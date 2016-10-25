@@ -23,8 +23,9 @@ module.exports = {
         leveldown: {
             createIfMissing: true,
             compression: true,
-            cacheSize: 512 * 1024 * 1024,
-            writeBufferSize: 60 * 1024 * 1024
+            blockSize: 64 * 1024,
+            cacheSize: 128 * 1024 * 1024,
+            writeBufferSize: 64 * 1024 * 1024
         }
     },
 

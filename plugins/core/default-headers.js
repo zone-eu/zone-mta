@@ -15,6 +15,25 @@ module.exports.init = function (app, done) {
 
     // Endusre default headers like Date, Message-ID etc
     app.addHook('message:headers', (envelope, next) => {
+
+        // Fetch sender and receiver addresses
+        envelope.parsedEnvelope = {
+            from: addressTools.parseAddressList(envelope.headers, 'from').shift() || false,
+            to: addressTools.parseAddressList(envelope.headers, 'to'),
+            cc: addressTools.parseAddressList(envelope.headers, 'cc'),
+            bcc: addressTools.parseAddressList(envelope.headers, 'bcc'),
+            replyTo: addressTools.parseAddressList(envelope.headers, 'reply-to').shift() || false,
+            sender: addressTools.parseAddressList(envelope.headers, 'sender').shift() || false
+        };
+
+        if (envelope.envelopeFromHeader) {
+            envelope.from = envelope.parsedEnvelope.from || envelope.parsedEnvelope.sender || '';
+            envelope.to = [].
+            concat(envelope.parsedEnvelope.to || []).
+            concat(envelope.parsedEnvelope.cc || []).
+            concat(envelope.parsedEnvelope.bcc || []);
+        }
+
         // Check Message-ID: value. Add if missing
         let mId = envelope.headers.getFirst('message-id');
         if (!mId) {
@@ -91,16 +110,6 @@ module.exports.init = function (app, done) {
         }
 
         envelope.date = date;
-
-        // Fetch sender and receiver addresses
-        envelope.parsedEnvelope = {
-            from: addressTools.parseAddressList(envelope.headers, 'from').shift() || false,
-            to: addressTools.parseAddressList(envelope.headers, 'to'),
-            cc: addressTools.parseAddressList(envelope.headers, 'cc'),
-            bcc: addressTools.parseAddressList(envelope.headers, 'bcc'),
-            replyTo: addressTools.parseAddressList(envelope.headers, 'reply-to').shift() || false,
-            sender: addressTools.parseAddressList(envelope.headers, 'sender').shift() || false
-        };
 
         // Fetch X-FBL header for bounce tracking
         let xFbl = envelope.headers.getFirst('x-fbl').trim();
