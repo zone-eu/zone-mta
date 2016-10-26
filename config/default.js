@@ -19,7 +19,16 @@ module.exports = {
     queue: {
         // Leveldb folder location. Created if it does not exist
         db: './data/queue',
-        backend: 'leveldown', // 'leveldown'
+        // a fork of leveldown that uses basho-leveldb for storage
+        backend: 'leveldown-basho-andris',
+        // config options for backen
+        'leveldown-basho-andris': {
+            createIfMissing: true,
+            compression: true,
+            blockSize: 4096,
+            writeBufferSize: 60 * 1024 * 1024
+        },
+        // config options in case you use the leveldown backend
         leveldown: {
             createIfMissing: true,
             compression: true,

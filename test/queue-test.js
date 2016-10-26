@@ -5,13 +5,16 @@ const path = require('path');
 const dbfolder = path.join(__dirname, 'queuetest');
 const MailQueue = require('../lib/mail-queue');
 const PassThrough = require('stream').PassThrough;
+const memdown = require('memdown');
 
 let db;
 let queue;
 
 // run before each test
 module.exports.setUp = done => {
-    db = levelup(dbfolder);
+    db = levelup(dbfolder, {
+        db: memdown
+    });
     db.on('ready', () => {
         queue = new MailQueue({
             dbinstance: db
