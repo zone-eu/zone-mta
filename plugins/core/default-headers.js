@@ -48,10 +48,12 @@ module.exports.init = function (app, done) {
         // Check Sending Zone for this message
         //   X-Sending-Zone: loopback
         // If Sending Zone is not set or missing then the default is used
-        let sZone = envelope.headers.getFirst('x-sending-zone').toLowerCase();
-        if (sZone) {
-            app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
-            envelope.sendingZone = sZone;
+        if (!envelope.sendingZone && app.config.allowRountingHeaders.includes(envelope.interface)) {
+            let sZone = envelope.headers.getFirst('x-sending-zone').toLowerCase();
+            if (sZone) {
+                app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
+                envelope.sendingZone = sZone;
+            }
         }
 
         // Check From: value. Add if missing or rewrite if needed
@@ -128,7 +130,7 @@ module.exports.init = function (app, done) {
         envelope.headers.remove('bcc');
 
         if (!envelope.sendingZone) {
-            sZone = sendingZone.findByHeaders(envelope.headers);
+            let sZone = sendingZone.findByHeaders(envelope.headers);
             if (sZone) {
                 app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
                 envelope.sendingZone = sZone;

@@ -45,6 +45,8 @@ module.exports = {
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
             enabled: ['receiver', 'main', 'sender'],
+            // which interfaces to allow using routing headers like X-Sending-Zone
+            allowRountingHeaders: ['api', 'bounce'],
             // Add missing headers (Message-ID, Date, etc.)
             addMissing: ['message-id', 'date'],
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.

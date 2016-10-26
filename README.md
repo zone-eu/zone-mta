@@ -11,6 +11,8 @@ _____             _____ _____ _____
 |_____|___|_|_|___|_|_|_| |_| |__|__|
 ```
 
+> **NB!** at this point it is not possible to install ZoneMTA in Windows. The latest version is using not the original but the Basho fork of LevelDB and I have not yet got it working in Windows.
+
 The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting or HTTP API for posting messages.
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
