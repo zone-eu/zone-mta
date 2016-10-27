@@ -237,6 +237,16 @@ curl -H "Content-Type: application/json" -H "X-Authenticated-User: andris" -H "X
 }'
 ```
 
+In the same manner you could upload raw rfc822 message for delivery. In this case the sender and recipient info would be fetched from the message.
+
+```bash
+curl -H "Content-Type: message/rfc822" -H "X-Authenticated-User: andris" -H "X-Originating-IP: 123.123.123.123" -X POST  http://localhost:8080/send-raw -d 'From: sender@example.com
+To: recipient1@example.com, recipient2@example.com
+Subject: Hello!
+
+Hello world'
+```
+
 #### Zone status
 
 You can check the current state of a sending zone (for example "default") with the following query
