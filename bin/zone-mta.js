@@ -127,7 +127,7 @@ module.exports.init = (app, done) => {
                     pluginsPath: './plugins',
                     plugins: {
                         'core/default-headers': {
-                            enabled: ['main', 'sender'],
+                            enabled: ['receiver', 'sender'],
                             futureDate: false,
                             xOriginatingIP: true
                         },

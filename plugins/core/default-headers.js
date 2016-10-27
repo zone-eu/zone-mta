@@ -15,6 +15,25 @@ module.exports.init = function (app, done) {
 
     // Endusre default headers like Date, Message-ID etc
     app.addHook('message:headers', (envelope, next) => {
+
+        // Fetch sender and receiver addresses
+        envelope.parsedEnvelope = {
+            from: addressTools.parseAddressList(envelope.headers, 'from').shift() || false,
+            to: addressTools.parseAddressList(envelope.headers, 'to'),
+            cc: addressTools.parseAddressList(envelope.headers, 'cc'),
+            bcc: addressTools.parseAddressList(envelope.headers, 'bcc'),
+            replyTo: addressTools.parseAddressList(envelope.headers, 'reply-to').shift() || false,
+            sender: addressTools.parseAddressList(envelope.headers, 'sender').shift() || false
+        };
+
+        if (envelope.envelopeFromHeader) {
+            envelope.from = envelope.parsedEnvelope.from || envelope.parsedEnvelope.sender || '';
+            envelope.to = [].
+            concat(envelope.parsedEnvelope.to || []).
+            concat(envelope.parsedEnvelope.cc || []).
+            concat(envelope.parsedEnvelope.bcc || []);
+        }
+
         // Check Message-ID: value. Add if missing
         let mId = envelope.headers.getFirst('message-id');
         if (!mId) {
@@ -29,10 +48,12 @@ module.exports.init = function (app, done) {
         // Check Sending Zone for this message
         //   X-Sending-Zone: loopback
         // If Sending Zone is not set or missing then the default is used
-        let sZone = envelope.headers.getFirst('x-sending-zone').toLowerCase();
-        if (sZone) {
-            app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
-            envelope.sendingZone = sZone;
+        if (!envelope.sendingZone && app.config.allowRountingHeaders.includes(envelope.interface)) {
+            let sZone = envelope.headers.getFirst('x-sending-zone').toLowerCase();
+            if (sZone) {
+                app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
+                envelope.sendingZone = sZone;
+            }
         }
 
         // Check From: value. Add if missing or rewrite if needed
@@ -92,16 +113,6 @@ module.exports.init = function (app, done) {
 
         envelope.date = date;
 
-        // Fetch sender and receiver addresses
-        envelope.parsedEnvelope = {
-            from: addressTools.parseAddressList(envelope.headers, 'from').shift() || false,
-            to: addressTools.parseAddressList(envelope.headers, 'to'),
-            cc: addressTools.parseAddressList(envelope.headers, 'cc'),
-            bcc: addressTools.parseAddressList(envelope.headers, 'bcc'),
-            replyTo: addressTools.parseAddressList(envelope.headers, 'reply-to').shift() || false,
-            sender: addressTools.parseAddressList(envelope.headers, 'sender').shift() || false
-        };
-
         // Fetch X-FBL header for bounce tracking
         let xFbl = envelope.headers.getFirst('x-fbl').trim();
         if (xFbl) {
@@ -119,7 +130,7 @@ module.exports.init = function (app, done) {
         envelope.headers.remove('bcc');
 
         if (!envelope.sendingZone) {
-            sZone = sendingZone.findByHeaders(envelope.headers);
+            let sZone = sendingZone.findByHeaders(envelope.headers);
             if (sZone) {
                 app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
                 envelope.sendingZone = sZone;

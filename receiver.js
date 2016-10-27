@@ -10,7 +10,7 @@ require('./lib/logger');
 
 // initialize plugin system
 const plugins = require('./lib/plugins');
-plugins.init('main');
+plugins.init('receiver');
 
 const SMTPInterface = require('./lib/smtp-interface');
 

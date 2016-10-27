@@ -19,7 +19,7 @@
 
 # Yahoo error messages
 # https://help.yahoo.com/kb/SLN23996.html
-^421[ \-]+4\.7\.0 \[TS0[12]\],defer,spam,Users complain about spam from this sender
+^421[ \-]+4\.7\.0 \[TS0[12]\],reject,spam,Users complain about spam from this sender
 ^421[ \-]+4\.7\.0 \[TS03\],reject,block,Sender IP blocked
 ^451[ \-]+VS1\-IP\b,reject,block,Sender is open relay
 ^451[ \-]+VS1\-MF\b,reject,spam,From address is spammer
@@ -50,7 +50,8 @@
 # Gmail error messages
 # https://support.google.com/a/answer/3726730?hl=en
 ^421[ \-]+4\.7\.0\s+.*IP not in whitelist,reject,block,Sender IP blocked
-^421[ \-]+4\.7.0\s+.*unsolicited mail,defer,spam,Spam detected
+^421[ \-]+4\.7\.0\s+.*unsolicited mail,reject,spam,Spam detected
+^421[ \-]+4\.7\.0\s+.*message has been blocked,reject,spam,Spam detected
 ^421[ \-]+4\.7\.0\s+.*TLS required,defer,config,TLS required
 ^450[ \-]+4\.2\.1\s+.*mail too quickly,defer,recipient,Recipient overloaded
 ^450[ \-]+4\.2\.1\s+.*rate that prevents,defer,recipient,Recipient overloaded
@@ -70,7 +71,7 @@
 # Hot.ee error messages
 ^550[ \-]+5\.2\.1\s+.*is expired account,reject,recipient,Expired Email account
 ^451[ \-]+4\.3\.5\s+Server configuration problem,reject,envelope,User Name In Email Address Not Valid
-^552[ \-]+5\.2\.2\s+<.*@hot.ee,reject,capacity,Hot.ee Mailbox is full
+^552[ \-]+5\.2\.2\s+.*Mailbox is full,reject,capacity,Hot.ee Mailbox is full
 
 # Mail.ee error messages
 ^554[ \-]+5\.2\.1\s+.*Inactive user,reject,recipient,Disabled Email account
@@ -94,6 +95,7 @@
 ^554 rejected due to virus,reject,virus,Message contains a virus
 ^550[ \-]+5\.7\.512\s.*message must be RFC,reject,message,Malformed message
 ^550[ \-]+5\.7\.0\s.*Local Policy Violation,reject,policy,Sender blocked by policy
+^554\s.*#5\.1\.1\b,reject,recipient,Unknown user
 
 # Temporary errors by Enhanced Status Codes
 
@@ -178,12 +180,12 @@
 ^\d{3}[ \-]+5\.1\.8\b,reject,config,Sending Address Is Bad Or Can't Accept Replies
 ^\d{3}[ \-]+5\.1\.9\b,reject,recipient,Message Routed To Non-Email System
 ^\d{3}[ \-]+5\.2\.0\b,reject,recipient,Unknown Issue With Mailbox
-^\d{3}[ \-]+5\.2\.1\b,defer,capacity,Mailbox Is Not Accepting New Messages
-^\d{3}[ \-]+5\.2\.2\b,defer,capacity,Mailbox Is Full
+^\d{3}[ \-]+5\.2\.1\b,reject,capacity,Mailbox Is Not Accepting New Messages
+^\d{3}[ \-]+5\.2\.2\b,reject,capacity,Mailbox Is Full
 ^\d{3}[ \-]+5\.2\.3\b,reject,message,Message Is Too Long
 ^\d{3}[ \-]+5\.2\.4\b,defer,recipient,Mailbox Has A Mailing List System Issue
 ^\d{3}[ \-]+5\.3\.0\b,reject,recipient,Unknown Issue With The Receiving System
-^\d{3}[ \-]+5\.3\.1\b,defer,capacity,Email System Is Full
+^\d{3}[ \-]+5\.3\.1\b,reject,capacity,Email System Is Full
 ^\d{3}[ \-]+5\.3\.2\b,defer,recipient,Receiving Email System Not Operable
 ^\d{3}[ \-]+5\.3\.3\b,reject,message,Message Features Not Supported
 ^\d{3}[ \-]+5\.3\.4\b,reject,message,Message Is Too Large
@@ -246,7 +248,7 @@
 ^530\b,reject,auth,Access denied
 ^550\b,reject,recipient,Mailbox unavailable
 ^551\b,reject,recipient,User not local
-^552\b,defer,capacity,Exceeded storage allocation
+^552\b,reject,capacity,Exceeded storage allocation
 ^553\b,reject,envelope,Mailbox name not allowed
 ^554\b,reject,other,Transaction failed
 

@@ -1,26 +1,26 @@
 'use strict';
 
 const levelup = require('levelup');
-const leveldown = require('leveldown');
 const path = require('path');
 const dbfolder = path.join(__dirname, 'queuetest');
 const MailQueue = require('../lib/mail-queue');
 const PassThrough = require('stream').PassThrough;
+const memdown = require('memdown');
 
 let db;
 let queue;
 
 // run before each test
 module.exports.setUp = done => {
-    //leveldown.destroy(dbfolder, () => {
-    db = levelup(dbfolder);
+    db = levelup(dbfolder, {
+        db: memdown
+    });
     db.on('ready', () => {
         queue = new MailQueue({
-            db
+            dbinstance: db
         });
         queue.init(done);
     });
-    //});
 };
 
 // run before each test
@@ -30,7 +30,7 @@ module.exports.tearDown = done => {
     setImmediate(() => {
         db.close(() => {
             db = null;
-            leveldown.destroy(dbfolder, done);
+            done();
         });
     });
 };
