@@ -4,9 +4,18 @@ const TtlCache = require('../lib/ttl-cache');
 
 module.exports['Set and let expire'] = test => {
     let cache = new TtlCache();
-    cache.set('key1', 'val1', 300);
-    cache.set('key2', 'val2', 400);
-    cache.set('key3', 'val3', 200);
+    let expireCbCalled = 0;
+
+    cache.set('key1', 'val1', 300, () => {
+        expireCbCalled++;
+    });
+
+    cache.set('key2', 'val2', 400, () => {
+        expireCbCalled++;
+    });
+    cache.set('key3', 'val3', 200, () => {
+        expireCbCalled++;
+    });
 
     setTimeout(() => {
         test.ok(!cache.get('key1'));
@@ -29,6 +38,7 @@ module.exports['Set and let expire'] = test => {
         } else if (key2) {
             test.equal(key2, 'val2');
         } else {
+            test.equal(expireCbCalled, 3);
             clearInterval(interval);
             test.done();
         }
