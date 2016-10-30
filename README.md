@@ -130,7 +130,7 @@ All data is processed in chunks without reading the entire message into memory, 
 
 ### LevelDB backend
 
-Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first)
+Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first). Read about storing queued messages to LeveldDB in the [Wiki](https://github.com/zone-eu/zone-mta/wiki/Queue-handling-in-ZoneMTA).
 
 ### DKIM signing
 
