@@ -12,6 +12,9 @@ class RspamdClient extends Transform {
             highWaterMark: 8192
         });
         this.options = options || {};
+        this.maxSize = Number(options.maxSize) || Infinity;
+
+        this.bytesWritten = 0;
 
         let headers = {
             from: options.from,
@@ -66,6 +69,14 @@ class RspamdClient extends Transform {
             return callback();
         }
 
+        if (this.bytesWritten + chunk.length > this.maxSize) {
+            this.req.finished = true;
+            this.body.end();
+            this.emit('fail', new Error('Message too large to be scanned for spam'));
+            return callback();
+        }
+
+        this.bytesWritten += chunk.length;
         if (this.body.write(chunk) === false) {
             return this.body.once('drain', () => {
                 callback();

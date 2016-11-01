@@ -83,7 +83,6 @@
 ^451[ \-]+4\.7\.1\s+.*service is currently unavailable,defer,capacity,Server currently not available
 
 # Other servers
-
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
 ^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
 ^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
