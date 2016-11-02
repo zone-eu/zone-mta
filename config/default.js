@@ -264,6 +264,8 @@ module.exports = {
         keys: __dirname + '/../keys'
     },
 
+    pools: {},
+
     // Sending Zone definitions
     // Every Sending Zone can have multiple IPs that are rotated between connections
     zones: {
@@ -368,7 +370,8 @@ module.exports = {
             maxConnections: 5
         },
         'hot.ee': {
-            maxConnections: 5
+            maxConnections: 5,
+            disabledAddresses: ['127.0.0.1']
         }
         */
     }
