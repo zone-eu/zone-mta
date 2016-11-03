@@ -375,8 +375,7 @@ If you know the queue id (for example 1578a823de00009fbb) then you can fetch the
 curl http://localhost:8080/fetch/1578a823de00009fbb
 ```
 
-The response is a *message/rfc822* message. It does not include a Received header for ZoneMTA or a DKIM signature header,
-these are added when sending out the message.
+The response is a _message/rfc822_ message. It does not include a Received header for ZoneMTA or a DKIM signature header, these are added when sending out the message.
 
 ```
 Content-Type: text/plain
@@ -391,6 +390,23 @@ Hello world! This is a test message
 ...
 ```
 
+### Utilities
+
+`check-bounces`
+
+Cli command that reads a SMTP error response from stdin and returns bounce information
+
+```bash
+$ echo "552-5.7.0 This message was blocked because its content presents a potential security issue" | check-bounce
+
+data     : 552-5.7.0 This message was blocked because its content presents a potential security issue
+action   : reject
+message  : Suspicious attachment
+category : virus
+code     : 552
+status   : 5.7.0
+```
+
 ## TODO
 
 ### 1\. Domain based throttling
@@ -401,9 +417,13 @@ Currently it is possible to limit active connections against a domain and you ca
 
 It should be possible to administer queues using an easy to use web interface.
 
+**Update** There is a web interface that is not open yet as it is still experimental, here's a [preview](https://cloudup.com/cVPSfcwTtrG)
+
 ### 3\. Replace LevelDB with RocksDB
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
+
+**Update** For now the db of choice is going to be the basho fork of LevelDB, not RocksDB as it is easier to get up and running and it also fixes major issues with LevelDB (mainly about being unresponsive because of compactions).
 
 ## Notes
 
