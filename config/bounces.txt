@@ -3,27 +3,153 @@
 #   regex,action,reason,message
 # action: defer, reject, slowdown
 # reasons:
-#   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth
+#   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth, blacklist
+
+# Spamhaus related error messages
+
+# 550 11.22.33.44 blacklisted see http://www.spamhaus.org/query/bl?ip=11.22.33.44
+^550[ \-]+[\d\.]+\s+blacklisted see\s,defer,blacklist,Sender IP blacklisted
+
+# 550 11.22.33.44 listed at spamhaus, see http://www.spamhaus.org
+^550[ \-]+[\d\.]+\s+listed at\s,defer,blacklist,Sender IP blacklisted
+
+# 550 5.2.1 Mailbox unavailable. Your IP address 11.22.33.44 is blacklisted using SPAMHAUS-XBL. Details: https://www.spamhaus.org/query/ip/11.22.33.44.
+^550[ \-]+5\.2\.1\s+Mailbox unavailable.* is blacklisted,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.0 Your server IP address is in the SpamHaus SBL-XBL database, bye
+^550[ \-]+5\.7\.0\s+Your server IP address is in,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 11.22.33.44 has been blocked by zen.spamhaus.org
+^550[ \-]+5\.7\.1\s+[\d\.]+ has been blocked,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 :127.0.0.4:Client host 11.22.33.44 blocked using 87.blocklist.zap; Mail from IP banned. To request removal from this list please visit http://www.spamhaus.org/query/bl?ip=$
+^550[ \-]+5\.7\.1\s+.*Client host [\d\.]+ blocked using,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 <sender@example.com>... 11.22.33.44 listed at zen.spamhaus.org
+^550[ \-]+5\.7\.1\s+<.*>\.\.\.\s[\d\.]+ listed at,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 <recipient@example.com>... Rejected: 11.22.33.44 listed at zen.spamhaus.org.
+^550[ \-]+5\.7\.1\s+<.*>\.\.\.\s+Rejected:\s*[\d\.]+ listed at,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Blacklisted by zen.spamhaus.org. To avoid this problem on this particular server please visit http://spamfiltered.extra-dns.com/resolve/000-00-00-000-00-00-00-id-00000-00000 - Bezoek de site om dit probleem te verhelpen
+^550[ \-]+5\.7\.1\s+Blacklisted by\s,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Client address [11.22.33.44] blocked. You are in the SPAMMER List - Listed on The Spamhaus Project. See http://www.spamhaus.org/query/bl?ip=11.22.33.44
+^550[ \-]+5\.7\.1\s+.*You are in the SPAMMER List,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Mail from 11.22.33.44 rejected using zen.spamhaus.org. Please see http://www.spamhaus.org/query/bl?ip=11.22.33.44
+^550[ \-]+5\.7\.1\s+Mail from \s*[\d\.]+ rejected using,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Mail from IP 11.22.33.44 was rejected due to listing in Spamhaus XBL. For details please see http://www.spamhaus.org/query/bl?ip=11.22.33.44
+^550[ \-]+5\.7\.1\s+.*rejected due to listing in,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Rejected. Sender 11.22.33.44 found in SPL-XBL listing; see http://www.spamhaus.org/query/bl?ip=11.22.33.44
+^550[ \-]+5\.7\.1\s+Sender [\d\.]+ found in,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Rejected: 11.22.33.44 listed at zen.spamhaus.org
+^550[ \-]+5\.7\.1\s+Rejected: [\d\.]+ listed at,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Service unavailable, Client host [11.22.33.44] blocked using Spamhaus. To request removal from this list see http://www.spamhaus.org/lookup.lasso (AS16012611)
+^550[ \-]+5\.7\.1\s+.*AS16012611,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Service unavailable; client [11.22.33.44] blocked using spamhaus.org
+# 550-5.7.1 Service unavailable; client [11.22.33.44] blocked using zen.spamhaus.org For assistance, see http://www.scrolloutf1.com or contact your administrator. Please provide the following information in your problem report: Time: (Nov 02 11:59:39), Client: (11.22.33.44), Server: (recipient.example.com).
+^550[ \-]+5\.7\.1\s+Service unavailable.*blocked using,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 The IP address was rejected by the Realtime Block List provider zen.spamhaus.org.
+^550[ \-]+5\.7\.1\s+.*Realtime Block List,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 The IP address was rejected by the sbl.spamhaus.org RBL.
+^550[ \-]+5\.7\.1\s+The IP address was rejected by,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 This system is configured to reject mail from mta.example.com. Connecting host [11.22.33.44] is listed by the lookup site 'zen.spamhaus.org.'.
+^550[ \-]+5\.7\.1\s+.*is listed by the lookup site,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 Your IP address is listed by https://spamhaus.org/zen, correct this
+^550[ \-]+5\.7\.1\s+.*IP address is listed by,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.107 The IP address was rejected by the sbl.spamhaus.org RBL.
+^550[ \-]+5\.7\.107\s+.*IP address was rejected by,defer,blacklist,Sender IP blacklisted
+
+# 550 Email blocked by SPAMHAUS
+^550[ \-]+Email blocked by,defer,blacklist,Sender IP blacklisted
+
+# 550 Listed in zen.spamhaus.org. https://www.spamhaus.org/query/ip/11.22.33.44
+^550[ \-]+Listed in\s+.*spamhaus,defer,blacklist,Sender IP blacklisted
+
+# 550 https://www.spamhaus.org/query/ip/11.22.33.44
+# 553 https://www.spamhaus.org/query/ip/11.22.33.44
+^55[03][ \-]+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
+
+# 550-IP 11.22.33.44 is blacklisted (xbl.spamhaus.org). Help at/Hilfe unter www.mfaq.info
+^550[ \-]+IP [\d\.]+ is blacklisted,defer,blacklist,Sender IP blacklisted
+
+# 550-Rejected message because 11.22.33.44 is in a black list at sbl-xbl.spamhaus.org
+^550[ \-]+Rejected message because.*black list,defer,blacklist,Sender IP blacklisted
+
+# 553 5.3.0 11.22.33.44 Rejected - see http://www.spamhaus.org
+^553[ \-]+5\.3\.0\s+ [\d\.] Rejected.*spamhaus,defer,blacklist,Sender IP blacklisted
+
+# 553 5.3.0 <recipient@example.com>... Mail from 11.22.33.44 rejected,see http://www.spamhaus.org/lookup/
+^553[ \-]+5\.3\.0\s+<.*>\.\.\.\s+Mail from [\d\.] rejected,defer,blacklist,Sender IP blacklisted
+
+# 553 5.7.1 [BL21] Connections will not be accepted from 11.22.33.44, because the ip is in Spamhaus's list; see https://help.yahoo.com/kb/postmaster/SLN5070.html
+# 553 5.7.1 [TSS07] Connections will not be accepted from 11.22.33.44, because the ip is in Spamhaus's list; see https://help.yahoo.com/kb/postmaster/SLN5070.html
+^553[ \-]+5\.7\.1\s+\[(BL21|TSS07)\].*ip is in,defer,blacklist,Sender IP blacklisted
+
+# 553 Mail from 11.22.33.44 not allowed - 5.7.1 [BL23] Connections not accepted from IP addresses on Spamhaus XBL; see http://postmaster.yahoo.com/errors/550-bl23.html [550]
+^553[ \-]+Mail from.*Connections not accepted from IP,defer,blacklist,Sender IP blacklisted
+
+# 554 5.7.1 <recipient@example.com>: Recipient address rejected: https://www.spamhaus.org/query/ip/11.22.33.44
+# 554 5.7.1 Blocked - see http://www.spamhaus.org/query/bl?ip=11.22.33.44
+# 554 5.7.1 IP blocked see: https://www.spamhaus.org/query/ip/11.22.33.44
+# 554 5.7.1 You are sending spam (check http://www.spamhaus.org/query/bl?ip=11.22.33.44)
+# 554 5.7.1 mta.example.com[11.22.33.44] blocked using zen.spamhaus.org. Please see https://www.spamhaus.org/query/ip/11.22.33.44
+^554[ \-]+5\.7\.1\s+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
+
+# 554 5.7.1 ACL dns_rbl; Client host [11.22.33.44] blocked using sa-ip4tset.blagr.emailsrvr.com=127.24.0.2 Spamhaus XBL. Please visit http://www.spamhaus.org/lookup/ for more information on why this message could not be delivered
+# 554 5.7.1 Service unavailable; Client host [11.22.33.44] blocked using sbl-xbl.spamhaus.org
+# 554 5.7.1 Service unavailable; Client host [11.22.33.44] blocked using sbl-xbl.spamhaus.org; https://www.spamhaus.org/query/ip/11.22.33.44
+^554[ \-]+5\.7\.1\s+.*Client host \[[\d\.]+\] blocked using,defer,blacklist,Sender IP blacklisted
+
+# 554 Denied [SHXBL] - Denied by Spamhaus XBL - See http://www.spamhaus.org/query/bl?ip=11.22.33.44 (Mode: normal)
+^554[ \-]+Denied \[SHXBL\],defer,blacklist,Sender IP blacklisted
+
+# 554 Refused. Your IP address is listed in the RBL at xbl.spamhaus.org
+^554[ \-]+Refused\. Your IP address is listed,defer,blacklist,Sender IP blacklisted
+
+# 554 Service unavailable; Client host [11.22.33.44] blocked using zen.spamhaus.org; https://www.spamhaus.org/query/ip/11.22.33.44
+# 554 Service unavailable; Client host [mta.example.com] blocked by zen.spamhaus.org; 11.22.33.44
+^554[ \-]+Service unavailable.*blocked (using|by)\s,defer,blacklist,Sender IP blacklisted
+
+# 554 bosimpinc12 bizsmtp 11.22.33.44 is on the Spamhaus XBL blacklist. Please visit: http://www.spamhaus.org/query/bl?ip=11.22.33.44
+^554[ \-]+.*is on the\s.*\sblacklist,defer,blacklist,Sender IP blacklisted
+
+# 554 mx.recipient.com bizsmtp IB105. Connection refused. 11.22.33.44 is listed on the Exploits Block List (XBL) <http://www.spamhaus.org/query/ip/11.22.33.44> Please visit http://www.spamhaus.org/xbl/ for more information.
+^554[ \-]+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
+
+# 554 mx.recipient.com cmsmtp 1sSZcfhLEUv3Q IP blacklisted by Spamhaus. For remediation please use https://www.spamhaus.org/lookup/ [103]
+^554[ \-]+.*IP blacklisted by,defer,blacklist,Sender IP blacklisted
 
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
 ^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
 ^550[ \-]+DY\-001,reject,block,Using dynamic IP range
 ^550[ \-]+DY\-002,reject,virus,Virus found
-^550[ \-]+OU\-001,reject,block,Sender IP blocked
+^550[ \-]+OU\-001,defer,blacklist,Sender IP blocked
 ^550[ \-]+OU\-002,reject,spam,Spam detected
 ^550[ \-]+SC\-001,reject,spam,Spam detected
-^550[ \-]+SC\-002,reject,block,Sender IP blocked
+^550[ \-]+SC\-002,defer,blacklist,Sender IP blocked
 ^550[ \-]+SC\-003,reject,block,Sender is open relay
 ^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
 
 # Yahoo error messages
 # https://help.yahoo.com/kb/SLN23996.html
 ^421[ \-]+4\.7\.0 \[TS0[12]\],reject,spam,Users complain about spam from this sender
-^421[ \-]+4\.7\.0 \[TS03\],reject,block,Sender IP blocked
+^421[ \-]+4\.7\.0 \[TS03\],defer,blacklist,Sender IP blocked
 ^451[ \-]+VS1\-IP\b,reject,block,Sender is open relay
 ^451[ \-]+VS1\-MF\b,reject,spam,From address is spammer
-^553[ \-]+5\.7\.1 \[BL,reject,block,Blacklisted by Spamhaus
+^553[ \-]+5\.7\.1 \[BL,defer,blacklist,Blacklisted by Spamhaus
 ^554[ \-]+5\.7\.5 \(AU01\),reject,message,Invalid DKIM signature
 ^554[ \-]+.*This user doesn't have,reject,recipient,Unknown user
 
@@ -32,17 +158,17 @@
 ^554[ \-]+\(?RTR:(BB|DU),reject,block,Using dynamic IP range
 ^554[ \-]+\(?RTR:CH,reject,virus,Virus found
 ^554[ \-]+\(?RTR:RD,reject,config,Invalid reverse DNS
-^554[ \-]+\(?RTR:(SC|BL),reject,block,Sender IP blocked
+^554[ \-]+\(?RTR:(SC|BL),defer,blacklist,Sender IP blocked
 ^554[ \-]+\(?RTR:GE,defer,other,Technical error
 ^554[ \-]+\(?HVU:B\d,reject,message,Message content blocked
 ^554[ \-]+\(?RLY:(B1|B2),slowdown,rate,Rate limit exceeded
-^554[ \-]+\(?RLY:(B2|BL),reject,block,Sender IP blocked
+^554[ \-]+\(?RLY:(B2|BL),defer,blacklist,Sender IP blocked
 ^554[ \-]+\(?RLY:BD,reject,message,Message content blocked
 ^(421|554)[ \-]+\(?RLY:(CH),reject,spam,Spam detected
 ^554[ \-]+\(?RLY:IR,reject,block,Using dynamic IP range
 ^554[ \-]+\(?RLY:SN,reject,sender,Unauthorized sender
 ^421[ \-]+\(?DYN:T\d,slowdown,rate,Rate limit exceeded
-^554[ \-]+\(?CON:B1,reject,block,Sender IP blocked
+^554[ \-]+\(?CON:B1,defer,blacklist,Sender IP blocked
 ^421[ \-]+\(?CON:B1,defer,block,Sender IP temporary blocked
 ^554[ \-]+\(?DMARC:,reject,dmarc,Message failed DMARC Evaluation
 ^421[ \-]+\(?MFF:,defer,message,Future date in message

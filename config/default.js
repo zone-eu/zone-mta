@@ -357,6 +357,12 @@ module.exports = {
         */
     },
 
+    blacklist: {
+        // when an IP is blacklisted by spamhaus then disable using this ip for a domain for the next ttl ms
+        // this is in memory only, so if you restart the server the blacklist gets cleared
+        ttl: 6 * 60 * 60 * 1000
+    },
+
     // Domain specific configuration
     // Where "domain" means the domain part of an email address
     domainConfig: {
