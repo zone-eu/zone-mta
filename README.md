@@ -49,7 +49,7 @@ Delivering messages to destination
 
 ## Features
 
-- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
+- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows (*not really, the db module does not currently compile in Windows*)
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
