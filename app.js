@@ -148,7 +148,11 @@ let stop = code => {
     let closed = 0;
     let checkClosed = () => {
         if (++closed === 2 + smtpInterfaces.length) {
-            queue.db.close(() => process.exit(code));
+            if(queue.db){
+                queue.db.close(() => process.exit(code));
+            }else{
+                process.exit(code);
+            }
         }
     };
 
