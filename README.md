@@ -2,7 +2,7 @@
 
 Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
-> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about 200 000 messages per day (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
+> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about 200 000 messages per day, 40 messages per second on peak time (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
 
 ```
 _____             _____ _____ _____
