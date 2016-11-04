@@ -2,7 +2,7 @@
 
 Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
-> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about a million messages per week (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
+> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about 200 000 messages per day (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
 
 ```
 _____             _____ _____ _____
@@ -66,6 +66,7 @@ Delivering messages to destination
 - HTTP API to send messages
 - Route messages to the onion network
 - Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
+- Automatic back-off if an IP address gets blacklisted
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
@@ -221,6 +222,10 @@ ZoneMTA is an _at-least-once delivery_ system, so messages are deleted from the 
 Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message and the notification does not get propagated to the master. This risk of multiple deliveries is preferred over losing messages completely.
 
 Messages might get lost if the database gets into a corrupted state and it is not possible to recover data from it.
+
+### Blacklist back-off
+
+If an IP in an address pool gets blacklisted (eg. the IP is added to Spamhaus) then ZoneMTA disables this IP for domains that reject messages from blacklisted hosts. IP is automatically enabled after 6 hours (configurable) but if the issue is not resolved then it most probably gets disabled again. If all IP addresses in a pool get blacklisted, then messages end up in the deferred queue.
 
 ### HTTP API
 
@@ -397,21 +402,27 @@ Hello world! This is a test message
 Cli command that reads a SMTP error response from stdin and returns bounce information
 
 ```bash
-$ echo "552-5.7.0 This message was blocked because its content presents a potential security issue" | check-bounce
+$ echo "552-5.7.0 This message was blocked because its content presents a potential
+552-5.7.0 security issue. Please visit
+552-5.7.0 http://support.google.com/mail/bin/answer.py?answer=6590 to review our
+552 5.7.0 message content and attachment content guidelines. cp3si16622595oec.101 - gsmtp" | check-bounce
 
-data     : 552-5.7.0 This message was blocked because its content presents a potential security issue
-action   : reject
-message  : Suspicious attachment
-category : virus
-code     : 552
-status   : 5.7.0
+> data     : 552-5.7.0 This message was blocked because its content presents a potential
+>            552-5.7.0 security issue. Please visit
+>            552-5.7.0 http://support.google.com/mail/bin/answer.py?answer=6590 to review our
+>            552 5.7.0 message content and attachment content guidelines. cp3si16622595oec.101 - gsmtp
+> action   : reject
+> message  : Suspicious attachment
+> category : virus
+> code     : 552
+> status   : 5.7.0
 ```
 
 ## TODO
 
 ### 1\. Domain based throttling
 
-Currently it is possible to limit active connections against a domain and you can limit sending speed per connection (eg. 10 messages/min per connection) but you can't limit sending speed per domain. If you have set 3 processes, 5 connections and limit sending with 10 messages / minute then what you actually get is 3 _5_ 10 = 150 messages per minute for a Sending Zone.
+Currently it is possible to limit active connections against a domain and you can limit sending speed per connection (eg. 10 messages/min per connection) but you can't limit sending speed per domain. If you have set 3 processes, 5 connections and limit sending with 10 messages / minute then what you actually get is `3 * 5 * 10 = 150` messages per minute for a Sending Zone.
 
 ### 2\. Web interface
 
@@ -423,7 +434,7 @@ It should be possible to administer queues using an easy to use web interface.
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
 
-**Update** For now the db of choice is going to be the basho fork of LevelDB, not RocksDB as it is easier to get up and running and it also fixes major issues with LevelDB (mainly about being unresponsive because of compactions).
+**Update** For now the db of choice is going to be the Basho fork of LevelDB, not RocksDB as it is easier to get up and running and it also fixes major issues with LevelDB (mainly about being unresponsive because of compactions).
 
 ## Notes
 
