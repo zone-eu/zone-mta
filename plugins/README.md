@@ -88,7 +88,7 @@ To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['rec
 - **'smtp:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
 - **'smtp:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
 - **'smtp:data'** with arguments `envelope`, `session`, called when DATA command is issued by the client
-- **'message:headers'** with arguments `envelope` called when rfc822 headers are found from the incoming message (see `envelope.headers` property for the headers)
+- **'message:headers'** with arguments `envelope`, `messageInfo` called when rfc822 headers are found from the incoming message (see `envelope.headers` property for the headers)
 - **'message:store'** with arguments `envelope`, `body` _(stream)_ called when message is about to be stored to disk. You should not modify the `body` stream in any way, otherwise you break the body hash, this hook is provided in case you want to store a message somewhere else than the outbound queue
 - **'message:queue'** with arguments `envelope`, `messageInfo` called when message is processed and ready to be pushed to queue. You should not modify the `body` stream in any way, otherwise you break the body hash
 

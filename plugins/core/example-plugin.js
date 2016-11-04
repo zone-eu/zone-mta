@@ -26,7 +26,7 @@ module.exports.init = (app, done) => {
         return next();
     });
 
-    app.addHook('message:headers', (envelope, next) => {
+    app.addHook('message:headers', (envelope, messageInfo, next) => {
         if (/^Yes$/i.test(envelope.headers.getFirst('X-Block-Message'))) {
             let err = new Error('This message was blocked');
             err.responseCode = 500;

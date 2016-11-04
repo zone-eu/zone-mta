@@ -88,17 +88,17 @@ module.exports.title = 'ExamplePlugin';
 module.exports.init = (app, done) => {
 
     // register a new hook that fires when message headers have been parsed
-    app.addHook('message:headers', (envelope, headers, next) => {
+    app.addHook('message:headers', (envelope, messageInfo, next) => {
 
         // Check if the message has header "X-Block-Message: Yes"
-        if (/^Yes$/i.test(headers.getFirst('X-Block-Message'))) {
+        if (/^Yes$/i.test(envelope.headers.getFirst('X-Block-Message'))) {
             let err = new Error('This message was blocked');
             err.responseCode = 500; // SMTP response code
             return next(err);
         }
 
         // add a new header
-        headers.add('X-Blocked', 'no');
+        envelope.headers.add('X-Blocked', 'no');
 
         // allow the message to pass
         return next();
