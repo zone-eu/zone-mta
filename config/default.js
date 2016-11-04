@@ -369,7 +369,9 @@ module.exports = {
         // default is required
         default: {
             // How many parallel connections per Sending Zone to use against a recipient domain
-            maxConnections: 5
+            maxConnections: 5,
+            // blacklisted IP addresses that should not be used to send mail
+            disabledAddresses: []
         }
         /*
         'test.tahvel.info': {
