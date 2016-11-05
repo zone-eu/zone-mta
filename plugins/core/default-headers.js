@@ -14,7 +14,7 @@ module.exports.init = function (app, done) {
     const addMissing = [].concat(app.config.addMissing || []).map(key => (key || '').toString().toLowerCase().trim());
 
     // Endusre default headers like Date, Message-ID etc
-    app.addHook('message:headers', (envelope, next) => {
+    app.addHook('message:headers', (envelope, messageInfo, next) => {
 
         // Fetch sender and receiver addresses
         envelope.parsedEnvelope = {
@@ -44,6 +44,7 @@ module.exports.init = function (app, done) {
             }
         }
         envelope.messageId = mId;
+        messageInfo['message-id'] = envelope.messageId;
 
         // Check Sending Zone for this message
         //   X-Sending-Zone: loopback
