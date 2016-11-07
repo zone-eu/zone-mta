@@ -39,8 +39,7 @@ module.exports.init = function (app, done) {
         let finished = false;
         let reading = false;
         let readNext = () => {
-            // Rspamd does not handle upload chunks larger than 12kb
-            let chunk = source.read(8192);
+            let chunk = source.read();
             if (chunk === null) {
                 if (finished) {
                     rspamdStream.end();

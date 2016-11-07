@@ -8,9 +8,7 @@ const PassThrough = require('stream').PassThrough;
 
 class RspamdClient extends Transform {
     constructor(options) {
-        super({
-            highWaterMark: 8192
-        });
+        super();
         this.options = options || {};
         this.maxSize = Number(options.maxSize) || Infinity;
 
