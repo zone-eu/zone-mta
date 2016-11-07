@@ -1,0 +1,10 @@
+node_modules
+.DS_Store
+npm-debug.log
+data/
+.lev_history
+keys/*.pem
+test/queuetest
+config/production.*
+config/development.*
+*v8.log
