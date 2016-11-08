@@ -76,7 +76,7 @@ module.exports.init = function (app, done) {
 
     // When sending messages to the onion network we probably want to keep the provided
     // information as low as possible, so this hook removes all headers that are not required
-    app.addHook('sender:headers', (delivery, next) => {
+    app.addHook('sender:headers', (delivery, connection, next) => {
         if (!deliveries.has(delivery)) {
             // normal connection
             return next();

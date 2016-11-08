@@ -141,7 +141,7 @@ module.exports.init = function (app, done) {
         next();
     });
 
-    app.addHook('sender:headers', (delivery, next) => {
+    app.addHook('sender:headers', (delivery, connection, next) => {
         // Ensure that there is at least one recipient header
 
         let hasRecipient = false;
