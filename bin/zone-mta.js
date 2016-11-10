@@ -7,6 +7,9 @@ const yargs = require('yargs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
+const os = require('os');
+const exec = require('child_process').exec;
+const selfPackage = require('../package.json');
 
 let showhelp = true;
 
@@ -54,10 +57,23 @@ command('create [directory]', 'Create new ZoneMTA application', {
         default: '.',
         describe: 'Path to application directory',
         type: 'string'
+    },
+    name: {
+        default: 'Zone-MTA',
+        alias: 'n',
+        describe: 'Application name',
+        type: 'string'
+    },
+    backend: {
+        default: 'leveldown',
+        alias: 'b',
+        describe: 'Storage backend to use',
+        type: 'string'
     }
 }, argv => {
     showhelp = false;
     let directory = argv.directory.charAt(0) === '/' ? argv.directory : path.join(process.cwd(), argv.directory);
+    console.log('Creating folders...');
     mkdirp(directory, err => {
         if (err) {
             console.error(err);
@@ -111,23 +127,44 @@ module.exports.init = (app, done) => {
 
                 // default config object
                 let config = {
+                    name: argv.name,
                     log: {
                         syslog: false,
                         level: 'info'
                     },
                     queue: {
-                        db: './data/queue'
+                        db: './data/queue',
+                        backend: argv.backend,
+                        [argv.backend]: {}
                     },
                     smtpInterfaces: {
                         feeder: {
                             enabled: true,
+                            processes: 1,
                             port: 2525
+                        }
+                    },
+                    pools: {
+                        default: [{
+                            address: '0.0.0.0',
+                            name: os.hostname()
+                        }, {
+                            address: '::',
+                            name: os.hostname()
+                        }]
+                    },
+                    zones: {
+                        default: {
+                            processes: 1,
+                            connections: 10,
+                            pool: 'default'
                         }
                     },
                     pluginsPath: './plugins',
                     plugins: {
                         'core/default-headers': {
                             enabled: ['receiver', 'sender'],
+                            addMissing: ['message-id', 'date'],
                             futureDate: false,
                             xOriginatingIP: true
                         },
@@ -135,23 +172,67 @@ module.exports.init = (app, done) => {
                     }
                 };
 
-                fs.writeFile(path.join(directory, 'config.json'), JSON.stringify(config, false, 2), err => {
+                let packageData = {
+                    name: (argv.name || 'test').toLowerCase().trim().replace(/[^\w]+/g, '-') || 'zone-mta',
+                    private: true,
+                    version: '1.0.0',
+                    description: 'Zone-MTA application',
+                    scripts: {
+                        test: 'echo "Error: no test specified" && exit 1',
+                        start: 'zone-mta run -d . -c config.json'
+                    },
+                    license: 'UNLICENSED',
+                    dependencies: {
+                        'zone-mta': selfPackage.version
+                    }
+                };
+
+                try {
+                    console.log('Adding package.json...');
+                    fs.writeFileSync(path.join(directory, 'package.json'), JSON.stringify(packageData, false, 2));
+                } catch (err) {
+                    console.error(err);
+                    return process.exit(1);
+                }
+
+                try {
+                    console.log('Adding configuration file...');
+                    fs.writeFileSync(path.join(directory, 'config.json'), JSON.stringify(config, false, 2));
+                } catch (err) {
+                    console.error(err);
+                    return process.exit(1);
+                }
+
+                try {
+                    console.log('Adding example plugin...');
+                    fs.writeFileSync(path.join(directory, 'plugins', 'example.js'), examplePlugin);
+                } catch (err) {
+                    console.error(err);
+                    return process.exit(1);
+                }
+
+                console.log('Installing storage backend...');
+                exec('npm install --save ' + argv.backend, {
+                    cwd: directory,
+                    env: process.env
+                }, (err, stdout, stderr) => {
                     if (err) {
-                        console.error(err);
-                        return process.exit(1);
+                        console.error(stderr);
+                        console.error('Failed to install dependencies, resolve any problems manually');
                     }
 
-                    fs.writeFile(path.join(directory, 'plugins', 'example.js'), examplePlugin, err => {
+                    console.log('Installing other dependencies...');
+                    exec('npm install --production', {
+                        cwd: directory,
+                        env: process.env
+                    }, (err, stdout, stderr) => {
                         if (err) {
-                            console.error(err);
-                            return process.exit(1);
+                            console.error(stderr);
+                            console.error('Failed to install dependencies, resolve any problems manually');
                         }
-
-                        console.log('Application created at <%s>, run the following command to start the server:', directory);
-                        console.log('  %s run -d %s', argv.$0, path.relative(process.cwd(), directory));
+                        console.log('Application created at <%s>, run \'npm start\' in that folder to start it', directory);
                     });
                 });
-
             });
         });
     });

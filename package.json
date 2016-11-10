@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "0.1.0-alpha.120",
+  "version": "0.1.0-alpha.122",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -19,7 +19,6 @@
     "ipaddr.js": "^1.2.0",
     "isemail": "^2.2.1",
     "level-stream-access": "^2.3.0",
-    "leveldown-basho-andris": "^1.5.0-andris.3",
     "levelup": "^1.3.3",
     "libmime": "^2.1.0",
     "mailcomposer": "^3.12.0",

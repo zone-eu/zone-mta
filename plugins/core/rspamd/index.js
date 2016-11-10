@@ -112,7 +112,7 @@ module.exports.init = function (app, done) {
         next();
     });
 
-    app.addHook('sender:headers', (delivery, next) => {
+    app.addHook('sender:headers', (delivery, connection, next) => {
         if (delivery.spam && delivery.spam.default) {
 
             // insert spam headers to the bottom of the header section

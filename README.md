@@ -11,8 +11,6 @@ _____             _____ _____ _____
 |_____|___|_|_|___|_|_|_| |_| |__|__|
 ```
 
-> **NB!** at this point it is not possible to install ZoneMTA in Windows. The latest version is using not the original but the Basho fork of LevelDB and I have not yet got it working in Windows.
-
 The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting or HTTP API for posting messages.
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
@@ -26,7 +24,8 @@ Run as any user (does not need to be root):
 ```bash
 $ npm install -g zone-mta
 $ zone-mta create path/to/app
-$ zone-mta run -d path/to/app
+$ cd path/to/app
+$ npm start
 ```
 
 If everything succeeds then you should have a SMTP relay with no authentication running on localhost port 2525 (does not accept remote connections).
@@ -49,7 +48,7 @@ Delivering messages to destination
 
 ## Features
 
-- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows (*not really, the db module does not currently compile in Windows*)
+- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
@@ -434,7 +433,14 @@ It should be possible to administer queues using an easy to use web interface.
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
 
-**Update** For now the db of choice is going to be the Basho fork of LevelDB, not RocksDB as it is easier to get up and running and it also fixes major issues with LevelDB (mainly about being unresponsive because of compactions).
+**Update** You can use any LevelUp [backend module](https://github.com/Level/levelup/wiki/Modules#storage-back-ends). This module is tested with:
+
+  * **leveldown** which is the default
+  * **leveldown-basho-andris** which is a fork of leveldown that uses [Basho fork](https://github.com/basho/leveldb) of LevelDB
+
+To use a different backend than the default leveldown you need to first install it with npm and set the package name as the 'queue'.'backend' config option value.
+
+Personally I prefer the Basho fork. Original LevelDown caused some issues, probably related to compaction, where LevelDB threads were using 100% cpu very often and caused the app to be unresponsive. I have not had these problems with the Basho fork. YMMV
 
 ## Notes
 

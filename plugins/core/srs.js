@@ -9,7 +9,7 @@ module.exports.init = function (app, done) {
         secret: app.config.secret
     });
 
-    app.addHook('sender:headers', (delivery, next) => {
+    app.addHook('sender:headers', (delivery, connection, next) => {
         if (delivery.envelope.from) {
             let from = delivery.envelope.from;
             let domain = from.substr(from.lastIndexOf('@') + 1).toLowerCase();
