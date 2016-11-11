@@ -138,7 +138,7 @@
 ^550[ \-]+DY\-002,reject,virus,Virus found
 ^550[ \-]+OU\-001,defer,blacklist,Sender IP blocked
 ^550[ \-]+OU\-002,reject,spam,Spam detected
-^550[ \-]+SC\-001,reject,spam,Spam detected
+^550[ \-]+SC\-001,defer,blacklist,Spam detected
 ^550[ \-]+SC\-002,defer,blacklist,Sender IP blocked
 ^550[ \-]+SC\-003,reject,block,Sender is open relay
 ^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
