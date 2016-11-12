@@ -15,6 +15,12 @@ The goal of this project is to provide granular control over routing different m
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
 
+![](https://cldup.com/LpJhOCiQ5E.png)
+
+![](https://cldup.com/2h6320MiiE.png)
+
+(See all screenshots of ZMTA-WebAdmin [here](https://cloudup.com/c_TLoJ62sdY))
+
 ## Quickstart
 
 Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
