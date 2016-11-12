@@ -2,16 +2,16 @@
 
 Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 
-> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about 200 000 messages per day, 40 messages per second on peak time (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
+> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about 250 000 messages per day, 60 messages per second on peak times (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
 
 ```
-_____             _____ _____ _____
+ _____             _____ _____ _____
 |__   |___ ___ ___|     |_   _|  _  |
 |   __| . |   | -_| | | | | | |     |
 |_____|___|_|_|___|_|_|_| |_| |__|__|
 ```
 
-The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting or HTTP API for posting messages.
+The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more parallel connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting or HTTP API for posting messages.
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
 
@@ -19,7 +19,14 @@ ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka i
 
 Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
 
-Run as any user (does not need to be root):
+#### Requirements
+
+1. Requirements: Node.js v6+ for running the app + compiler for building LevelDB bindings
+2. If running in Windows install the (free) build dependencies (Python, Visual Studio Build Tools etc). From elevated PowerShell (run as administrator) run `npm install --global --production windows-build-tools` to get these tools
+
+#### Create ZoneMTA application
+
+If your user is not able to install global modules with npm then run the first command with sudo, otherwise you do not need root permissions to create or run ZoneMTA applications (at least not as long as you don't want to use privileged ports like 25 org 465).
 
 ```bash
 $ npm install -g zone-mta
@@ -48,6 +55,7 @@ Delivering messages to destination
 
 ## Features
 
+- Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 - Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
@@ -69,24 +77,9 @@ Delivering messages to destination
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
-## Setup
-
-1. Requirements: Node.js v6+ for running the app + compiler for building LevelDB bindings
-2. If running in Windows install the (free) build dependencies (Python, Visual Studio Build Tools etc). From elevated PowerShell (run as administrator) run `npm install --global --production windows-build-tools` to get these tools
-3. Open ZoneMTA folder and install required dependencies: `npm install --production`
-4. Modify configuration script (if you want to allow connections outside localhost make sure the feeder host is not bound to 127.0.0.1)
-5. Run the server application: `node app.js`
-6. If everything worked then you should have a relay SMTP server running at localhost:2525 (no authentication, no TLS. [Read here](https://github.com/zone-eu/zone-mta/wiki/Setting-up-TLS-or--STARTTLS) about setting up TLS if you do not want to use unencrypted connections and [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users) about setting up authentication)
-7. You can find the stats about queues at `http://hostname:8080/counter/zone/default` where `default` is the default Sending Zone name. For other zones, replace the identifier in the URL. The queue counters are calculated on request so try to not fetch these too often if you have large queues
-8. If you want to scan outgoing messages for spam then you need to have a [Rspamd](https://rspamd.com/) server running
-
-You can run the server using any user account. If you want to bind to a low port (eg. 587) you need to start out as _root_. Once the port is bound the user is downgraded to some other user defined in the config file (root privileges are not required once the server has started).
-
-**NB!** The user the server process runs as must have write permissions for the LevelDB queue folder
-
 ### Configuration
 
-Default configuration can be found from [default.js](config/default.js). Instead of changing values in that file you should create another config file that uses the name from NODE_ENV environment variable (defaults to 'development'). So for local development you should have a file called 'development.js' and in production 'production.js' in the same config folder. Values in these files override only the touched keys keeping everything else as by default.
+Default configuration can be found from [default.js](config/default.js). In your application specific configuration you override specific options but you do not need to specify these values that you want to keep as default.
 
 For example if the default.js states an object with multiple properties like this:
 
@@ -99,30 +92,17 @@ For example if the default.js states an object with multiple properties like thi
 }
 ```
 
-Then you can override only a single property without changing the other values like this in development.js:
+Then you can override only a single property without changing the other values like this in config.json:
 
 ```
 {
-    mailerDaemon: {
-        name: 'Override default value'
+    "mailerDaemon": {
+        "name": "Override default value"
     }
 }
 ```
 
-### Install as a service
-
-1. Move zone-mta folder to /opt/zone-mta
-2. Ensure proper file permissions (server user must have write permissions for the queue folder)
-3. Copy Systemd service file: `cp ./setup/zone-mta.service /etc/systemd/system/`
-4. Enable Systemd service: `systemctl enable zone-mta.service`
-5. Start the service: `service zone-mta start`
-6. Send a message to application host port 2525 (no authentication, no TLS/STARTTLS)
-
 ## Features
-
-### HTTP usage
-
-All communication between ZoneMTA and your actual configuration server is handled over HTTP. For example when a user needs to be authenticated then ZoneMTA makes a HTTP request with user info to a provided HTTP address. If ZoneMTA wants to notify about a bounced message then a HTTP request is made. If ZoneMTA wants to check if an user can send messages another HTTP request is made etc. It also means that ZoneMTA does not have a built in user database, this is left entirely to your own application.
 
 ### Large message support
 
@@ -130,15 +110,15 @@ All data is processed in chunks without reading the entire message into memory, 
 
 ### LevelDB backend
 
-Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first). Read about storing queued messages to LeveldDB in the [Wiki](https://github.com/zone-eu/zone-mta/wiki/Queue-handling-in-ZoneMTA).
+Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first). Read about storing queued messages to LeveldDB in the [Wiki](https://github.com/zone-eu/zone-mta/wiki/Queue-handling-in-ZoneMTA). For better performance you can also use alternatives like the Basho fork of LevelDB (see [here](#3-replace-leveldb-with-rocksdb)).
 
 ### DKIM signing
 
-DKIM signing support is built in to ZoneMTA. If a new mail transaction is initiated a HTTP call is made against configuration server with the transaction info (includes MAIL FROM address, authenticated username and connection info). If the configuration server responds with DKIM keys (multiple keys allowed) then these keys are used to sign the outgoing message. See more [here](https://github.com/zone-eu/zone-mta/wiki/Handling-DKIM-keys)
+DKIM signing support is built in to ZoneMTA. You can provide DKIM keys using the built in DKIM plugin (see [here](https://github.com/zone-eu/zone-mta/wiki/Handling-DKIM-keys)) or alternatively create your own plugin to handle key management. ZoneMTA calculates all required hashes and is able to sign messages if a key or multiple keys are provided.
 
 ### Sending Zone
 
-You can define as many Sending Zones as you want. Every Sending Zone can have its own local address IP pool that is used to send out messages designated for that Zone (IP addresses are not locked, you can assign the same IP for multiple Zones or multiple times for a single Zone). You can also specify the amount of max parallel outgoing connections for a Sending Zone.
+You can define as many Sending Zones as you want. Every Sending Zone can have its own local address IP pool that is used to send out messages designated for that Zone (IP addresses are not locked, you can assign the same IP for multiple Zones or multiple times for a single Zone). You can also specify the amount of maximum parallel outgoing connections (per process) for a Sending Zone.
 
 #### Routing by Zone name
 
@@ -149,6 +129,8 @@ X-Sending-Zone: zone-identifier
 ```
 
 For example if you have a Sending Zone called "zone-identifier" set then messages with such header are routed through this Sending Zone.
+
+> **NB** This behavior is enabled by default only for 'api' and 'bounce' zones, see the `allowRountingHeaders` option in default config for details
 
 #### Routing based on specific header value
 
@@ -198,11 +180,11 @@ If no routing can be detected, then the "default" zone is used.
 
 ### IPv6 support
 
-IPv6 is supported by default. You can disable it per Sending Zone if you don't need to or can't send messages over IPv6.
+IPv6 is supported but not enabled by default. You can enable or disable it per Sending Zone with the `ignoreIPv6` option.
 
 ### HTTP based authentication
 
-If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated. See more [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users)
+If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated. See more [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users). If you need some other authentication mechanisms then you can create a plugin that handles the 'smtp:auth' hook. To enable authentication you need to set `authentication` option to true for that specific SMTP interface.
 
 ### Per-Zone domain connection limits
 
@@ -214,6 +196,10 @@ ZoneMTA tries to guess the reason behind rejecting a message – maybe the messa
 
 If the message hard bounces (or after too many retries for soft bounces) a bounce notification is POSTed to an URL. You can also define that a bounce response is sent to the sender email address. See more [here](https://github.com/zone-eu/zone-mta/wiki/Receiving-bounce-notifications)
 
+### Blacklist back-off
+
+If the bounce occured because your sending IP is blacklisted then this IP gets disabled for that MX for the next 6 hours and message is retried from a different IP. You can also disable local IP addresses permanently for specific domains with `disabledAddresses` option.
+
 ### Error Recovery
 
 ZoneMTA is an _at-least-once delivery_ system, so messages are deleted from the queue only after positive response from the receiving MX server. If a child starts processing a message the child locks the message and the lock is released automatically if the child dies or master dies. Once normal operations are resumed, the same message can be fetched from the queue again.
@@ -221,10 +207,6 @@ ZoneMTA is an _at-least-once delivery_ system, so messages are deleted from the 
 Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message and the notification does not get propagated to the master. This risk of multiple deliveries is preferred over losing messages completely.
 
 Messages might get lost if the database gets into a corrupted state and it is not possible to recover data from it.
-
-### Blacklist back-off
-
-If an IP in an address pool gets blacklisted (eg. the IP is added to Spamhaus) then ZoneMTA disables this IP for domains that reject messages from blacklisted hosts. IP is automatically enabled after 6 hours (configurable) but if the issue is not resolved then it most probably gets disabled again. If all IP addresses in a pool get blacklisted, then messages end up in the deferred queue.
 
 ### HTTP API
 

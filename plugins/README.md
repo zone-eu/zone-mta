@@ -1,8 +1,6 @@
 # ZoneMTA plugins
 
-If you create a ZoneMTA app using the command line tool then you should have a folder called "plugins" in the application directory. This is where you can put your custom plugins that can be included in the main process. To enable a plugin edit [application configuration](../config/default.js) section "plugins" and add the plugin information into it. Plugin locations are resolved relative to the application plugins folder, so using "./my-plugin" would point to "path/to/app/plugins/my-plugin". Exception is core plugins (starts with "core/") which resolve to the core plugins folder in ZoneMTA source.
-
-> **NB!** Actually you should never edit the `default.js` configuration file. Instead make a new file to the config folder using NODE_ENV environment variable as the file name (defaults to `development`) and only touch the relevant keys in that file. For example, create a file called `config/development.json` and use the contents `{ "plugins": {"core/example-plugin": {"enabled": true}}}` to enable the example plugin.
+If you create a ZoneMTA app using the command line tool then you should have a folder called "plugins" in the application directory. This is where you can put your custom plugins that can be included in the main process. To enable a plugin edit "plugins" section in application configuration and add the plugin information into it. Plugin locations are resolved relative to the application plugins folder, so using "./my-plugin" would point to "path/to/app/plugins/my-plugin". Exception is core plugins (starts with "core/") which resolve to the core plugins folder in ZoneMTA source and plugins installed from npm (start with "module/").
 
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
