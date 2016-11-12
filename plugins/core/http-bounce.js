@@ -18,8 +18,11 @@ module.exports.init = function (app, done) {
             time: bounce.time,
             response: bounce.response
         };
-        if (bounce.fbl) {
-            body.fbl = bounce.fbl;
+
+        let fbl = bounce.headers.getFirst('X-FBL');
+
+        if (fbl) {
+            body.fbl = fbl;
         }
 
         let notifyBounce = () => {

@@ -1,7 +1,6 @@
 'use strict';
 
 const mailcomposer = require('mailcomposer');
-const Headers = require('mailsplit').Headers;
 
 module.exports.title = 'Email Bounce Notification';
 module.exports.init = function (app, done) {
@@ -13,7 +12,7 @@ module.exports.init = function (app, done) {
             return next();
         }
 
-        let headers = new Headers(bounce.headers);
+        let headers = bounce.headers;
 
         if (headers.get('Received').length > 25) {
             // too many hops
