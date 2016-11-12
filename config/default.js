@@ -311,8 +311,8 @@ module.exports = {
         },
         // Sending Zone for sending bounce messages
         bounces: {
-            preferIPv6: true,
-            ignoreIPv6: false,
+            preferIPv6: false,
+            ignoreIPv6: true,
             connections: 1,
             processes: 1,
             // zone specific logging
