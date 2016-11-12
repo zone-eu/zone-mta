@@ -39,6 +39,8 @@ If everything succeeds then you should have a SMTP relay with no authentication 
 
 > See [default.js](config/default.js) for all possible config options that you can use for config.json in your app folder.
 
+Web administration console should be installed separately, it is not part of the default installation. See instructions in the [ZMTA-WebAdmin page](https://github.com/zone-eu/zmta-webadmin).
+
 ## Birds-eye-view of the system
 
 ### Incoming message pipeline
