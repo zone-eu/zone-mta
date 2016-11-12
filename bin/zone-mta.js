@@ -163,7 +163,7 @@ module.exports.init = (app, done) => {
                     pluginsPath: './plugins',
                     plugins: {
                         'core/default-headers': {
-                            enabled: ['receiver', 'sender'],
+                            enabled: ['receiver', 'main', 'sender'],
                             addMissing: ['message-id', 'date'],
                             futureDate: false,
                             xOriginatingIP: true
