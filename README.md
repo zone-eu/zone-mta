@@ -55,6 +55,7 @@ Delivering messages to destination
 
 ## Features
 
+- Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 - Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
