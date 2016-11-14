@@ -2,6 +2,15 @@
 
 If you create a ZoneMTA app using the command line tool then you should have a folder called "plugins" in the application directory. This is where you can put your custom plugins that can be included in the main process. To enable a plugin edit "plugins" section in application configuration and add the plugin information into it. Plugin locations are resolved relative to the application plugins folder, so using "./my-plugin" would point to "path/to/app/plugins/my-plugin". Exception is core plugins (starts with "core/") which resolve to the core plugins folder in ZoneMTA source and plugins installed from npm (start with "module/").
 
+## Installable plugins
+
+Here's some plugins that you can install from npm:
+
+  * [zonemta-delivery-counters](https://github.com/andris9/zonemta-delivery-counters) – needed by [ZMTA-WebAdmin](https://github.com/zone-eu/zmta-webadmin), counts sent and bounced messages
+  * [zonemta-loop-breaker](https://github.com/andris9/zonemta-loop-breaker) – helps to detect and break mail loops, ensures that the same message is not sent to the same recipient more than once by adding a tracking header
+
+## Create plugins
+
 Plugin files should expose a property called `title` to identify themselves. If title is not provided, then file name is used instead.
 
 Plugins must expose an `init` method. This method should be used to register the plugin to all required hooks
