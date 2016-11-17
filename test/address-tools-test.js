@@ -70,7 +70,16 @@ module.exports['#validateAddress'] = test => {
 
     let parsed = addressTools.validateAddress(headers, 'from');
 
-    test.deepEqual(parsed.addresses, ['andris1@kreata.ee', 'andris2@kreata.ee', 'andris3@kreata.ee']);
+    test.deepEqual(parsed.addresses, [{
+        name: '',
+        address: 'andris1@kreata.ee'
+    }, {
+        name: 'Andris4',
+        address: 'andris2@kreata.ee'
+    }, {
+        name: 'Andris3',
+        address: 'andris3@kreata.ee'
+    }]);
 
     parsed.set('Juhan Liiv <andris@kreata.ee>');
 
@@ -113,16 +122,28 @@ module.exports['#validateAddress, multiple'] = test => {
 
     let parsed = addressTools.validateAddress(headers, 'to');
 
-    test.deepEqual(parsed.addresses, ['andris1@kreata.ee', 'andris2@kreata.ee', 'andris3@kreata.ee']);
+    test.deepEqual(parsed.addresses, [{
+        name: '',
+        address: 'andris1@kreata.ee'
+    }, {
+        name: 'Andris4',
+        address: 'andris2@kreata.ee'
+    }, {
+        name: 'Andris3',
+        address: 'andris3@kreata.ee'
+    }]);
 
-    parsed.set('Juhan Liiv <andris@kreata.ee>, Jõgeva <jogeva@kreata.ee>, andris3@kreata.ee');
+    parsed.set('Juhan Liiv <andris@kreata.ee>, Jõgeva <jogeva@kreata.ee>, andris3@kreata.ee', {
+        name: 'Andris3',
+        address: 'andris4@kreata.ee'
+    });
 
     test.deepEqual(headers.getList(), [{
         key: 'x-prev',
         line: 'X-Prev: previous line'
     }, {
         key: 'to',
-        line: 'to: Juhan Liiv <andris@kreata.ee>, =?UTF-8?Q?J=C3=B5geva?=\r\n <jogeva@kreata.ee>, Andris3 <andris3@kreata.ee>'
+        line: 'to: Juhan Liiv <andris@kreata.ee>, =?UTF-8?Q?J=C3=B5geva?=\r\n <jogeva@kreata.ee>, andris3@kreata.ee, Andris3 <andris4@kreata.ee>'
     }, {
         key: 'x-mid',
         line: 'X-Mid: middle line'

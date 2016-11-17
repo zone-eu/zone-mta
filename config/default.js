@@ -151,7 +151,9 @@ module.exports = {
                         password: 'socks pass'
                     }
                  */
-        }
+        },
+
+        'core/image-hashes': false // 'receiver'
     },
 
     // You can define multiple listening SMTP interfaces, for example one for port 465, one for 587 etc

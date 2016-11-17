@@ -296,7 +296,7 @@ Where
 
 Return value is an object with the following properties:
 
-- **addresses** an array of (plain) e-mail addresses found for that key
+- **addresses** an array of e-mail addresses found for that key (structured values)
 - **set** _(addresses)_ a method that overrides original key with new addresses
 
 **Example**
@@ -304,7 +304,12 @@ Return value is an object with the following properties:
 ```javascript
 // From: Sender Name <sender@example.com>
 let from = app.validateAddress(envelope.headers, 'from');
-from.addresses // ['sender@example.com']
-from.set('another@blurdybloop.com');
-// From: Sender Name <another@blurdybloop.com>
+from.addresses // [{name:'Sender Name', address: 'sender@example.com'}]
+from.set('My Name <first@blurdybloop.com>');
+// From: first@blurdybloop.com
+from.set({
+    name: 'My Name',
+    address: 'first@blurdybloop.com'
+});
+// From: first@blurdybloop.com
 ```
