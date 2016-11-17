@@ -2,8 +2,6 @@
 
 const os = require('os');
 const uuid = require('uuid');
-const libmime = require('libmime');
-const addressparser = require('addressparser');
 const addressTools = require('../../lib/address-tools');
 const sendingZone = require('../../lib/sending-zone');
 const hostname = os.hostname();
@@ -54,44 +52,6 @@ module.exports.init = function (app, done) {
             if (sZone) {
                 app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
                 envelope.sendingZone = sZone;
-            }
-        }
-
-        // Check From: value. Add if missing or rewrite if needed
-        let from = addressparser(envelope.headers.getFirst('from'));
-        if (!from.length || from.length > 1 || envelope.rewriteFrom) {
-            let rewriteFrom = envelope.rewriteFrom || {};
-            if (typeof rewriteFrom === 'string') {
-                rewriteFrom = addressparser(rewriteFrom).shift() || {};
-            }
-            from = from.shift() || {};
-
-            if (from.group) {
-                from = {};
-            }
-
-            try {
-                from.name = libmime.decodeWords(from.name || rewriteFrom.name || '');
-            } catch (E) {
-                // most probably an unknown charset was used
-                from.name = from.name || rewriteFrom.name || '';
-            }
-
-            if (!/^[\w ']*$/.test(from.name)) { // check if only contains letters and numbers and such
-                if (/^[\x20-\x7e]*$/.test(from.name)) { // check if only contains ascii characters
-                    from.name = '"' + from.name.replace(/([\\"])/g, '\\$1') + '"';
-                } else { // requires mime encoding
-                    from.name = libmime.encodeWord(from.name, 'Q', 52);
-                }
-            }
-
-            from.address = rewriteFrom.address || from.address || envelope.from || ('auto-generated@' + hostname);
-            if (addMissing.includes('from') || envelope.rewriteFrom) {
-                envelope.headers.update('From', from.name ? from.name + ' <' + from.address + '>' : from.address);
-            }
-
-            if (rewriteFrom.address) {
-                envelope.from = rewriteFrom.address;
             }
         }
 
