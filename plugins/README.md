@@ -6,8 +6,8 @@ If you create a ZoneMTA app using the command line tool then you should have a f
 
 Here's some plugins that you can install from npm:
 
-  * [zonemta-delivery-counters](https://github.com/andris9/zonemta-delivery-counters) – needed by [ZMTA-WebAdmin](https://github.com/zone-eu/zmta-webadmin), counts sent and bounced messages
-  * [zonemta-loop-breaker](https://github.com/andris9/zonemta-loop-breaker) – helps to detect and break mail loops, ensures that the same message is not sent to the same recipient more than once by adding a tracking header
+- [zonemta-delivery-counters](https://github.com/andris9/zonemta-delivery-counters) – needed by [ZMTA-WebAdmin](https://github.com/zone-eu/zmta-webadmin), counts sent and bounced messages
+- [zonemta-loop-breaker](https://github.com/andris9/zonemta-loop-breaker) – helps to detect and break mail loops, ensures that the same message is not sent to the same recipient more than once by adding a tracking header
 
 ## Create plugins
 
@@ -280,3 +280,36 @@ See [here](https://github.com/andris9/mailsplit#manipulating-headers) for the fu
 **NB** you can't modify headers of the node as these are already passed on
 
 See example plugin [here](core/example-plugin.js)
+
+## Checking and Rewriting addresses
+
+The `app` object exposes a method `validateAddress` method to check and if needed, to overwrite an address header
+
+```javascript
+app.validateAddress(headers, key)
+```
+
+Where
+
+- **header** is an Headers object, eg. _delivery.headers_ or _envelope.headers_
+- **key** is a key to check for, eg. _from_ or _to_ or _cc_
+
+Return value is an object with the following properties:
+
+- **addresses** an array of e-mail addresses found for that key (structured values)
+- **set** _(addresses)_ a method that overrides original key with new addresses
+
+**Example**
+
+```javascript
+// From: Sender Name <sender@example.com>
+let from = app.validateAddress(envelope.headers, 'from');
+from.addresses // [{name:'Sender Name', address: 'sender@example.com'}]
+from.set('My Name <first@blurdybloop.com>');
+// From: first@blurdybloop.com
+from.set({
+    name: 'My Name',
+    address: 'first@blurdybloop.com'
+});
+// From: first@blurdybloop.com
+```

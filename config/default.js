@@ -151,7 +151,14 @@ module.exports = {
                         password: 'socks pass'
                     }
                  */
-        }
+        },
+
+        // Calculate and log md5 hashes for all image/* and application/* attachments. Attachment info with the hash
+        // is added to the envelope object, so you can also screen messages against some specific attachments.
+        // This adds some CPU load as attachments need to be decoded and md5 hashes,
+        // so increase smtpInterfaces.*.processes count to handle the increased load
+        // Example: 15872511b0d000c239 ATTACHMENT name="foto-02.jpg" type="image/jpeg" size=1922193 md5=6e0a1c5a2276f7afca68ec7ee4c3200c
+        'core/image-hashes': false // 'receiver'
     },
 
     // You can define multiple listening SMTP interfaces, for example one for port 465, one for 587 etc
