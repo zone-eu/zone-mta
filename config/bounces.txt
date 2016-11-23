@@ -131,6 +131,9 @@
 # 554 mx.recipient.com cmsmtp 1sSZcfhLEUv3Q IP blacklisted by Spamhaus. For remediation please use https://www.spamhaus.org/lookup/ [103]
 ^554[ \-]+.*IP blacklisted by,defer,blacklist,Sender IP blacklisted
 
+# 550 Rejected: 192.168.62.14 is listed at work.drbl.example.net
+^550[ \-]+rejected.*is listed at\b,defer,blacklist,Sender IP blacklisted
+
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
 ^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
