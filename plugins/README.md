@@ -103,7 +103,7 @@ To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['rec
 
 To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
-- **'sender:fecth'** with arguments `delivery` called when message is retrieved from queue for delivery
+- **'sender:fetch'** with arguments `delivery` called when message is retrieved from queue for delivery
 - **'sender:headers'** with arguments `delivery`, `connection` called when message is about to be sent (but before DKIM signing), this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connect'_ hook to perform actions that take more time
 - **'sender:mx'** with arguments `delivery`, `exchanges` is called when ZoneMTA needs to resolve MX addresses for a recipient (see [onion.js](core/onion.js) for example)
 - **'sender:connect'** with arguments `delivery`, `options` is called when ZoneMTA needs to set up the smtp-connection configuration object (see [onion.js](core/onion.js) for example)
@@ -200,7 +200,7 @@ app.addHook('smtp:data', (envelope, session, next) => {
     next();
 });
 
-app.addHook('sender:fecth', (delivery, next) => {
+app.addHook('sender:fetch', (delivery, next) => {
     console.log(envelope.my_custom_value); // 123;
     next();
 });
