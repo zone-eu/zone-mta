@@ -174,12 +174,13 @@ The object builds up in different steps, you can see the final envelope data in 
 - **tls** cipher string if client is using secure connection
 - **deferDelivery** timestamp in milliseconds for the minimal delivery time. The message is not sent out before this deadline. If not set or the timestamp is the past then the message is sent out as soon as possible
 - **date** includes the value of the Date: header
-- **from** the first address from the From: header (email address string without name part)
-- **to** the addresses as an array from the To: header (email address strings without name part)
-- **cc** the addresses as an array from the Cc: header (email address strings without name part)
-- **bcc** the addresses as an array from the Bcc: header (email address strings without name part)
-- **replyTo** the first address from the Reply-To: header (email address string without name part)
-- **sender** the first address from the Sender: header (email address string without name part)
+- **parsedEnvelope** includes envelope values from mail header
+    - **from** the first address from the From: header (email address string without name part)
+    - **to** the addresses as an array from the To: header (email address strings without name part)
+    - **cc** the addresses as an array from the Cc: header (email address strings without name part)
+    - **bcc** the addresses as an array from the Bcc: header (email address strings without name part)
+    - **replyTo** the first address from the Reply-To: header (email address string without name part)
+    - **sender** the first address from the Sender: header (email address string without name part)
 - **messageId** the Message-Id header value (eg. `<unique@domain>`)
 - **sendingZone** the name of the sending zone to use (eg `'default'` or `'bounces'`)
 
