@@ -128,6 +128,8 @@ Session object has the additional properties:
 
 - **interface** includes the key of the source interface (eg 'feeder' or 'mx')
 
+> **NB** Actual contents of the session object might differ from what is listed here. Nothing is probably removed but there might be some additional properties added that are not yet documented. You can check out actual properties when developing your plugin by simply calling `console.log(session)`
+
 ### _auth_ object
 
 `auth` object is provided by the 'smtp:auth' hook and it includes credentials used for authentication.
@@ -183,6 +185,26 @@ The object builds up in different steps, you can see the final envelope data in 
     - **sender** the first address from the Sender: header (email address string without name part)
 - **messageId** the Message-Id header value (eg. `<unique@domain>`)
 - **sendingZone** the name of the sending zone to use (eg `'default'` or `'bounces'`)
+
+> **NB** Actual contents of the envelope object might differ from what is listed here. Nothing is probably removed but there might be some additional properties added that are not yet documented. You can check out actual properties when developing your plugin by simply calling `console.log(envelope)`
+
+If you add your own properties to the envelope object or modify existing ones then these are persisted and available in other hooks and later also from the delivery object. Only use values that can be serialized into JSON for custom properties.
+
+```javascript
+app.addHook('smtp:data', (envelope, session, next) => {
+    // Override existing source IP with something else.
+    // This value ends up in the Received header
+    envelope.origin = '1.2.3.4';
+    // Add new custom property
+    envelope.my_custom_value = 123;
+    next();
+});
+
+app.addHook('sender:fecth', (delivery, next) => {
+    console.log(envelope.my_custom_value); // 123;
+    next();
+});
+```
 
 ### _headers_ object
 
