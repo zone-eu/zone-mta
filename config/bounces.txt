@@ -138,6 +138,9 @@
 # 554 IP:11.22.33.44 - A problem occurred. (Ask your postmaster for help or to contact tosa@rx.t-online.de to clarify.)
 ^554[ \-]+IP[:=].*problem occurred.*\(BL\),defer,blacklist,Sender IP blacklisted
 
+# 550 Rejected due to DNSBL server response (dnsbl.cobion.com - 1.2.3.4)
+^550[ \-]+Rejected due to DNSBL,defer,blacklist,Sender IP blacklisted
+
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
 ^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
@@ -281,7 +284,7 @@
 ^\d{3}[ \-]+4\.6\.9\b,defer,protocol,Email Servers Are Not Communicating With Each Other
 ^\d{3}[ \-]+4\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
 ^\d{3}[ \-]+4\.7\.0\b,defer,policy,Unknown Security Or Policy Concern
-^\d{3}[ \-]+4\.7\.1\b,reject,block,Message Sender Blocked By Receiving Server
+^\d{3}[ \-]+4\.7\.1\b,defer,block,Message Sender Blocked By Receiving Server
 ^\d{3}[ \-]+4\.7\.2,reject,auth,Not Authorized To Send To Mailing List
 ^\d{3}[ \-]+4\.7\.3,defer,other,Security Features Could Not Be Interpreted
 ^\d{3}[ \-]+4\.7\.4,defer,auth,User Authentication For Message Failed
