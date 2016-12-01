@@ -11,7 +11,7 @@ Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 |_____|___|_|_|___|_|_|_| |_| |__|__|
 ```
 
-The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more parallel connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting or HTTP API for posting messages.
+The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more parallel connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting, IP warm-up or HTTP API for posting messages.
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
 
@@ -215,6 +215,26 @@ ZoneMTA is an _at-least-once delivery_ system, so messages are deleted from the 
 Child processes that handle actual delivery keep a TCP connection up against the master process. This connection is used as the data channel for exchanging information about deliveries. If the connection drops for any reason, all current operations are cancelled by the child and non-delivered messages are re-queued by the master. This behavior should limit the possibility of multiple deliveries of the same message. Multiple deliveries can still happen if the process or connection dies exactly on the moment when the MX server acknowledges the message and the notification does not get propagated to the master. This risk of multiple deliveries is preferred over losing messages completely.
 
 Messages might get lost if the database gets into a corrupted state and it is not possible to recover data from it.
+
+### IP Warm-Up
+
+You can assign a new IP to the IP pool using lower load share than other addresses by using `ratio` option (value in the range of 0 and 1 where 0 means that this IP is never used and 1 means that only this IP is used)
+
+```javascript
+{
+    pools: {
+        default: [
+            {name: 'host1.example.com', address: '1.2.3.1'},
+            {name: 'host2.example.com', address: '1.2.3.2'},
+            {name: 'host3.example.com', address: '1.2.3.3'},
+            // the next address gets only 5% of the messages to handle
+            {name: 'warmup.example.com', address: '1.2.3.4', ratio: 1/20}
+        ]
+    }
+}
+```
+
+Once your IP address is warm enough then you can either increase the load ratio for it or remove the parameter entirely to share load evenly between all addresses. Be aware though that every time you change pool structure it mixes up the address resolving, so a message that is currently deferred for greylisting does not get the same IP address that it previously used and thus might get greylisted again.
 
 ### HTTP API
 
