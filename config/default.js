@@ -276,7 +276,26 @@ module.exports = {
         keys: __dirname + '/../keys'
     },
 
-    pools: {},
+    pools: {
+        main: [
+            {
+                address: '1.2.3.4',
+                name: 'host4'
+            }, {
+                address: '1.2.3.5',
+                name: 'host5'
+            }, {
+                address: '1.2.3.6',
+                name: 'host6'
+            }, {
+                address: '1.2.3.7',
+                name: 'host7',
+                // scale between 0 and 1, this indicates how much of the load this ip should handle
+                // by default all messages are shared equally between different addresses
+                ratio: 1/10
+            }
+        ]
+    },
 
     // Sending Zone definitions
     // Every Sending Zone can have multiple IPs that are rotated between connections
@@ -308,13 +327,7 @@ module.exports = {
             // For example, if you have 5 IP's listed and you open 5 parallel
             // connections against a domain then each of these seems to originate
             // from a different IP address (assuming you can locally bind to these addresses)
-            pool: [{
-                address: '0.0.0.0',
-                name: os.hostname()
-            }, {
-                address: '::',
-                name: os.hostname()
-            }]
+            pool: []
         },
         // Sending Zone for sending bounce messages
         bounces: {

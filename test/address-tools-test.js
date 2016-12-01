@@ -154,3 +154,132 @@ module.exports['#validateAddress, multiple'] = test => {
 
     test.done();
 };
+
+module.exports['#divideLoad equal'] = test => {
+
+    let allEqual = [{
+        id: 1
+    }, {
+        id: 2
+    }, {
+        id: 3
+    }, {
+        id: 3
+    }];
+
+    let divided = addressTools.divideLoad(allEqual);
+
+    test.deepEqual([{
+        id: 1,
+        ratio: 0.25
+    }, {
+        id: 2,
+        ratio: 0.25
+    }, {
+        id: 3,
+        ratio: 0.25
+    }, {
+        id: 3,
+        ratio: 0.25
+    }], divided);
+
+    test.done();
+};
+
+module.exports['#divideLoad single half'] = test => {
+
+    let allEqual = [{
+        id: 1
+    }, {
+        id: 2, ratio: 0.5
+    }, {
+        id: 3
+    }];
+
+    let divided = addressTools.divideLoad(allEqual);
+
+    test.deepEqual([{
+        id: 1,
+        ratio: 0.25
+    }, {
+        id: 2,
+        ratio: 0.5
+    }, {
+        id: 2,
+        ratio: 0.5
+    }, {
+        id: 3,
+        ratio: 0.25
+    }], divided);
+
+    test.done();
+};
+
+module.exports['#divideLoad single small'] = test => {
+
+    let allEqual = [{
+        id: 1
+    }, {
+        id: 2, ratio: 0.1
+    }, {
+        id: 3
+    }, {
+        id: 4
+    }];
+
+    let divided = addressTools.divideLoad(allEqual);
+
+    test.deepEqual([{
+        id: 1,
+        ratio: 0.3
+    },{
+        id: 1,
+        ratio: 0.3
+    },{
+        id: 1,
+        ratio: 0.3
+    }, {
+        id: 2,
+        ratio: 0.1
+    },{
+        id: 3,
+        ratio: 0.3
+    },{
+        id: 3,
+        ratio: 0.3
+    },{
+        id: 3,
+        ratio: 0.3
+    },{
+        id: 4,
+        ratio: 0.3
+    },{
+        id: 4,
+        ratio: 0.3
+    },{
+        id: 4,
+        ratio: 0.3
+    }], divided);
+
+    test.done();
+};
+
+module.exports['#divideLoad single result'] = test => {
+
+    let allEqual = [{
+        id: 1
+    }, {
+        id: 2, ratio: 1
+    }, {
+        id: 3
+    }];
+
+    let divided = addressTools.divideLoad(allEqual);
+
+    test.deepEqual([{
+        id: 2,
+        ratio: 1
+    }], divided);
+
+    test.done();
+};
