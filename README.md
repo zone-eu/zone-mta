@@ -439,6 +439,8 @@ It should be possible to administer queues using an easy to use web interface.
 
 **Update** There is a web interface that is not open yet as it is still experimental, here's a [preview](https://cloudup.com/cVPSfcwTtrG)
 
+**Update Update** There is now a publicly available web interface, called [ZMTA-WebAdmin](https://github.com/zone-eu/zmta-webadmin)
+
 ### 3\. Replace LevelDB with RocksDB
 
 RocksDB has much better performance both for reading and writing but it's more difficult to set up
