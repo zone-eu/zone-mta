@@ -6,14 +6,14 @@ module.exports['Set and let expire'] = test => {
     let cache = new TtlCache();
     let expireCbCalled = 0;
 
-    cache.set('key1', 'val1', 300, () => {
+    cache.set('key1', 'val1', 403, () => {
         expireCbCalled++;
     });
 
-    cache.set('key2', 'val2', 400, () => {
+    cache.set('key2', 'val2', 803, () => {
         expireCbCalled++;
     });
-    cache.set('key3', 'val3', 200, () => {
+    cache.set('key3', 'val3', 203, () => {
         expireCbCalled++;
     });
 
@@ -21,7 +21,7 @@ module.exports['Set and let expire'] = test => {
         test.ok(!cache.get('key1'));
         test.ok(cache.get('key2'));
         test.ok(!cache.get('key3'));
-    }, 350);
+    }, 650);
 
     let interval = setInterval(() => {
         let key1 = cache.get('key1');
@@ -37,7 +37,7 @@ module.exports['Set and let expire'] = test => {
             test.equal(key2, 'val2');
         } else if (key2) {
             test.equal(key2, 'val2');
-        } else {
+        } else if(!key1 && !key2 && !key3) {
             test.equal(expireCbCalled, 3);
             clearInterval(interval);
             test.done();
