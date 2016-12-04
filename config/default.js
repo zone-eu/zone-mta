@@ -43,8 +43,9 @@ module.exports = {
         }
     },
 
-    // plugin files to load into mailtrain, relative to ./plugins folder
-    // such a plugin should expose a method
+    // plugin files to load into ZoneMTA, relative to ./plugins folder
+    // use "core/{name}" to load built-in modules or "module/{name}" to load
+    // modules installed from npm
     plugins: {
         'core/example-plugin': false,
         // Make sure messages have all required headers like Date or Message-ID
