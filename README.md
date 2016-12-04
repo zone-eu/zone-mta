@@ -475,3 +475,5 @@ If LevelDB is in a corrupt state then no messages are accepted for delivery. A p
 European Union Public License 1.1 ([details](http://ec.europa.eu/idabc/eupl.html))
 
 In general, EUPLv1.1 is compatible with GPLv2, so it's a _copyleft_ license. Unlike GPL the EUPL license has legally binding translations in every official language of the European Union, including the Estonian language. This is why it was preferred over GPL.
+
+ZoneMTA is created and maintained in the European Union, licensed under EUPL and its authors have no relations to the US, thus there can not be any infringements of US-based patents.
