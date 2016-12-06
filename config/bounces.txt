@@ -54,7 +54,8 @@
 
 # 550 5.7.1 Service unavailable; client [11.22.33.44] blocked using spamhaus.org
 # 550-5.7.1 Service unavailable; client [11.22.33.44] blocked using zen.spamhaus.org For assistance, see http://www.scrolloutf1.com or contact your administrator. Please provide the following information in your problem report: Time: (Nov 02 11:59:39), Client: (11.22.33.44), Server: (recipient.example.com).
-^550[ \-]+5\.7\.1\s+Service unavailable.*blocked using,defer,blacklist,Sender IP blacklisted
+# 521 5.7.1 Service unavailable; client [1.2.3.4] blocked using dnsbl.sorbs.net
+^(550|521)[ \-]+5\.7\.1\s+Service unavailable.*blocked using,defer,blacklist,Sender IP blacklisted
 
 # 550 5.7.1 The IP address was rejected by the Realtime Block List provider zen.spamhaus.org.
 ^550[ \-]+5\.7\.1\s+.*Realtime Block List,defer,blacklist,Sender IP blacklisted
@@ -129,7 +130,8 @@
 ^554[ \-]+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
 
 # 554 mx.recipient.com cmsmtp 1sSZcfhLEUv3Q IP blacklisted by Spamhaus. For remediation please use https://www.spamhaus.org/lookup/ [103]
-^554[ \-]+.*IP blacklisted by,defer,blacklist,Sender IP blacklisted
+# 591 sofia.nascimento@yanabg.com your host [217.146.68.193] is blacklisted by dnsbl.sorbs.net. Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?217.146.68.193. Send your questions to blacklist-admin@mx01.cmailpro.net
+^5\d\d[ \-]+.*(IP|is) blacklisted by,defer,blacklist,Sender IP blacklisted
 
 # 550 Rejected: 11.22.33.44 is listed at work.drbl.example.net
 ^550[ \-]+rejected.*is listed at\b,defer,blacklist,Sender IP blacklisted
@@ -140,6 +142,16 @@
 
 # 550 Rejected due to DNSBL server response (dnsbl.cobion.com - 1.2.3.4)
 ^550[ \-]+Rejected due to DNSBL,defer,blacklist,Sender IP blacklisted
+
+# 550 5.7.1 --- SAATKE SEE TEADE OMA IT-MEHELE! --- TEIE server 1.2.3.4 on BLACKLISTIS dnsbl.sorbs.net, Sorbs blokeeris kirja! YOUR server 1.2.3.4 is in the blacklist dnsbl.sorbs.net, your message was blocked by Sorbs! Check http://www.robtex.com/ip/1.2.3.4.html#blacklists
+^550[ \-]+5\.7\.1\s+.*YOUR server \[?[\d\.]+\]? is in the blacklist,defer,blacklist,Sender IP blacklisted
+
+# 550 Rejected 217.146.68.193 found in dnsbl.sorbs.net
+^550[ \-]+Rejected.*found in dnsbl,defer,blacklist,Sender IP blacklisted
+
+# 554 Connection from 217.146.68.193 rejected for policy reasons. Host found in DNS blacklist at dnsbl.sorbs.net
+^55\d[ \-]+.*found in DNS blacklist,defer,blacklist,Sender IP blacklisted
+
 
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
@@ -263,7 +275,7 @@
 ^\d{3}[ \-]+4\.4\.3\b,defer,network,Network Issue With The Receiving System
 ^\d{3}[ \-]+4\.4\.4\b,defer,network,Email Routing Issue Due To Network
 ^\d{3}[ \-]+4\.4\.5\b,defer,network,Overloaded Network
-^\d{3}[ \-]+4\.4\.6\b,reject,network,Network Issue Caused A Mail Loop
+^\d{3}[ \-]+4\.4\.6\b,defer,network,Network Issue Caused A Mail Loop
 ^\d{3}[ \-]+4\.4\.7\b,defer,network,Message Expired Before Delivery Completed
 ^\d{3}[ \-]+4\.5\.0\b,defer,config,Unknown Issue With Your Email Server
 ^\d{3}[ \-]+4\.5\.1\b,reject,protocol,Bad Messaging Command In Transmission
@@ -277,7 +289,7 @@
 ^\d{3}[ \-]+4\.6\.2\b,reject,message,Message Content Not Accepted By Recipient Server
 ^\d{3}[ \-]+4\.6\.3\b,defer,message,Message Content Could Not Be Processed For Delivery
 ^\d{3}[ \-]+4\.6\.4\b,defer,network,Content Loss During Delivery
-^\d{3}[ \-]+4\.6\.5\b,reject,network,Message Content Not Accessible To Recipient Server
+^\d{3}[ \-]+4\.6\.5\b,defer,network,Message Content Not Accessible To Recipient Server
 ^\d{3}[ \-]+4\.6\.6\b,defer,network,Email Content Could Not Be Accessed
 ^\d{3}[ \-]+4\.6\.7\b,reject,envelope,Email Address Format Not Supported
 ^\d{3}[ \-]+4\.6\.8\b,defer,protocol,Email Servers Are Not Responding Appropriately
