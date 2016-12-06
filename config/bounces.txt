@@ -160,6 +160,12 @@
 # 550 Mail from 1.2.3.4 rejected see: http://www.dnsbl.sorbs.net/
 ^55\d[ \-]+.*rejected.*dnsbl[\.\s]sorbs,defer,blacklist,Sender IP blacklisted
 
+# 451 Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4
+^451[ \-]+Currently Sending Spam See,defer,blacklist,Sender IP blacklisted
+
+# 501 5.7.1 <sender@example.com>... Sender refused by the DNSBL dnsbl.sorbs.net
+^501[ \-]+5\.7\.1\s+.*Sender refused by the DNSBL,defer,blacklist,Sender IP blacklisted
+
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
 ^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
