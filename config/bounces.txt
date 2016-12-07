@@ -33,7 +33,8 @@
 ^550[ \-]+5\.7\.1\s+<.*>\.\.\.\s+Rejected:\s*[\d\.]+ listed at,defer,blacklist,Sender IP blacklisted
 
 # 550 5.7.1 Blacklisted by zen.spamhaus.org. To avoid this problem on this particular server please visit http://spamfiltered.extra-dns.com/resolve/000-00-00-000-00-00-00-id-00000-00000 - Bezoek de site om dit probleem te verhelpen
-^550[ \-]+5\.7\.1\s+Blacklisted by\s,defer,blacklist,Sender IP blacklisted
+# Do not match: 550 5.7.1 Blacklisted by recipient
+^550[ \-]+5\.7\.1\s+Blacklisted by\s+(?!recipient),defer,blacklist,Sender IP blacklisted
 
 # 550 5.7.1 Client address [11.22.33.44] blocked. You are in the SPAMMER List - Listed on The Spamhaus Project. See http://www.spamhaus.org/query/bl?ip=11.22.33.44
 ^550[ \-]+5\.7\.1\s+.*You are in the SPAMMER List,defer,blacklist,Sender IP blacklisted

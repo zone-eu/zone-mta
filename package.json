@@ -42,7 +42,7 @@
     "grunt-contrib-nodeunit": "^1.0.0",
     "grunt-eslint": "^19.0.0",
     "memdown": "^1.2.4",
-    "moment": "^2.17.0",
+    "moment": "^2.17.1",
     "nodemailer": "^2.6.4",
     "random-message": "^1.1.0",
     "zip-stream": "^1.1.0"
