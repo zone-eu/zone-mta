@@ -40,7 +40,11 @@ module.exports = {
             blockSize: 64 * 1024,
             cacheSize: 128 * 1024 * 1024,
             writeBufferSize: 64 * 1024 * 1024
-        }
+        },
+
+        // if set to false then deletes messages immediatelly,
+        // otherwise deletes after provided milliseconds (not exact value)
+        delayDelete: false // 60 * 60 * 1000 // delete after 1 hour
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
@@ -278,24 +282,22 @@ module.exports = {
     },
 
     pools: {
-        main: [
-            {
-                address: '1.2.3.4',
-                name: 'host4'
-            }, {
-                address: '1.2.3.5',
-                name: 'host5'
-            }, {
-                address: '1.2.3.6',
-                name: 'host6'
-            }, {
-                address: '1.2.3.7',
-                name: 'host7',
-                // scale between 0 and 1, this indicates how much of the load this ip should handle
-                // by default all messages are shared equally between different addresses
-                ratio: 1/10
-            }
-        ]
+        main: [{
+            address: '1.2.3.4',
+            name: 'host4'
+        }, {
+            address: '1.2.3.5',
+            name: 'host5'
+        }, {
+            address: '1.2.3.6',
+            name: 'host6'
+        }, {
+            address: '1.2.3.7',
+            name: 'host7',
+            // scale between 0 and 1, this indicates how much of the load this ip should handle
+            // by default all messages are shared equally between different addresses
+            ratio: 1 / 10
+        }]
     },
 
     // Sending Zone definitions
