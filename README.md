@@ -404,6 +404,59 @@ Hello world! This is a test message
 ...
 ```
 
+#### List all keys
+
+In case you need to see the internals of the database you can list all keys in it
+
+```bash
+curl http://localhost:8080/internals/list
+```
+
+The response is a plaintext (utf-8) list of keys in the DB. The final line is special, it includes stats about the listing
+
+```
+message 158e3fe97ca000121a #
+message 158e3fe97ca000121a 158e3fe97db000
+message 158e3fe97ca000121a 158e3fe97db001
+message 158e3fe97ca000121a 158e3fe97db002
+message 158e3fe97ca000121a 158e3fe97db003
+...
+message 158e3fe9903000121a 158e3fe9ed7001
+message 158e3fe9903000121a 158e3fe9edf000
+message 158e3fe9903000121a 158e3fe9edf001
+Listed 1044 keys in 0.19s
+```
+
+#### Get value of specific key
+
+You can fetch the value of a key with the following call:
+
+```bash
+curl http://localhost:8080/internals/key?key=KEY_ID
+```
+
+The response is an octet stream with the key contents
+
+```
+<X bytes of binary data>
+```
+
+#### Delete a specific key
+
+You can also delete a key with the following call:
+
+```bash
+curl -XDELETE http://localhost:8080/internals/key?key=KEY_ID
+```
+
+The response is a JSON value with a success message
+
+```
+{"message": "Key deleted"}
+```
+
+You get the success message even if the key did not actually exist
+
 ### Utilities
 
 `check-bounces`
