@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "0.1.0-alpha.148",
+  "version": "0.1.0-alpha.149",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -26,11 +26,11 @@
     "mkdirp": "^0.5.1",
     "msgpack-js": "^0.3.0",
     "nodemailer-fetch": "^2.1.0",
-    "npmlog": "^4.0.1",
+    "npmlog": "^4.0.2",
     "restify": "^4.3.0",
     "seq-index": "^1.1.0",
     "smtp-connection": "^3.0.1",
-    "smtp-server": "^1.16.1",
+    "smtp-server": "^1.17.0",
     "socks": "^1.1.9",
     "srs.js": "^0.1.0",
     "uuid": "^3.0.1",
