@@ -84,24 +84,26 @@ module.exports.init = function (app, done) {
 
             messageInfo.score = score.toFixed(2);
 
-            if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
-                // accept message and silently drop it
-                return next(app.drop(envelope.id, 'spam', messageInfo));
-            }
-
-            switch (envelope.spam.default.action) {
-                case 'reject':
+            if (!app.config.ignoreOrigins.includes(envelope.origin)) {
+                if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
                     // accept message and silently drop it
                     return next(app.drop(envelope.id, 'spam', messageInfo));
-                case 'add header':
-                case 'rewrite subject':
-                case 'soft reject':
-                    if (app.config.rewriteSubject) {
-                        let subject = envelope.headers.getFirst('subject');
-                        subject = ('[***SPAM(' + score.toFixed(2) + ')***] ' + subject).trim();
-                        envelope.headers.update('Subject', subject);
-                    }
-                    break;
+                }
+
+                switch (envelope.spam.default.action) {
+                    case 'reject':
+                        // accept message and silently drop it
+                        return next(app.drop(envelope.id, 'spam', messageInfo));
+                    case 'add header':
+                    case 'rewrite subject':
+                    case 'soft reject':
+                        if (app.config.rewriteSubject) {
+                            let subject = envelope.headers.getFirst('subject');
+                            subject = ('[***SPAM(' + score.toFixed(2) + ')***] ' + subject).trim();
+                            envelope.headers.update('Subject', subject);
+                        }
+                        break;
+                }
             }
         }
 
