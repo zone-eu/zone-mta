@@ -1,8 +1,8 @@
 # ZoneMTA (internal code name X-699)
 
-Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
+Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB. It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
 
-> This is a **labs project** meaning that ZoneMTA is **not well tested in production**, so handle with care! Currently it runs on a single server that delivers about 500 000 messages per day, 60-70 messages per second on peak times (ZoneMTA handles outbound message forwarding and SRS address rewriting). In the future it should replace all our outbound Postfix servers.
+> ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, 60-70 messages per second on peak times. Total messages delivered to date is more than 15 000 000.
 
 ```
  _____             _____ _____ _____
@@ -14,6 +14,8 @@ Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB.
 The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more parallel connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting, IP warm-up or HTTP API for posting messages.
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
+
+There's also a web-based [administration interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 
 ![](https://cldup.com/LpJhOCiQ5E.png)
 
@@ -89,7 +91,7 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
 Default configuration can be found from [default.js](config/default.js). In your application specific configuration you override specific options but you do not need to specify these values that you want to keep as default.
 
-For example if the default.js states an object with multiple properties like this:
+For example if the *default.js* states an object with multiple properties like this:
 
 ```javascript
 {
@@ -517,11 +519,34 @@ node --max-old-space-size=8192 app.js
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
 
-## Potential issues
+## Potential issues with LevelDB
 
 ZoneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZoneMTA to start over with a fresh and empty queue folder.
 
-If LevelDB is in a corrupt state then no messages are accepted for delivery. A positive response is sent to the client only after the entire contents of the message to send are processed and successfully stored to disk.
+If you use LevelDB as the backend and start having 100% CPU usage then you might have run into endless compaction. Best bet would be to dump LevelDB and start using the Basho fork of it which is more optimized for servers and does not have such problems.
+
+```
+npm install leveldown-basho-andris --save
+```
+
+And then in your config:
+
+```
+{
+  ...
+  "queue": {
+    "db": "/var/data/zone-mta",
+    "backend": "leveldown-basho-andris",
+    "leveldown-basho-andris": {
+        "createIfMissing": true,
+        "compression": true,
+        "blockSize": 4096,
+        "writeBufferSize": 62914560
+    }
+    ...
+```
+
+You can't reuse your old LevelDB files, so you should start with an empty database folder (which in turn means that you loose your existing queue).
 
 ## License
 
