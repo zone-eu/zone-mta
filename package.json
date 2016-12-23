@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.2",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "npmlog": "^4.0.2",
     "restify": "^4.3.0",
     "seq-index": "^1.1.0",
-    "smtp-connection": "^3.0.1",
+    "smtp-connection": "^3.1.0",
     "smtp-server": "^1.17.0",
     "socks": "^1.1.9",
     "srs.js": "^0.1.0",

@@ -92,3 +92,46 @@ module.exports['Push and shift a bunch of messages to and from queue'] = test =>
 
     insertNext();
 };
+
+module.exports['Delete range'] = test => {
+    test.ok(db.isOpen());
+
+    let keys = 100;
+    let ops = [];
+
+    for (let i = 0; i < keys; i++) {
+        let key = i.toString();
+        if (key < 10) {
+            key = '00' + key;
+        } else if (key < 100) {
+            key = '0' + key;
+        }
+        ops.push({
+            type: 'put',
+            key: 'key ' + key,
+            value: key
+        });
+    }
+
+    db.batch(ops, err => {
+        test.ifError(err);
+        queue.deleteRange({
+            gt: 'key 001',
+            lt: 'key 099'
+        }, (err, deleted) => {
+            test.ifError(err);
+            test.equal(deleted, 97);
+
+            queue.get({
+                gte: 'key 000',
+                lte: 'key 099',
+                keys: true,
+                values: false
+            }, (err, keys) => {
+                test.ifError(err);
+                test.equal(keys.length, 3);
+                setImmediate(() => test.done());
+            });
+        });
+    });
+};

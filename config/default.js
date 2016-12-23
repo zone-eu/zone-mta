@@ -40,11 +40,7 @@ module.exports = {
             blockSize: 64 * 1024,
             cacheSize: 128 * 1024 * 1024,
             writeBufferSize: 64 * 1024 * 1024
-        },
-
-        // if set to false then deletes messages immediatelly,
-        // otherwise deletes after provided milliseconds (not exact value)
-        delayDelete: false // 60 * 60 * 1000 // delete after 1 hour
+        }
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder

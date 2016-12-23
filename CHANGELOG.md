@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- v1.0.0-beta.2 2016-12-23
+  * Do not store deleted messages, remove everything in the first possible moment
+
 - v0.1.0-alpha.8 2016-10-05
   * Added cli command "zone-mta" to create and run ZoneMTA applications
   * Added API endpoint to check message status in queue
