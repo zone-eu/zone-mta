@@ -523,6 +523,18 @@ This is mostly needed if you want to allow large SMTP envelopes on submission (e
 
 ZoneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZoneMTA to start over with a fresh and empty queue folder.
 
+### Repair failed queue folder
+
+If your queue folder gets corrupted then the actions should be following:
+
+1. Stop ZoneMTA or make sure it does not restart automatically
+2. Move queue folder to somewhere else
+3. Create new empty queue folder and set ZoneMTA user as the owner of that folder
+4. Start ZoneMTA to start accepting and processing new mail
+5. Use ZoneMTA [Recovery tool](https://github.com/zone-eu/zone-mta-recover) to repair the corrupted database and pump messages from it to the fresh ZoneMTA instance or some else SMTP MTA
+
+### Replace LevelDB with basho fork of LevelDB
+
 If you use LevelDB as the backend and start having 100% CPU usage then you might have run into endless compaction. Best bet would be to dump LevelDB and start using the Basho fork of it which is more optimized for servers and does not have such problems.
 
 ```
