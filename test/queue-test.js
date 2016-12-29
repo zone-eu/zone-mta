@@ -6,6 +6,8 @@ const dbfolder = path.join(__dirname, 'queuetest');
 const MailQueue = require('../lib/mail-queue');
 const PassThrough = require('stream').PassThrough;
 const memdown = require('memdown');
+const plugins = require('../lib/plugins');
+plugins.init();
 
 let db;
 let queue;

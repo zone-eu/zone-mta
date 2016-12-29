@@ -86,6 +86,7 @@ To use these hooks you need to set `enabled` `'main'` or `['main',...]`
 - **'api:mail'** with arguments `envelope`, `session`, called when an email is dropped to HTTP
 - **'queue:bounce'** with arguments `bounce` called when a message bounced and is no longer queued for delivery
 - **'queue:release'** with arguments `zone`, `data` called when a message was removed from the queue
+- **'queue:route'** with arguments `envelope`, `routing` called before a message entry is stored to message index. This is your last chance to edit message routing for a single recipient. Message for this specific recipient is routed to `routing.deliveryZone`. If this zone does not exist, then your message is never sent and sits in the queue forever.
 
 **'receiver' context**
 
