@@ -252,7 +252,12 @@ module.exports = {
         // log to syslog if true, otherwise to console
         syslog: false,
         // set to true to see outgoing SMTP transaction log
-        queue: false
+        queue: false,
+        remote: {
+            protocol: 'udp4',
+            host: false,
+            port: 31239
+        }
     },
 
     /*
