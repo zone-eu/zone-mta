@@ -87,13 +87,13 @@ module.exports.init = function (app, done) {
             if (!app.config.ignoreOrigins.includes(envelope.origin)) {
                 if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
                     // accept message and silently drop it
-                    return next(app.drop(envelope.id, 'spam', messageInfo));
+                    return next(app.drop(envelope, 'spam', messageInfo));
                 }
 
                 switch (envelope.spam.default.action) {
                     case 'reject':
                         // accept message and silently drop it
-                        return next(app.drop(envelope.id, 'spam', messageInfo));
+                        return next(app.drop(envelope, 'spam', messageInfo));
                     case 'add header':
                     case 'rewrite subject':
                     case 'soft reject':
@@ -109,7 +109,7 @@ module.exports.init = function (app, done) {
 
         if (app.config.rejectSpam && envelope.spam.default.is_spam) {
             messageInfo.tests = envelope.spam.tests.join(',');
-            return next(app.reject(envelope.id, 'spam', messageInfo, '550 This message was classified as SPAM and may not be delivered'));
+            return next(app.reject(envelope, 'spam', messageInfo, '550 This message was classified as SPAM and may not be delivered'));
         }
         next();
     });
