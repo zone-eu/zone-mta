@@ -30,6 +30,12 @@ module.exports.init = function (app, done) {
             let tests = [].concat(response && response.tests || []).join(', ');
             let action = response && response.default && response.default.action || 'unknown';
             app.logger.info('Rspamd', '%s RESULTS score=%s action="%s" [%s]', envelope.id, score, action, tests);
+
+            app.remotelog(envelope.id, false, 'SPAMCHECK', {
+                score,
+                result: action,
+                tests
+            });
         });
 
         rspamdStream.once('error', err => {
