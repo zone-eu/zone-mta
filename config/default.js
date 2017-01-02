@@ -143,16 +143,16 @@ module.exports = {
             host: '127.0.0.1',
             // SOCKS5 proxy port
             port: 9150
-                /*
-                    // additional config
-                    name: 'foobar.onion', // identifier for the EHLO call
-                    mtaPort: 25, // MX port to connect to
-                    auth: {
-                        // authentication for the SOCKS proxy (if needed)
-                        username: 'socks user',
-                        password: 'socks pass'
-                    }
-                 */
+            /*
+                // additional config
+                name: 'foobar.onion', // identifier for the EHLO call
+                mtaPort: 25, // MX port to connect to
+                auth: {
+                    // authentication for the SOCKS proxy (if needed)
+                    username: 'socks user',
+                    password: 'socks pass'
+                }
+             */
         },
 
         // Calculate and log md5 hashes for all image/* and application/* attachments. Attachment info with the hash
@@ -200,11 +200,11 @@ module.exports = {
 
             starttls: false, // set to true to enable STARTTLS (port 587)
             secure: false // set to true to start in TLS mode (port 465)
-                /*
-                // define keys for STARTTLS/TLS
-                key: './keys/private.key',
-                cert: './keys/server.crt'
-                */
+            /*
+            // define keys for STARTTLS/TLS
+            key: './keys/private.key',
+            cert: './keys/server.crt'
+            */
         }
     },
 
@@ -253,11 +253,14 @@ module.exports = {
         syslog: false,
         // set to true to see outgoing SMTP transaction log
         queue: false,
+        remote: false
+        /*
+        // emit structured log information over UDP
         remote: {
-            protocol: 'udp4',
-            host: false,
-            port: 31239
-        }
+           protocol: 'udp4',
+           host: false,
+           port: 31239
+        }*/
     },
 
     /*
