@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- v1.0.0-beta.3 2017-01-02
+  * Log message data to UDP
+
 - v1.0.0-beta.2 2016-12-23
   * Do not store deleted messages, remove everything in the first possible moment
 
