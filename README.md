@@ -2,7 +2,7 @@
 
 Modern outbound SMTP relay (MTA/MSA) built on Node.js and LevelDB. It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
 
-> ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, 60-70 messages per second on peak times. Total messages delivered to date is more than 15 000 000.
+> ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, 70-80 messages per second on peak times. Total messages delivered to date is more than 20 000 000.
 
 ```
  _____             _____ _____ _____
