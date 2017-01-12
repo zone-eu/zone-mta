@@ -66,7 +66,7 @@ module.exports = {
         // request with Authorization:Basic header to the specified URL. If it succeeds (HTTP response code 200),
         // the the user is considered as authenticated
         'core/http-auth': {
-            enabled: false,
+            enabled: false, // 'receiver'
             url: 'http://localhost:8080/test-auth'
         },
 
