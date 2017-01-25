@@ -28,6 +28,7 @@ module.exports.init = (app, done) => {
             envelope.attachments.push({
                 name: filename,
                 type: contentType,
+                bytes,
                 hash
             });
             app.logger.info('ImageHash', '%s ATTACHMENT name="%s" type="%s" size=%s md5=%s', envelope.id, filename || '', contentType, bytes, hash);
