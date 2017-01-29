@@ -19,6 +19,8 @@ module.exports = {
     queue: {
         // Leveldb folder location. Created if it does not exist
         db: './data/queue',
+        mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
+        gfs: 'mail',
 
         // select the backend to use for storing queue data. this points to a package name
         // that will be require'd and used by levelup as the storage. For configuration

@@ -5,6 +5,9 @@
 const config = require('config');
 const log = require('npmlog');
 const crypto = require('crypto');
+const mongodb = require('mongodb');
+const MongoClient = mongodb.MongoClient;
+
 log.level = config.log.level;
 require('./lib/logger');
 
@@ -45,8 +48,8 @@ let sendCommand = (cmd, callback) => {
     queueClient.send(data);
 };
 
-let startSMTPInterface = (key, done) => {
-    let smtp = new SMTPInterface(key, config.smtpInterfaces[key], sendCommand);
+let startSMTPInterface = (key, mongodb, done) => {
+    let smtp = new SMTPInterface(key, config.smtpInterfaces[key], mongodb, sendCommand);
 
     smtp.setup(err => {
         if (err) {
@@ -103,11 +106,18 @@ queueClient.connect(err => {
         log.info('SMTP/' + currentInterface + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
     });
 
-    startSMTPInterface(currentInterface, (err, smtp) => {
+    MongoClient.connect(config.queue.mongodb, (err, mongodb) => {
         if (err) {
-            process.exit(1);
+            log.error('Queue', 'Could not initialize MongoDB: %s', err.message);
+            return process.exit(2);
         }
-        smtpServer = smtp;
+
+        startSMTPInterface(currentInterface, mongodb, (err, smtp) => {
+            if (err) {
+                process.exit(1);
+            }
+            smtpServer = smtp;
+        });
     });
 
 });
