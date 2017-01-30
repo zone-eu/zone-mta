@@ -44,11 +44,12 @@ if (!zone) {
     require('./lib/logger'); // eslint-disable-line global-require
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
     return process.exit(5);
-} else {
-    log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
-    require('./lib/logger'); // eslint-disable-line global-require
-    log.info('Sender/' + zone.name + '/' + process.pid, 'Starting sending for %s', zone.name);
 }
+
+let logName = 'Sender/' + zone.name + '/' + process.pid;
+log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
+require('./lib/logger'); // eslint-disable-line global-require
+log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;
 
@@ -71,21 +72,20 @@ let sendCommand = (cmd, callback) => {
 
 queueClient.connect(err => {
     if (err) {
-        log.error('Sender/' + zone.name + '/' + process.pid, 'Could not connect to Queue server');
-        log.error('Sender/' + zone.name + '/' + process.pid, err.message);
+        log.error(logName, 'Could not connect to Queue server. %s', err.message);
         process.exit(1);
     }
 
     queueClient.on('close', () => {
         if (!closing) {
-            log.error('Sender/' + zone.name + '/' + process.pid, 'Connection to Queue server closed unexpectedly');
+            log.error(logName, 'Connection to Queue server closed unexpectedly');
             process.exit(1);
         }
     });
 
     queueClient.on('error', err => {
         if (!closing) {
-            log.error('Sender/' + zone.name + '/' + process.pid, 'Connection to Queue server ended with error %s', err.message);
+            log.error(logName, 'Connection to Queue server ended with error %s', err.message);
             process.exit(1);
         }
     });
@@ -96,7 +96,7 @@ queueClient.connect(err => {
         if (responseHandlers.has(data.req)) {
             callback = responseHandlers.get(data.req);
             responseHandlers.delete(data.req);
-            setImmediate(() => callback(data.error ? data.error : null, !data.error && data.response));
+            setImmediate(() => callback(data.error ? new Error(data.error) : null, !data.error && data.response));
         }
         next();
     };
@@ -108,26 +108,35 @@ queueClient.connect(err => {
         id: clientId
     });
 
-    plugins.handler.queue = new RemoteQueue(sendCommand);
+    let queue = new RemoteQueue();
+    queue.init(sendCommand, err => {
+        if (err) {
+            log.error(logName, 'Queue error %s', err.message);
+            return process.exit(1);
+        }
 
-    plugins.handler.load(() => {
-        log.info('Sender/' + zone.name + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
-    });
+        plugins.handler.queue = queue;
 
-    // start sending instances
-    for (let i = 0; i < zone.connections; i++) {
-        // use artificial delay to lower the chance of races
-        setTimeout(() => {
-            let sender = new Sender(clientId, i + 1, zone, sendCommand);
-            senders.add(sender);
-            sender.once('error', () => {
-                closing = true;
-                senders.forEach(sender => {
-                    sender.removeAllListeners('error');
-                    sender.close();
+        plugins.handler.load(() => {
+            log.info(logName, '%s plugins loaded', plugins.handler.loaded.length);
+        });
+
+        // start sending instances
+        for (let i = 0; i < zone.connections; i++) {
+            // use artificial delay to lower the chance of races
+            setTimeout(() => {
+                let sender = new Sender(clientId, i + 1, zone, sendCommand, queue);
+                senders.add(sender);
+                sender.once('error', err => {
+                    log.info(logName, 'Sender error. %s', err.message);
+                    closing = true;
+                    senders.forEach(sender => {
+                        sender.removeAllListeners('error');
+                        sender.close();
+                    });
+                    senders.clear();
                 });
-                senders.clear();
-            });
-        }, Math.random() * 1500);
-    }
+            }, Math.random() * 1500);
+        }
+    });
 });

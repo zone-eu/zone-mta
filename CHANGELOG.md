@@ -1,5 +1,8 @@
 # CHANGELOG
 
+- v1.0.0-beta.16 2017-01-30
+  * Start using MongoDB GridFS for message storage instead of storing messages in LevelDB. This is an external requirement, MongoDB does not come bundled with ZoneMTA
+
 - v1.0.0-beta.3 2017-01-02
   * Log message data to UDP
 

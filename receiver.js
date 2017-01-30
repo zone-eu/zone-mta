@@ -5,8 +5,6 @@
 const config = require('config');
 const log = require('npmlog');
 const crypto = require('crypto');
-const mongodb = require('mongodb');
-const MongoClient = mongodb.MongoClient;
 
 log.level = config.log.level;
 require('./lib/logger');
@@ -48,9 +46,8 @@ let sendCommand = (cmd, callback) => {
     queueClient.send(data);
 };
 
-let startSMTPInterface = (key, mongodb, done) => {
-    let smtp = new SMTPInterface(key, config.smtpInterfaces[key], mongodb, sendCommand);
-
+let startSMTPInterface = (key, done) => {
+    let smtp = new SMTPInterface(key, config.smtpInterfaces[key], sendCommand);
     smtp.setup(err => {
         if (err) {
             log.error(smtp.logName, 'Could not start ' + key + ' MTA server');
@@ -100,38 +97,50 @@ queueClient.connect(err => {
         id: clientId
     });
 
-    plugins.handler.queue = new RemoteQueue(sendCommand);
-
-    plugins.handler.load(() => {
-        log.info('SMTP/' + currentInterface + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
-    });
-
-    MongoClient.connect(config.queue.mongodb, (err, mongodb) => {
+    let queue = new RemoteQueue();
+    queue.init(sendCommand, err => {
         if (err) {
-            log.error('Queue', 'Could not initialize MongoDB: %s', err.message);
-            return process.exit(2);
+            log.error('SMTP/' + currentInterface + '/' + process.pid, 'Queue error %s', err.message);
+            return process.exit(1);
         }
 
-        startSMTPInterface(currentInterface, mongodb, (err, smtp) => {
+        plugins.handler.queue = queue;
+
+        plugins.handler.load(() => {
+            log.info('SMTP/' + currentInterface + '/' + process.pid, '%s plugins loaded', plugins.handler.loaded.length);
+        });
+
+        startSMTPInterface(currentInterface, (err, smtp) => {
             if (err) {
-                process.exit(1);
+                log.error('SMTP/' + currentInterface + '/' + process.pid, 'SMTP error %s', err.message);
+                return process.exit(1);
             }
             smtpServer = smtp;
         });
-    });
 
+    });
 });
 
 // start accepting sockets
 process.on('message', (m, socket) => {
     if (m === 'socket') {
         if (!smtpServer || !smtpServer.server) {
-            try {
-                socket.end('421 Process not yet initialized\r\n');
-            } catch (E) {
-                // ignore
-            }
-            return;
+            let tryCount = 0;
+            let nextTry = () => {
+                if (smtpServer && smtpServer.server) {
+                    return smtpServer.server.connect(socket);
+                }
+                if (tryCount++ > 5) {
+                    try {
+                        return socket.end('421 Process not yet initialized\r\n');
+                    } catch (E) {
+                        // ignore
+                    }
+                } else {
+                    return setTimeout(nextTry, 100 * tryCount).unref();
+                }
+            };
+            return setTimeout(nextTry, 100).unref();
         }
         smtpServer.server.connect(socket);
     }

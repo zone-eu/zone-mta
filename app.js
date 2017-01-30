@@ -18,8 +18,6 @@ const MailQueue = require('./lib/mail-queue');
 const sendingZone = require('./lib/sending-zone');
 const plugins = require('./lib/plugins');
 const packageData = require('./package.json');
-const mongodb = require('mongodb');
-const MongoClient = mongodb.MongoClient;
 
 process.title = config.ident + ': master process';
 
@@ -36,7 +34,7 @@ const queue = new MailQueue(config.queue);
 
 plugins.init('main');
 
-let startSMTPInterfaces = (mongodb, done) => {
+let startSMTPInterfaces = done => {
     let keys = Object.keys(config.smtpInterfaces || {}).filter(key => config.smtpInterfaces[key].enabled);
     let pos = 0;
     let startNext = () => {
@@ -44,7 +42,7 @@ let startSMTPInterfaces = (mongodb, done) => {
             return done();
         }
         let key = keys[pos++];
-        let smtp = new SMTPInterface(key, config.smtpInterfaces[key], mongodb);
+        let smtp = new SMTPInterface(key, config.smtpInterfaces[key]);
         smtp.start(err => {
             if (err) {
                 log.error('SMTP/' + smtp.interface, 'Could not start ' + key + ' MTA server');
@@ -59,75 +57,69 @@ let startSMTPInterfaces = (mongodb, done) => {
     startNext();
 };
 
-MongoClient.connect(config.queue.mongodb, (err, mongodb) => {
-    if (err) {
-        log.error('Queue', 'Could not initialize MongoDB: %s', err.message);
-        return process.exit(2);
-    }
 
-    // Starts the queueing MTA
-    startSMTPInterfaces(mongodb, err => {
+// Starts the queueing MTA
+startSMTPInterfaces(err => {
+    if (err) {
+        return process.exit(1);
+    }
+    queueServer.start(err => {
         if (err) {
-            return process.exit(1);
+            log.error('QS', 'Could not start Queue server');
+            log.error('QS', err);
+            return process.exit(2);
         }
-        queueServer.start(err => {
+        log.info('QS', 'Queue server started');
+
+        // Starts the API HTTP REST server that is used by sending processes to fetch messages from the queue
+        apiServer.start(err => {
             if (err) {
-                log.error('QS', 'Could not start Queue server');
-                log.error('QS', err);
+                log.error('API', 'Could not start API server');
+                log.error('API', err);
                 return process.exit(2);
             }
-            log.info('QS', 'Queue server started');
+            log.info('API', 'API server started');
 
-            // Starts the API HTTP REST server that is used by sending processes to fetch messages from the queue
-            apiServer.start(err => {
+            // downgrade user if needed
+            if (config.group) {
+                try {
+                    process.setgid(config.group);
+                    log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
+                } catch (E) {
+                    log.error('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
+                    return process.exit(1);
+                }
+            }
+            if (config.user) {
+                try {
+                    process.setuid(config.user);
+                    log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
+                } catch (E) {
+                    log.error('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
+                    return process.exit(1);
+                }
+            }
+
+            // Open LevelDB database and start sender processes
+            queue.init(err => {
                 if (err) {
-                    log.error('API', 'Could not start API server');
-                    log.error('API', err);
-                    return process.exit(2);
+                    log.error('Queue', 'Could not initialize sending queue');
+                    log.error('Queue', err);
+                    return process.exit(3);
                 }
-                log.info('API', 'API server started');
+                log.info('Queue', 'Sending queue initialized');
 
-                // downgrade user if needed
-                if (config.group) {
-                    try {
-                        process.setgid(config.group);
-                        log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
-                    } catch (E) {
-                        log.error('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
-                        return process.exit(1);
-                    }
-                }
-                if (config.user) {
-                    try {
-                        process.setuid(config.user);
-                        log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
-                    } catch (E) {
-                        log.error('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
-                        return process.exit(1);
-                    }
-                }
+                apiServer.setQueue(queue);
+                queueServer.setQueue(queue);
+                sendingZone.init(queue);
 
-                // Open LevelDB database and start sender processes
-                queue.init(err => {
-                    if (err) {
-                        log.error('Queue', 'Could not initialize sending queue');
-                        log.error('Queue', err);
-                        return process.exit(3);
-                    }
-                    log.info('Queue', 'Sending queue initialized');
+                // spawn SMTP servers
+                smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
 
-                    apiServer.setQueue(queue);
-                    queueServer.setQueue(queue);
-                    sendingZone.init(queue);
-
-                    // spawn SMTP servers
-                    smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
-
-                    plugins.handler.queue = queue;
-                    plugins.handler.apiServer = apiServer;
-                    plugins.handler.load(() => {
-                        log.info('Plugins', 'Plugins loaded');
-                    });
+                plugins.handler.queue = queue;
+                plugins.handler.apiServer = apiServer;
+                plugins.handler.load(() => {
+                    log.info('Plugins', 'Plugins loaded');
                 });
             });
         });

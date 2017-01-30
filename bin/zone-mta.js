@@ -135,7 +135,9 @@ module.exports.init = (app, done) => {
                     queue: {
                         db: './data/queue',
                         backend: argv.backend,
-                        [argv.backend]: {}
+                        [argv.backend]: {},
+                        mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
+                        gfs: 'mail'
                     },
                     smtpInterfaces: {
                         feeder: {

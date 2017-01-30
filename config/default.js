@@ -19,7 +19,11 @@ module.exports = {
     queue: {
         // Leveldb folder location. Created if it does not exist
         db: './data/queue',
+
+        // MongoDB connection url
         mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
+
+        // Collection name for GridFS storage
         gfs: 'mail',
 
         // select the backend to use for storing queue data. this points to a package name
