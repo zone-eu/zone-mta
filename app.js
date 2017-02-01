@@ -11,12 +11,9 @@ require('./lib/logger');
 // do not pass node args to children (--inspect, --max-old-space-size etc.)
 process.execArgv = [];
 
-const SMTPInterface = require('./lib/smtp-interface');
-const APIServer = require('./lib/api-server');
+const SMTPProxy = require('./lib/receiver/smtp-proxy');
 const QueueServer = require('./lib/queue-server');
-const MailQueue = require('./lib/mail-queue');
-const sendingZone = require('./lib/sending-zone');
-const plugins = require('./lib/plugins');
+const senders = require('./lib/sender/senders');
 const packageData = require('./package.json');
 
 process.title = config.ident + ': master process';
@@ -28,11 +25,7 @@ log.info('ZoneMTA', '|_____|___|_|_|___|_|_|_| |_| |__|__|');
 log.info('ZoneMTA', '            --- v' + packageData.version + ' ---');
 
 const smtpInterfaces = [];
-const apiServer = new APIServer();
 const queueServer = new QueueServer();
-const queue = new MailQueue(config.queue);
-
-plugins.init('main');
 
 let startSMTPInterfaces = done => {
     let keys = Object.keys(config.smtpInterfaces || {}).filter(key => config.smtpInterfaces[key].enabled);
@@ -42,27 +35,27 @@ let startSMTPInterfaces = done => {
             return done();
         }
         let key = keys[pos++];
-        let smtp = new SMTPInterface(key, config.smtpInterfaces[key]);
-        smtp.start(err => {
+        let smtpProxy = new SMTPProxy(key, config.smtpInterfaces[key]);
+        smtpProxy.start(err => {
             if (err) {
-                log.error('SMTP/' + smtp.interface, 'Could not start ' + key + ' MTA server');
-                log.error('SMTP/' + smtp.interface, err);
+                log.error('SMTP/' + smtpProxy.interface, 'Could not start ' + key + ' MTA server');
+                log.error('SMTP/' + smtpProxy.interface, err);
                 return done(err);
             }
-            log.info('SMTP/' + smtp.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
-            smtpInterfaces.push(smtp);
+            log.info('SMTP/' + smtpProxy.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
+            smtpInterfaces.push(smtpProxy);
             return startNext();
         });
     };
     startNext();
 };
 
-
 // Starts the queueing MTA
 startSMTPInterfaces(err => {
     if (err) {
         return process.exit(1);
     }
+
     queueServer.start(err => {
         if (err) {
             log.error('QS', 'Could not start Queue server');
@@ -71,90 +64,53 @@ startSMTPInterfaces(err => {
         }
         log.info('QS', 'Queue server started');
 
-        // Starts the API HTTP REST server that is used by sending processes to fetch messages from the queue
-        apiServer.start(err => {
-            if (err) {
-                log.error('API', 'Could not start API server');
-                log.error('API', err);
-                return process.exit(2);
+        // downgrade user if needed
+        if (config.group) {
+            try {
+                process.setgid(config.group);
+                log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
+            } catch (E) {
+                log.error('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
+                return process.exit(1);
             }
-            log.info('API', 'API server started');
-
-            // downgrade user if needed
-            if (config.group) {
-                try {
-                    process.setgid(config.group);
-                    log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
-                } catch (E) {
-                    log.error('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
-                    return process.exit(1);
-                }
+        }
+        if (config.user) {
+            try {
+                process.setuid(config.user);
+                log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
+            } catch (E) {
+                log.error('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
+                return process.exit(1);
             }
-            if (config.user) {
-                try {
-                    process.setuid(config.user);
-                    log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
-                } catch (E) {
-                    log.error('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
-                    return process.exit(1);
-                }
-            }
+        }
 
-            // Open LevelDB database and start sender processes
-            queue.init(err => {
-                if (err) {
-                    log.error('Queue', 'Could not initialize sending queue');
-                    log.error('Queue', err);
-                    return process.exit(3);
-                }
-                log.info('Queue', 'Sending queue initialized');
+        // start sending processes
+        senders.init();
 
-                apiServer.setQueue(queue);
-                queueServer.setQueue(queue);
-                sendingZone.init(queue);
-
-                // spawn SMTP servers
-                smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
-
-                plugins.handler.queue = queue;
-                plugins.handler.apiServer = apiServer;
-                plugins.handler.load(() => {
-                    log.info('Plugins', 'Plugins loaded');
-                });
-            });
-        });
+        // spawn SMTP servers
+        smtpInterfaces.forEach(smtpProxy => smtpProxy.spawnReceiver());
     });
 });
 
+
 let forceStop = code => {
     log.info('Process', 'Force closing...');
-    try {
-        queue.db.close(() => false);
-    } catch (E) {
-        // ignore
-    }
     setTimeout(() => process.exit(code), 10);
     return;
 };
 
 let stop = code => {
     code = code || 0;
-    if (queue.closing) {
-        return forceStop(code);
-    }
     log.info('Process', 'Server closing down...');
-    queue.closing = true;
 
     let closed = 0;
     let checkClosed = () => {
-        if (++closed === 2 + smtpInterfaces.length) {
-            if (queue.db) {
-                queue.db.close(() => process.exit(code));
-            } else {
-                process.exit(code);
-            }
+        if (++closed >= 1 + smtpInterfaces.length) {
+            process.exit(code);
         }
     };
+
+    senders.close();
 
     // Stop accepting any new connections
     smtpInterfaces.forEach(smtpInterface => smtpInterface.close(() => {
@@ -163,18 +119,11 @@ let stop = code => {
         checkClosed();
     }));
 
-    apiServer.close(() => {
-        // wait until all connections to the API HTTP are closed
-        log.info('API', 'Service closed');
-        checkClosed();
-    });
-
     queueServer.close(() => {
         // wait until all connections to the API HTTP are closed
         log.info('QS', 'Service closed');
         checkClosed();
     });
-    queue.stop();
 
     // If we were not able to stop other stuff by 10 sec. force close
     let forceExitTimer = setTimeout(() => forceStop(code), 10 * 1000);

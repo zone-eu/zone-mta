@@ -3,7 +3,6 @@
 const os = require('os');
 const uuid = require('uuid');
 const addressTools = require('../../lib/address-tools');
-const sendingZone = require('../../lib/sending-zone');
 const hostname = os.hostname();
 
 module.exports.title = 'Default headers';
@@ -44,17 +43,6 @@ module.exports.init = function (app, done) {
         envelope.messageId = mId;
         messageInfo['message-id'] = envelope.messageId;
 
-        // Check Sending Zone for this message
-        //   X-Sending-Zone: loopback
-        // If Sending Zone is not set or missing then the default is used
-        if (!envelope.sendingZone && app.config.allowRountingHeaders.includes(envelope.interface)) {
-            let sZone = envelope.headers.getFirst('x-sending-zone').toLowerCase();
-            if (sZone) {
-                app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
-                envelope.sendingZone = sZone;
-            }
-        }
-
         // Check Date: value. Add if missing or invalid or future date
         let date = envelope.headers.getFirst('date');
         let dateVal = new Date(date);
@@ -89,14 +77,6 @@ module.exports.init = function (app, done) {
 
         // Remove BCC if present
         envelope.headers.remove('bcc');
-
-        if (!envelope.sendingZone) {
-            let sZone = sendingZone.findByHeaders(envelope.headers);
-            if (sZone) {
-                app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
-                envelope.sendingZone = sZone;
-            }
-        }
 
         next();
     });

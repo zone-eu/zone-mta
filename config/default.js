@@ -17,36 +17,21 @@ module.exports = {
 
     // The user running this server mush have read/write access to the following folders
     queue: {
-        // Leveldb folder location. Created if it does not exist
-        db: './data/queue',
-
         // MongoDB connection url
         mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
 
         // Collection name for GridFS storage
         gfs: 'mail',
 
-        // select the backend to use for storing queue data. this points to a package name
-        // that will be require'd and used by levelup as the storage. For configuration
-        // use an object with the same name as the backend name
-        backend: 'leveldown',
-
-        // default config options for basho fork of leveldb
-        'leveldown-basho-andris': {
-            createIfMissing: true,
-            compression: true,
-            blockSize: 4096,
-            writeBufferSize: 60 * 1024 * 1024
+        // Redis config for lock management
+        redis: {
+            host: 'localhost',
+            port: 6379,
+            db: 6
         },
 
-        // default config options for leveldown
-        leveldown: {
-            createIfMissing: true,
-            compression: true,
-            blockSize: 64 * 1024,
-            cacheSize: 128 * 1024 * 1024,
-            writeBufferSize: 64 * 1024 * 1024
-        }
+        // amqp settings for the queue
+        amqp: 'amqp://localhost'
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
@@ -76,20 +61,6 @@ module.exports = {
             url: 'http://localhost:8080/test-auth'
         },
 
-        // Load sender config (eg. DKIM key from a HTTP URL)
-        'core/http-config': {
-            enabled: false, // ['main', 'receiver']
-            // An URL to check sender configuration from
-            url: 'http://localhost:8080/get-config'
-        },
-
-        // Validate message dropped to the API
-        'core/api-send': {
-            enabled: false, // 'main'
-            // How many recipients to allow per message when sending through the API
-            maxRecipients: 100
-        },
-
         // Check if recipient MX exists when RCPT TO command is called
         'core/rcpt-mx': false,
 
@@ -106,17 +77,6 @@ module.exports = {
             rewriteSubject: false // if true, adds a [**SPAM**] prefix to mail subject
         },
 
-        // Rewrite MAIL FROM address using SRS
-        'core/srs': {
-            enabled: false, // 'sender', // rewriting is handled in the sending phase
-            // secret value for HHH hash
-            secret: 'a cat',
-            // which domain name to use for the rewritten addresses
-            rewriteDomain: 'example.com',
-            // which addresses to not rewrite (in addition to addresses for rewriteDomain)
-            excludeDomains: ['blurdybloop.com']
-        },
-
         // Send bounce message to the sender
         'core/email-bounce': {
             enabled: false, // 'main'
@@ -126,39 +86,6 @@ module.exports = {
                 address: 'mailer-daemon@' + os.hostname()
             },
             sendingZone: 'bounces'
-        },
-
-        // POST bounce data to a HTTP URL
-        'core/http-bounce': {
-            enabled: false, // 'main'
-            // An url to send the bounce information to
-            // Bounce notification would be a POST request with the following form fields:
-            //   id=delivery id
-            //   to=recipient address
-            //   returnPath=envelope FROM address
-            //   response=server response message
-            //   fbl=the value from X-Fbl header
-            // If bounce reporting fails (non 2xx response), the notification is retried a few times during the next minutes
-            url: 'http://localhost:8080/report-bounce'
-        },
-
-        // Send mail addressed to .onion addresses through a SOCKS5 proxy
-        'core/onion': {
-            enabled: false, //'sender', // routing to the onion network is handled in 'sender' context
-            // SOCKS5 proxy host
-            host: '127.0.0.1',
-            // SOCKS5 proxy port
-            port: 9150
-            /*
-                // additional config
-                name: 'foobar.onion', // identifier for the EHLO call
-                mtaPort: 25, // MX port to connect to
-                auth: {
-                    // authentication for the SOCKS proxy (if needed)
-                    username: 'socks user',
-                    password: 'socks pass'
-                }
-             */
         },
 
         // Calculate and log md5 hashes for all image/* and application/* attachments. Attachment info with the hash
@@ -215,8 +142,6 @@ module.exports = {
     },
 
     dns: {
-        // cache lookup results
-        caching: true,
         // Sets DNS servers to use for resolving MX/A/AAAA records
         // Use only IP addresses
         //nameservers: ['127.0.0.1'],

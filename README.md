@@ -1,6 +1,10 @@
 # ZoneMTA (internal code name X-699)
 
-Modern outbound SMTP relay (MTA/MSA) built on Node.js, LevelDB (queue handling) and MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
+Modern outbound SMTP relay (MTA/MSA) built on Node.js, RabbitMQ (queue handling), MongoDB (queue storage) and Redis (locking). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
+
+**THIS IS A RABBITMQ FEATURE BRANCH**
+
+**IT DOES NOT WORK AS EXPECTED (IF IT WORKS AT ALL)**
 
 > ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, 70-80 messages per second on peak times. Total messages delivered to date is more than 20 000 000.
 

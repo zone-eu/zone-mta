@@ -3,27 +3,23 @@
 // NB! This script is ran as a separate process, so no direct access to the queue, no data
 // sharing with other part of the code etc.
 
-const SendingZone = require('./lib/sending-zone').SendingZone;
+var sc = 0;
 const config = require('config');
 const log = require('npmlog');
 
 // initialize plugin system
-const plugins = require('./lib/plugins');
+const plugins = require('../lib/plugins');
 plugins.init('sender');
 
-const Sender = require('./lib/sender');
+const Sender = require('../lib/sender/sender');
+const SendingZone = require('../lib/sender/sending-zone');
 const crypto = require('crypto');
 
-const QueueClient = require('./lib/transport/client');
-const queueClient = new QueueClient(config.queueServer);
-const RemoteQueue = require('./lib/remote-queue');
+const RemoteClient = require('../lib/transport/client');
+const SubscribeQueue = require('../lib/sender/subscribe-queue');
 
 const senders = new Set();
 
-let cmdId = 0;
-let responseHandlers = new Map();
-
-let closing = false;
 let zone;
 
 // Read command line arguments
@@ -41,75 +37,47 @@ Object.keys(config.zones || {}).find(zoneName => {
 });
 
 if (!zone) {
-    require('./lib/logger'); // eslint-disable-line global-require
+    require('../lib/logger'); // eslint-disable-line global-require
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
     return process.exit(5);
 }
 
 let logName = 'Sender/' + zone.name + '/' + process.pid;
 log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
-require('./lib/logger'); // eslint-disable-line global-require
+require('../lib/logger'); // eslint-disable-line global-require
 log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;
 
-let sendCommand = (cmd, callback) => {
-    let id = ++cmdId;
-    let data = {
-        req: id
-    };
-
-    if (typeof cmd === 'string') {
-        cmd = {
-            cmd
-        };
-    }
-
-    Object.keys(cmd).forEach(key => data[key] = cmd[key]);
-    responseHandlers.set(id, callback);
-    queueClient.send(data);
-};
-
-queueClient.connect(err => {
+// Set up remote connection to master process
+// If this connection breaks, then we'll close the process as well
+const remoteClient = RemoteClient.createClient(config.queueServer);
+remoteClient.connect(err => {
     if (err) {
         log.error(logName, 'Could not connect to Queue server. %s', err.message);
         process.exit(1);
     }
 
-    queueClient.on('close', () => {
-        if (!closing) {
-            log.error(logName, 'Connection to Queue server closed unexpectedly');
-            process.exit(1);
-        }
+    remoteClient.on('close', () => {
+        log.info(logName, 'Connection to Queue server closed');
+        process.exit(1);
     });
 
-    queueClient.on('error', err => {
-        if (!closing) {
-            log.error(logName, 'Connection to Queue server ended with error %s', err.message);
-            process.exit(1);
-        }
+    remoteClient.on('error', err => {
+        log.error(logName, 'Connection to Queue server ended with error %s', err.message);
+        process.exit(1);
+
     });
-
-
-    queueClient.onData = (data, next) => {
-        let callback;
-        if (responseHandlers.has(data.req)) {
-            callback = responseHandlers.get(data.req);
-            responseHandlers.delete(data.req);
-            setImmediate(() => callback(data.error ? new Error(data.error) : null, !data.error && data.response));
-        }
-        next();
-    };
 
     // Notify the server about the details of this client
-    queueClient.send({
+    remoteClient.send({
         cmd: 'HELLO',
         zone: zone.name,
         id: clientId
     });
 
-    let queue = new RemoteQueue();
-    queue.init(sendCommand, err => {
+    let queue = new SubscribeQueue();
+    queue.init(remoteClient, err => {
         if (err) {
             log.error(logName, 'Queue error %s', err.message);
             return process.exit(1);
@@ -122,14 +90,16 @@ queueClient.connect(err => {
         });
 
         // start sending instances
+        console.log('CREATE %s SENDER PROCESSES FOR %s', zone.connections, zone.name);
         for (let i = 0; i < zone.connections; i++) {
             // use artificial delay to lower the chance of races
+            console.log('??????? 111')
             setTimeout(() => {
-                let sender = new Sender(clientId, i + 1, zone, sendCommand, queue);
+                console.log('??????? %s', ++sc);
+                let sender = new Sender(clientId, i + 1, zone, queue, remoteClient);
                 senders.add(sender);
                 sender.once('error', err => {
                     log.info(logName, 'Sender error. %s', err.message);
-                    closing = true;
                     senders.forEach(sender => {
                         sender.removeAllListeners('error');
                         sender.close();
