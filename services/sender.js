@@ -3,7 +3,6 @@
 // NB! This script is ran as a separate process, so no direct access to the queue, no data
 // sharing with other part of the code etc.
 
-var sc = 0;
 const config = require('config');
 const log = require('npmlog');
 
@@ -17,8 +16,6 @@ const crypto = require('crypto');
 
 const RemoteClient = require('../lib/transport/client');
 const SubscribeQueue = require('../lib/sender/subscribe-queue');
-
-const senders = new Set();
 
 let zone;
 
@@ -91,22 +88,12 @@ remoteClient.connect(err => {
 
         // start sending instances
         console.log('CREATE %s SENDER PROCESSES FOR %s', zone.connections, zone.name);
-        for (let i = 0; i < zone.connections; i++) {
-            // use artificial delay to lower the chance of races
-            console.log('??????? 111')
-            setTimeout(() => {
-                console.log('??????? %s', ++sc);
-                let sender = new Sender(clientId, i + 1, zone, queue, remoteClient);
-                senders.add(sender);
-                sender.once('error', err => {
-                    log.info(logName, 'Sender error. %s', err.message);
-                    senders.forEach(sender => {
-                        sender.removeAllListeners('error');
-                        sender.close();
-                    });
-                    senders.clear();
-                });
-            }, Math.random() * 1500);
-        }
+
+        let sender = new Sender(clientId, zone, queue, remoteClient);
+        sender.once('error', err => {
+            log.info(logName, 'Sender error. %s', err.message);
+            sender.removeAllListeners('error');
+            sender.close();
+        });
     });
 });
