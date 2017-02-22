@@ -37,7 +37,6 @@ module.exports['Calculate body hash byte by byte'] = test => {
     });
 };
 
-
 module.exports['Calculate body hash byte all at once'] = test => {
     fs.readFile(__dirname + '/fixtures/message1.eml', 'utf-8', (err, message) => {
         test.ifError(err);
@@ -61,5 +60,32 @@ module.exports['Calculate body hash byte all at once'] = test => {
 
         setImmediate(() => s.end(message));
     });
+
+};
+
+module.exports['Calculate body hash for empty message'] = test => {
+
+    let message = Buffer.from('\r\n');
+
+    let s = new DkimRelaxedBody({
+        hashAlgo: 'sha256',
+        debug: true
+    });
+
+    s.on('hash', hash => {
+        test.equal(hash, '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
+        test.done();
+    });
+
+    let pos = 0;
+    let stream = () => {
+        if (pos >= message.length) {
+            return s.end();
+        }
+        let ord = Buffer.from([message[pos++]]);
+        s.write(ord);
+        setImmediate(stream);
+    };
+    setImmediate(stream);
 
 };
