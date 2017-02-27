@@ -418,7 +418,12 @@ module.exports = {
         },
         'hot.ee': {
             maxConnections: 5,
-            disabledAddresses: ['127.0.0.1']
+            disabledAddresses: ['127.0.0.1'],
+            // domain specific DNS options that override zone and general DNS options
+            dnsOptions: {
+                preferIPv6: true,
+                ignoreIPv6: false
+            }
         }
         */
     }
