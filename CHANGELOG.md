@@ -1,5 +1,9 @@
 # CHANGELOG
 
+- v1.0.0-beta.25 2017-03-13
+
+  * Drop LevelDB support entirely, use MongoDB for all storage related stuff
+
 - v1.0.0-beta.16 2017-01-30
   * Start using MongoDB GridFS for message storage instead of storing messages in LevelDB. This is an external requirement, MongoDB does not come bundled with ZoneMTA
 

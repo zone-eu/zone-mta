@@ -1,6 +1,6 @@
 # ZoneMTA (internal code name X-699)
 
-Modern outbound SMTP relay (MTA/MSA) built on Node.js, LevelDB (queue handling) and MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
+Modern outbound SMTP relay (MTA/MSA) built on Node.js, MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
 
 > ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, 70-80 messages per second on peak times. Total messages delivered to date is more than 20 000 000.
 
@@ -29,8 +29,9 @@ Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), M
 
 #### Requirements
 
-1. Requirements: Node.js v6+ for running the app + compiler for building LevelDB bindings
-2. If running in Windows install the (free) build dependencies (Python, Visual Studio Build Tools etc). From elevated PowerShell (run as administrator) run `npm install --global --production windows-build-tools` to get these tools
+1. Requirements: Node.js v6+ for running the app
+2. MongoDB for storing messages
+3. Redis (optional) for counters
 
 #### Create ZoneMTA application
 
@@ -53,7 +54,7 @@ Web administration console should be installed separately, it is not part of the
 
 ### Incoming message pipeline
 
-Messages are dropped for delivery either by SMTP or HTTP API. Message is processed as a stream, so it shouldn't matter if the message is very large in size (except if a very large message is submitted using the JSON API). This applies also to DKIM body hash calculation – the hash is calculated chunk by chunk as the message stream flows through (actual signature is generated out of the body hash when delivering the message to destination). The incoming stream starts from incoming connection and ends in LevelDB, so if there's an error in any step between these two, the error is reported back to the client and the message is rejected. If impartial data is stored to LevelDB it gets garbage collected after some time (all message bodies without referencing delivery rows are deleted automatically)
+Messages are dropped for delivery either by SMTP or HTTP API. Message is processed as a stream, so it shouldn't matter if the message is very large in size (except if a very large message is submitted using the JSON API). This applies also to DKIM body hash calculation – the hash is calculated chunk by chunk as the message stream flows through (actual signature is generated out of the body hash when delivering the message to destination). The incoming stream starts from incoming connection and ends in MongoDB GridFS, so if there's an error in any step between these two, the error is reported back to the client and the message is rejected. If impartial data is stored to GridFS it gets garbage collected after some time (all message bodies without referencing delivery rows are deleted automatically)
 
 ![](https://cldup.com/jepwxrWwXc.png)
 
@@ -74,7 +75,7 @@ Delivering messages to destination
 - Sending Zone support: send different messages using different IP addresses
 - Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
 - Assign specific recipient domains to specific Sending Zones
-- Queue is stored in LevelDB
+- Queue is stored in MongoDB
 - Built in IPv6 support
 - Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
 - Smarter bounce handling
@@ -117,10 +118,6 @@ Then you can override only a single property without changing the other values l
 ### Large message support
 
 All data is processed in chunks without reading the entire message into memory, so it does not matter if the message is 1kB or 1GB in size.
-
-### LevelDB backend
-
-Using LeveldDB means that you do not run out of inodes when you have a large queue, you can pile up even millions of messages (assuming you do not run out of disk space first). Read about storing queued messages to LeveldDB in the [Wiki](https://github.com/zone-eu/zone-mta/wiki/Queue-handling-in-ZoneMTA). For better performance you can also use alternatives like the Basho fork of LevelDB (see [here](#3-replace-leveldb-with-rocksdb)).
 
 ### DKIM signing
 
@@ -488,27 +485,6 @@ $ echo "552-5.7.0 This message was blocked because its content presents a potent
 
 Currently it is possible to limit active connections against a domain and you can limit sending speed per connection (eg. 10 messages/min per connection) but you can't limit sending speed per domain. If you have set 3 processes, 5 connections and limit sending with 10 messages / minute then what you actually get is `3 * 5 * 10 = 150` messages per minute for a Sending Zone.
 
-### 2\. Web interface
-
-It should be possible to administer queues using an easy to use web interface.
-
-**Update** There is a web interface that is not open yet as it is still experimental, here's a [preview](https://cloudup.com/cVPSfcwTtrG)
-
-**Update Update** There is now a publicly available web interface, called [ZMTA-WebAdmin](https://github.com/zone-eu/zmta-webadmin)
-
-### 3\. Replace LevelDB with RocksDB
-
-RocksDB has much better performance both for reading and writing but it's more difficult to set up
-
-**Update** You can use any LevelUp [backend module](https://github.com/Level/levelup/wiki/Modules#storage-back-ends). This module is tested with:
-
-  * **leveldown** which is the default
-  * **leveldown-basho-andris** which is a fork of leveldown that uses [Basho fork](https://github.com/basho/leveldb) of LevelDB
-
-To use a different backend than the default leveldown you need to first install it with npm and set the package name as the 'queue'.'backend' config option value.
-
-Personally I prefer the Basho fork. Original LevelDown caused some issues, probably related to compaction, where LevelDB threads were using 100% cpu very often and caused the app to be unresponsive. I have not had these problems with the Basho fork. YMMV
-
 ## Notes
 
 In production you probably would want to allow Node.js to use more memory, so you should probably start the app with `--max-old-space-size` option
@@ -518,47 +494,6 @@ node --max-old-space-size=8192 app.js
 ```
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
-
-## Potential issues with LevelDB
-
-ZoneMTA uses LevelDB as the storage backend. While extremely capable and fast there is a small chance that LevelDB gets into a corrupted state. There are options to recover from such state automatically but this usually means dropping a lot of data, so no automatic attempt is made to "fix" the corrupt database by the application. What you probably want to do in such situation would be to move the queue folder to some other location for manual recovery and let ZoneMTA to start over with a fresh and empty queue folder.
-
-### Repair failed queue folder
-
-If your queue folder gets corrupted then the actions should be following:
-
-1. Stop ZoneMTA or make sure it does not restart automatically
-2. Move queue folder to somewhere else
-3. Create new empty queue folder and set ZoneMTA user as the owner of that folder
-4. Start ZoneMTA to start accepting and processing new mail
-5. Use ZoneMTA [Recovery tool](https://github.com/zone-eu/zone-mta-recover) to repair the corrupted database and pump messages from it to the fresh ZoneMTA instance or some else SMTP MTA
-
-### Replace LevelDB with basho fork of LevelDB
-
-If you use LevelDB as the backend and start having 100% CPU usage then you might have run into endless compaction. Best bet would be to dump LevelDB and start using the Basho fork of it which is more optimized for servers and does not have such problems.
-
-```
-npm install leveldown-basho-andris --save
-```
-
-And then in your config:
-
-```
-{
-  ...
-  "queue": {
-    "db": "/var/data/zone-mta",
-    "backend": "leveldown-basho-andris",
-    "leveldown-basho-andris": {
-        "createIfMissing": true,
-        "compression": true,
-        "blockSize": 4096,
-        "writeBufferSize": 62914560
-    }
-    ...
-```
-
-You can't reuse your old LevelDB files, so you should start with an empty database folder (which in turn means that you loose your existing queue).
 
 ## License
 

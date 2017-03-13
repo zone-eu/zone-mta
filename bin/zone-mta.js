@@ -63,12 +63,6 @@ command('create [directory]', 'Create new ZoneMTA application', {
         alias: 'n',
         describe: 'Application name',
         type: 'string'
-    },
-    backend: {
-        default: 'leveldown',
-        alias: 'b',
-        describe: 'Storage backend to use',
-        type: 'string'
     }
 }, argv => {
     showhelp = false;
@@ -133,11 +127,9 @@ module.exports.init = (app, done) => {
                         level: 'info'
                     },
                     queue: {
-                        db: './data/queue',
-                        backend: argv.backend,
-                        [argv.backend]: {},
                         mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
-                        gfs: 'mail'
+                        gfs: 'mail',
+                        collection: 'zone-queue'
                     },
                     smtpInterfaces: {
                         feeder: {
@@ -213,8 +205,8 @@ module.exports.init = (app, done) => {
                     return process.exit(1);
                 }
 
-                console.log('Installing storage backend...');
-                exec('npm install --save ' + argv.backend, {
+                console.log('Installing other dependencies...');
+                exec('npm install --production', {
                     cwd: directory,
                     env: process.env
                 }, (err, stdout, stderr) => {
@@ -222,18 +214,7 @@ module.exports.init = (app, done) => {
                         console.error(stderr);
                         console.error('Failed to install dependencies, resolve any problems manually');
                     }
-
-                    console.log('Installing other dependencies...');
-                    exec('npm install --production', {
-                        cwd: directory,
-                        env: process.env
-                    }, (err, stdout, stderr) => {
-                        if (err) {
-                            console.error(stderr);
-                            console.error('Failed to install dependencies, resolve any problems manually');
-                        }
-                        console.log('Application created at <%s>, run \'npm start\' in that folder to start it', directory);
-                    });
+                    console.log('Application created at <%s>, run \'npm start\' in that folder to start it', directory);
                 });
             });
         });
