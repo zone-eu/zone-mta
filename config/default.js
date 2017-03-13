@@ -5,7 +5,6 @@ const os = require('os');
 module.exports = {
 
     // If started as root then privileges are dropped after all ports are bound
-    // This user must have read+write rights for the leveldb folder
     //user: 'nobody',
     //group: 'nogroup',
 
@@ -15,38 +14,15 @@ module.exports = {
     // App key for process name, syslog ident etc
     ident: 'zone-mta',
 
-    // The user running this server mush have read/write access to the following folders
     queue: {
-        // Leveldb folder location. Created if it does not exist
-        db: './data/queue',
-
         // MongoDB connection url
         mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
 
         // Collection name for GridFS storage
         gfs: 'mail',
 
-        // select the backend to use for storing queue data. this points to a package name
-        // that will be require'd and used by levelup as the storage. For configuration
-        // use an object with the same name as the backend name
-        backend: 'leveldown',
-
-        // default config options for basho fork of leveldb
-        'leveldown-basho-andris': {
-            createIfMissing: true,
-            compression: true,
-            blockSize: 4096,
-            writeBufferSize: 60 * 1024 * 1024
-        },
-
-        // default config options for leveldown
-        leveldown: {
-            createIfMissing: true,
-            compression: true,
-            blockSize: 64 * 1024,
-            cacheSize: 128 * 1024 * 1024,
-            writeBufferSize: 64 * 1024 * 1024
-        }
+        // Collection name for the queue
+        collection: 'zone-queue'
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder

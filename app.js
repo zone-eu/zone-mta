@@ -100,7 +100,6 @@ startSMTPInterfaces(err => {
                 }
             }
 
-            // Open LevelDB database and start sender processes
             queue.init(err => {
                 if (err) {
                     log.error('Queue', 'Could not initialize sending queue');
