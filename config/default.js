@@ -22,7 +22,10 @@ module.exports = {
         gfs: 'mail',
 
         // Collection name for the queue
-        collection: 'zone-queue'
+        collection: 'zone-queue',
+
+        // set to true if you do not want old data to be removed
+        disableGC: false
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
