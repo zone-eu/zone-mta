@@ -1,6 +1,6 @@
 'use strict';
 
-const fetch = require('nodemailer-fetch');
+const fetch = require('nodemailer/lib/fetch');
 
 module.exports.title = 'HTTP Bounce Notification';
 module.exports.init = function (app, done) {

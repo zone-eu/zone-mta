@@ -1,6 +1,6 @@
 'use strict';
 
-const fetch = require('nodemailer-fetch');
+const fetch = require('nodemailer/lib/fetch');
 const urllib = require('url');
 
 module.exports.title = 'HTTP Basic Authorization';

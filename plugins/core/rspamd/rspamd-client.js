@@ -2,7 +2,7 @@
 
 // streams through a message body and passes it to rspamd for checks
 
-const fetch = require('nodemailer-fetch');
+const fetch = require('nodemailer/lib/fetch');
 const Transform = require('stream').Transform;
 const PassThrough = require('stream').PassThrough;
 

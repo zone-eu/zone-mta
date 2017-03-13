@@ -1,6 +1,6 @@
 'use strict';
 
-const fetch = require('nodemailer-fetch');
+const fetch = require('nodemailer/lib/fetch');
 const addressTools = require('../../lib/address-tools');
 
 module.exports.title = 'HTTP Sender Config';
