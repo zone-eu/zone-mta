@@ -32,7 +32,7 @@
     "srs.js": "0.1.0",
     "uuid": "3.0.1",
     "yargs": "7.0.2",
-    "nodemailer": "^3.1.6"
+    "nodemailer": "^3.1.7"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
