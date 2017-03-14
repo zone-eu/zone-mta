@@ -2,7 +2,7 @@
 
 Modern outbound SMTP relay (MTA/MSA) built on Node.js, MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
 
-> ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, 70-80 messages per second on peak times. Total messages delivered to date is more than 20 000 000.
+> ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, processing 70-80 messages per second on peak times. Total messages delivered to date is around 50 000 000.
 
 ```
  _____             _____ _____ _____
@@ -82,7 +82,6 @@ Delivering messages to destination
 - Throttling per Sending Zone connection
 - Spam detection using Rspamd
 - HTTP API to send messages
-- Route messages to the onion network
 - Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
 - Automatic back-off if an IP address gets blacklisted
 
@@ -90,7 +89,7 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
 ### Configuration
 
-Default configuration can be found from [default.js](config/default.js). In your application specific configuration you override specific options but you do not need to specify these values that you want to keep as default.
+Default configuration can be found from [default.js](config/default.js). You can override options in your application specific configuration but you do not need to specify these values that you want to keep as default.
 
 For example if the *default.js* states an object with multiple properties like this:
 
@@ -154,7 +153,7 @@ You can define specific header values in the Sending Zone configuration with the
 
 #### Routing based on sender domain name
 
-You also define that all senders with a specific From domain name are routed through a specific domain. Use `senderDomains` option in the Zone config.
+Use `senderDomains` option in the Zone config to define that all senders with a specific From domain name are routed through this Zone.
 
 ```javascript
 'sending-zone': {
@@ -165,7 +164,7 @@ You also define that all senders with a specific From domain name are routed thr
 
 #### Routing based on recipient domain name
 
-You also define that all recipients with a specific domain name are routed through a specific domain. Use `recipientDomains` option in the Zone config.
+Use `recipientDomains` option in the Zone config to define that all recipients with a specific domain name are routed through this Zone.
 
 ```javascript
 'sending-zone': {
@@ -402,59 +401,6 @@ MIME-Version: 1.0
 Hello world! This is a test message
 ...
 ```
-
-#### List all keys
-
-In case you need to see the internals of the database you can list all keys in it
-
-```bash
-curl http://localhost:8080/internals/list
-```
-
-The response is a plaintext (utf-8) list of keys in the DB. The final line is special, it includes stats about the listing
-
-```
-message 158e3fe97ca000121a #
-message 158e3fe97ca000121a 158e3fe97db000
-message 158e3fe97ca000121a 158e3fe97db001
-message 158e3fe97ca000121a 158e3fe97db002
-message 158e3fe97ca000121a 158e3fe97db003
-...
-message 158e3fe9903000121a 158e3fe9ed7001
-message 158e3fe9903000121a 158e3fe9edf000
-message 158e3fe9903000121a 158e3fe9edf001
-Listed 1044 keys in 0.19s
-```
-
-#### Get value of specific key
-
-You can fetch the value of a key with the following call:
-
-```bash
-curl http://localhost:8080/internals/key?key=KEY_ID
-```
-
-The response is an octet stream with the key contents
-
-```
-<X bytes of binary data>
-```
-
-#### Delete a specific key
-
-You can also delete a key with the following call:
-
-```bash
-curl -XDELETE http://localhost:8080/internals/key?key=KEY_ID
-```
-
-The response is a JSON value with a success message
-
-```
-{"message": "Key deleted"}
-```
-
-You get the success message even if the key did not actually exist
 
 ### Utilities
 
