@@ -121,25 +121,6 @@ module.exports = {
             url: 'http://localhost:8080/report-bounce'
         },
 
-        // Send mail addressed to .onion addresses through a SOCKS5 proxy
-        'core/onion': {
-            enabled: false, //'sender', // routing to the onion network is handled in 'sender' context
-            // SOCKS5 proxy host
-            host: '127.0.0.1',
-            // SOCKS5 proxy port
-            port: 9150
-            /*
-                // additional config
-                name: 'foobar.onion', // identifier for the EHLO call
-                mtaPort: 25, // MX port to connect to
-                auth: {
-                    // authentication for the SOCKS proxy (if needed)
-                    username: 'socks user',
-                    password: 'socks pass'
-                }
-             */
-        },
-
         // Calculate and log md5 hashes for all image/* and application/* attachments. Attachment info with the hash
         // is added to the envelope object, so you can also screen messages against some specific attachments.
         // This adds some CPU load as attachments need to be decoded and md5 hashes,
