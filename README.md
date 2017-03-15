@@ -411,6 +411,13 @@ ZoneMTA automatically collects and exposes metrics for [Prometheus](https://prom
 curl http://localhost:8080/metrics
 ```
 
+In your Prometheus config, the server should be linked like this:
+
+```
+  static_configs:
+    - targets: ['localhost:8080']
+```
+
 The exposed metrics include a lot of different data but the most important ones would be the following:
 
 ##### zonemta_delivery_status
