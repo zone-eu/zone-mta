@@ -418,6 +418,8 @@ In your Prometheus config, the server should be linked like this:
     - targets: ['localhost:8080']
 ```
 
+![](https://cldup.com/GaUfMKE9zE.png)
+
 The exposed metrics include a lot of different data but the most important ones would be the following:
 
 ##### zonemta_delivery_status
