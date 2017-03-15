@@ -11,6 +11,8 @@ require('./lib/logger');
 // do not pass node args to children (--inspect, --max-old-space-size etc.)
 process.execArgv = [];
 
+const promClient = require('prom-client'); // eslint-disable-line no-unused-vars
+
 const SMTPInterface = require('./lib/smtp-interface');
 const APIServer = require('./lib/api-server');
 const QueueServer = require('./lib/queue-server');

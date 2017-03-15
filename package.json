@@ -1,7 +1,7 @@
 {
   "name": "zone-mta",
   "private": false,
-  "version": "1.0.0-beta.33",
+  "version": "1.0.0-beta.34",
   "description": "Tiny outbound MTA",
   "main": "app.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "mongodb": "2.2.24",
     "msgpack-js": "0.3.0",
     "npmlog": "4.0.2",
+    "prom-client": "^7.1.0",
     "restify": "4.3.0",
     "seq-index": "1.1.0",
     "smtp-server": "2.0.2",
