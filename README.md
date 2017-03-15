@@ -77,6 +77,7 @@ Delivering messages to destination
 - Assign specific recipient domains to specific Sending Zones
 - Queue is stored in MongoDB
 - Built in IPv6 support
+- Reports to Prometheus
 - Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
 - Smarter bounce handling
 - Throttling per Sending Zone connection
@@ -401,6 +402,43 @@ MIME-Version: 1.0
 Hello world! This is a test message
 ...
 ```
+
+#### Metrics for Prometheus
+
+ZoneMTA automatically collects and exposes metrics for [Prometheus](https://prometheus.io/)
+
+```bash
+curl http://localhost:8080/metrics
+```
+
+The exposed metrics include a lot of different data but the most important ones would be the following:
+
+##### zonemta_delivery_status
+
+`zonemta_delivery_status` exposes counters for delivery statuses. There are 3 different `result` label values
+
+  * `result="delivered"` – count of deliveries accepted by remote MX
+  * `result="rejected"` – count of deliveries that hard bounced
+  * `result="deferred"`– count of deliveries that soft bounced
+
+##### zonemta_message_push
+
+`zonemta_message_push` exposes a counter about stored emails. This counter includes the count of messages accepted for delivery.
+
+##### zonemta_message_drop
+
+`zonemta_message_drop` exposes a counter about emails that were not accepted for delivery (rejected as spam, rejected by plugins, failed to store messages to db etc.)
+
+##### zonemta_queue_size
+
+`zonemta_queue_size` exposes gauges about current size of the queue. There are 2 `type` labels available:
+
+  * `type="queued"` – count of deliveries waiting to be delivered on the first occasion
+  * `type="deferred"` – count of deliveries waiting to be delivered on some later time
+
+##### zonemta_blacklisted
+
+`zonemta_blacklisted` exposes a gauge about currently blacklisted domain:localAddress combos. This value is reset to 0 whenever ZoneMTA master process is restarted. Additionally the blacklist information is cached for 6 hours.
 
 ### Utilities
 
