@@ -1,9 +1,55 @@
 'use strict';
 
-const mailcomposer = require('mailcomposer');
+const MimeNode = require('nodemailer/lib/mime-node');
 
 module.exports.title = 'Email Bounce Notification';
 module.exports.init = function (app, done) {
+
+    // generate a multipart/report DSN failure response
+    function generateBounceMessage(from, to, bounce) {
+
+        let headers = bounce.headers;
+        let messageId = headers.getFirst('Message-ID');
+
+        let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
+        rootNode.setHeader('From', from);
+        rootNode.setHeader('To', to);
+        rootNode.setHeader('Auto-Submitted', 'auto-replied');
+        rootNode.setHeader('Subject', 'Delivery Status Notification (Failure)');
+        if (messageId) {
+            rootNode.setHeader('In-Reply-To', messageId);
+            rootNode.setHeader('References', messageId);
+        }
+
+        rootNode.createChild('text/plain').setHeader('Content-Description', 'Notification').setContent(
+            `Delivery to the following recipient failed permanently:
+    ${bounce.to}
+
+Technical details of permanent failure:
+
+${bounce.response}
+
+`);
+
+        rootNode.createChild('message/delivery-status').setHeader('Content-Description', 'Delivery report').setContent(
+            `Reporting-MTA: dns; ${bounce.address}
+X-ZoneMTA-Queue-ID: ${bounce.id}
+X-ZoneMTA-Sender: rfc822; ${bounce.from}
+Arrival-Date: ${new Date(bounce.arrivalDate).toUTCString().replace(/GMT/, '+0000')}
+
+Final-Recipient: rfc822; asfgwawwe22wererll@hot.ee
+Action: failed
+Status: 5.0.0
+` + (bounce.mxHostname ? `Remote-MTA: dns; ${bounce.mxHostname}
+` : '') +
+            `Diagnostic-Code: smtp; ${bounce.response}
+
+`);
+
+        rootNode.createChild('text/rfc822-headers').setHeader('Content-Description', 'Undelivered Message Headers').setContent(headers.build());
+
+        return rootNode;
+    }
 
     // Send bounce notification to the MAIL FROM email
     app.addHook('queue:bounce', (bounce, maildrop, next) => {
@@ -28,19 +74,23 @@ module.exports.init = function (app, done) {
             time: Date.now()
         };
 
-        let mail = mailcomposer({
-            from: app.config.mailerDaemon,
-            to: bounce.from,
-            headers: {
-                'X-Sending-Zone': app.config.sendingZone,
-                'X-Failed-Recipients': bounce.to,
-                'Auto-Submitted': 'auto-replied'
-            },
-            subject: 'Delivery Status Notification (Failure)',
-            text: 'Delivery to the following recipient failed permanently:\n    ' + bounce.to + '\n\n' +
-                'Technical details of permanent failure:\n\n' + bounce.response + '\n\n\n----- Original message -----\n' +
-                headers.build().toString().trim() + '\n\n----- Message truncated -----'
-        });
+        let mail = generateBounceMessage(app.config.mailerDaemon, bounce.from, bounce);
+
+        /*
+                let mail = mailcomposer({
+                    from: app.config.mailerDaemon,
+                    to: bounce.from,
+                    headers: {
+                        'X-Sending-Zone': app.config.sendingZone,
+                        'X-Failed-Recipients': bounce.to,
+                        'Auto-Submitted': 'auto-replied'
+                    },
+                    subject: 'Delivery Status Notification (Failure)',
+                    text: 'Delivery to the following recipient failed permanently:\n    ' + bounce.to + '\n\n' +
+                        'Technical details of permanent failure:\n\n' + bounce.response + '\n\n\n----- Original message -----\n' +
+                        headers.build().toString().trim() + '\n\n----- Message truncated -----'
+                });
+        */
 
         app.getQueue().generateId((err, id) => {
             if (err) {
