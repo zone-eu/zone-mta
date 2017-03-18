@@ -14,8 +14,11 @@ module.exports.init = function (app, done) {
         let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
         rootNode.setHeader('From', from);
         rootNode.setHeader('To', to);
+        rootNode.setHeader('X-Sending-Zone', app.config.sendingZone);
+        rootNode.setHeader('X-Failed-Recipients', bounce.to);
         rootNode.setHeader('Auto-Submitted', 'auto-replied');
         rootNode.setHeader('Subject', 'Delivery Status Notification (Failure)');
+
         if (messageId) {
             rootNode.setHeader('In-Reply-To', messageId);
             rootNode.setHeader('References', messageId);
@@ -75,22 +78,6 @@ Status: 5.0.0
         };
 
         let mail = generateBounceMessage(app.config.mailerDaemon, bounce.from, bounce);
-
-        /*
-                let mail = mailcomposer({
-                    from: app.config.mailerDaemon,
-                    to: bounce.from,
-                    headers: {
-                        'X-Sending-Zone': app.config.sendingZone,
-                        'X-Failed-Recipients': bounce.to,
-                        'Auto-Submitted': 'auto-replied'
-                    },
-                    subject: 'Delivery Status Notification (Failure)',
-                    text: 'Delivery to the following recipient failed permanently:\n    ' + bounce.to + '\n\n' +
-                        'Technical details of permanent failure:\n\n' + bounce.response + '\n\n\n----- Original message -----\n' +
-                        headers.build().toString().trim() + '\n\n----- Message truncated -----'
-                });
-        */
 
         app.getQueue().generateId((err, id) => {
             if (err) {
