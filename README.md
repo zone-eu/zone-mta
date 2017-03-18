@@ -480,6 +480,8 @@ Currently it is possible to limit active connections against a domain and you ca
 
 ## Notes
 
+### Memory usage
+
 In production you probably would want to allow Node.js to use more memory, so you should probably start the app with `--max-old-space-size` option
 
 ```
@@ -487,6 +489,19 @@ node --max-old-space-size=8192 app.js
 ```
 
 This is mostly needed if you want to allow large SMTP envelopes on submission (eg. someone wants to send mail to 10 000 recipients at once) as all recipient data is gathered in memory and copied around before storing to the queue.
+
+### DNS
+
+For speedier DNS resolving there are two options. First (the default) is to cache DNS responses by ZoneMTA in memory using the [dnscache](https://www.npmjs.com/package/dnscache) module. For better performance it would probably be better to use a dedicated DNS server, mostly because DNS caching is hard and it is better to leave it to software that is built for this.
+
+[dnsmasq](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html) on localhost has worked great for us. The dns options for ZoneMTA would look like this if you are using local DNS cache like dnsmasq or similar:
+
+```
+"dns": {
+    "caching": false,
+    "nameservers": ["127.0.0.1"]
+}
+```
 
 ## License
 
