@@ -1,7 +1,5 @@
 'use strict';
 
-const os = require('os');
-
 module.exports = {
 
     // If started as root then privileges are dropped after all ports are bound
@@ -102,7 +100,8 @@ module.exports = {
             // From: address for the bounce emails
             mailerDaemon: {
                 name: 'Mail Delivery Subsystem',
-                address: 'mailer-daemon@' + os.hostname()
+                // [HOSTNAME] will be replaced with the hostname that was used to send this message
+                address: 'mailer-daemon@[HOSTNAME]'
             },
             sendingZone: 'bounces'
         },

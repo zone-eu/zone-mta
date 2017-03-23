@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const MimeNode = require('nodemailer/lib/mime-node');
 
 module.exports.title = 'Email Bounce Notification';
@@ -12,7 +13,11 @@ module.exports.init = function (app, done) {
         let messageId = headers.getFirst('Message-ID');
 
         let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
-        rootNode.setHeader('From', from);
+
+        // format Mailer Daemon address
+        let fromAddress = rootNode._convertAddresses(rootNode._parseAddresses(from)).replace(/\[HOSTNAME\]/ig, (bounce.name || os.hostname()));
+
+        rootNode.setHeader('From', fromAddress);
         rootNode.setHeader('To', to);
         rootNode.setHeader('X-Sending-Zone', app.config.sendingZone);
         rootNode.setHeader('X-Failed-Recipients', bounce.to);
