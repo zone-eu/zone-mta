@@ -40,7 +40,7 @@ ${bounce.response}
 `);
 
         rootNode.createChild('message/delivery-status').setHeader('Content-Description', 'Delivery report').setContent(
-            `Reporting-MTA: dns; ${bounce.address}
+            `Reporting-MTA: dns; ${bounce.name || os.hostname()}
 X-ZoneMTA-Queue-ID: ${bounce.id}
 X-ZoneMTA-Sender: rfc822; ${bounce.from}
 Arrival-Date: ${new Date(bounce.arrivalDate).toUTCString().replace(/GMT/, '+0000')}
