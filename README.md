@@ -17,25 +17,23 @@ ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka i
 
 There's also a web-based [administration interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 
-![](https://cldup.com/LpJhOCiQ5E.png)
-
 ![](https://cldup.com/2h6320MiiE.png)
 
 (See all screenshots of ZMTA-WebAdmin [here](https://cloudup.com/c_TLoJ62sdY))
 
+## Requirements
+
+1. **Node.js** v6.0.0+ for running the app
+2. **MongoDB** for storing messages in the queue
+3. **Redis** (optional) for counters
+
 ## Quickstart
 
-Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), MongoDB running on localhost, build tools and git. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
-
-#### Requirements
-
-1. Requirements: Node.js v6+ for running the app
-2. MongoDB for storing messages
-3. Redis (optional) for counters
+Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), *MongoDB* running on localhost and *git*. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
 
 #### Create ZoneMTA application
 
-If your user is not able to install global modules with npm then run the first command with sudo, otherwise you do not need root permissions to create or run ZoneMTA applications (at least not as long as you don't want to use privileged ports like 25 org 465).
+If your user is not able to install global modules with npm then run the first command with *sudo*. In most cases you do not need root permissions to create or run ZoneMTA applications (at least not as long as you don't want to use privileged ports like 25 org 465).
 
 ```bash
 $ npm install -g zone-mta
@@ -60,18 +58,18 @@ Messages are dropped for delivery either by SMTP or HTTP API. Message is process
 
 ### Outgoing message pipeline
 
-Delivering messages to destination
+Delivering messages to destination (this image is outdated, LevelDB is not used anymore)
 
 ![](https://cldup.com/9yEW3oNp3G.png)
 
 ## Features
 
 - Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
-- Cross platform. You do need compile tools but this should be fairly easy to set up on every platform, even on Windows
+- Cross platform. You can run ZoneMTA even on Windows
 - Fast. Send millions of messages per day
 - Send large messages with low overhead
 - Automatic DKIM signing
-- Adds Message-Id and Date headers if missing
+- Adds *Message-Id* and *Date* headers if missing
 - Sending Zone support: send different messages using different IP addresses
 - Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
 - Assign specific recipient domains to specific Sending Zones
@@ -188,10 +186,6 @@ If no routing can be detected, then the "default" zone is used.
 ### IPv6 support
 
 IPv6 is supported but not enabled by default. You can enable or disable it per Sending Zone with the `ignoreIPv6` option.
-
-### HTTP based authentication
-
-If authentication is required then all clients are authenticated against a HTTP endpoint using Basic access authentication. If the HTTP request succeeds then the user is considered as authenticated. See more [here](https://github.com/zone-eu/zone-mta/wiki/Authenticating-users). If you need some other authentication mechanisms then you can create a plugin that handles the 'smtp:auth' hook. To enable authentication you need to set `authentication` option to true for that specific SMTP interface.
 
 ### Per-Zone domain connection limits
 
