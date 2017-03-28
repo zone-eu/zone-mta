@@ -83,6 +83,7 @@ Delivering messages to destination (this image is outdated, LevelDB is not used 
 - HTTP API to send messages
 - Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
 - Automatic back-off if an IP address gets blacklisted
+- Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
