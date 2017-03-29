@@ -398,6 +398,93 @@ Hello world! This is a test message
 ...
 ```
 
+#### Suppression list
+
+ZoneMTA allows basic recipient suppression where messages to specific recipient addresses or domains are silently dropped. Suppressed messages do not generate bounce messages.
+
+To see the currently suppressed addresses/domains, make a HTTP call to */suppressionlist*
+
+```bash
+curl http://localhost:8080/suppressionlist
+```
+
+The result is an JSON array
+
+```json
+{
+  "suppressed":[
+    {
+      "id": "58da63cc77ebe70b883bec2d",
+      "address":"suppressed@address.com"
+    },
+    {
+      "id": "58da641f77ebe70b883bec2e",
+      "domain":"suppressed-domain.com"
+    }
+  ]
+}
+```
+
+#### Add address or domain to Suppression list
+
+You can add suppression entries by address or domain
+
+**Suppress an email address**
+
+```bash
+curl -XPOST http://localhost:8080/suppressionlist -H 'Content-Type: application/json' -d '{
+  "address": "suppressed@address.com"
+}'
+```
+
+With the result
+
+```json
+{
+  "suppressed": {
+    "id": "58da63cc77ebe70b883bec2d",
+    "address":"suppressed@address.com"
+  }
+}
+```
+
+**Suppress a domain**
+
+```bash
+curl -XPOST http://localhost:8080/suppressionlist -H 'Content-Type: application/json' -d '{
+  "domain": "suppressed-domain.com"
+}'
+```
+
+With the result
+
+```json
+{
+  "suppressed": {
+    "id": "58da641f77ebe70b883bec2e",
+    "domain":"suppressed-domain.com"
+  }
+}
+```
+
+#### Delete and antry from Suppression list
+
+You can delete suppression entries by entry ID
+
+```bash
+curl -XDELETE http://localhost:8080/suppressionlist -H 'Content-Type: application/json' -d '{
+  "id": "58da641f77ebe70b883bec2e"
+}'
+```
+
+With the result
+
+```json
+{
+  "deleted": "58da641f77ebe70b883bec2e"
+}
+```
+
 #### Metrics for Prometheus
 
 ZoneMTA automatically collects and exposes metrics for [Prometheus](https://prometheus.io/)
