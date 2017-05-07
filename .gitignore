@@ -8,3 +8,4 @@ test/queuetest
 config/production.*
 config/development.*
 *v8.log
+package-lock.json
