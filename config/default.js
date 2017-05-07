@@ -324,7 +324,6 @@ module.exports = {
         loopback: {
             // Another example for a Sending Zone. You probably do not want to use this
             // unless you want all messages to be blocked
-            name: 'loopback',
             port: 25,
             preferIPv6: false,
             ignoreIPv6: true,

@@ -84,6 +84,7 @@ Delivering messages to destination (this image is outdated, LevelDB is not used 
 - Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
 - Automatic back-off if an IP address gets blacklisted
 - Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
+- Delivery to HTTP using POST instead of SMTP
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
@@ -229,6 +230,18 @@ You can assign a new IP to the IP pool using lower load share than other address
 ```
 
 Once your IP address is warm enough then you can either increase the load ratio for it or remove the parameter entirely to share load evenly between all addresses. Be aware though that every time you change pool structure it mixes up the address resolving, so a message that is currently deferred for greylisting does not get the same IP address that it previously used and thus might get greylisted again.
+
+### Delivery to HTTP
+
+Instead of delivering messages to SMTP you can POST messages to HTTP. In this case you need to set http option for a delivery to true and also set targetUrl property which is the URL the messageis POSTed to as a file upload. These changes can be done for example in a plugin.
+
+```javascript
+app.addHook('sender:fetch', (delivery, next) => {
+    delivery.http = true;
+    delivery.targetUrl = 'http://requestb.in/1ed6q7l1';
+    next();
+});    
+```
 
 ### HTTP API
 
