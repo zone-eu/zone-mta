@@ -5,8 +5,6 @@
 # reasons:
 #   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth, blacklist
 
-^550 Too many invalid recipients,defer,blacklist,Sender IP blacklisted
-
 # Spamhaus related error messages
 
 # 550 11.22.33.44 blacklisted see http://www.spamhaus.org/query/bl?ip=11.22.33.44
@@ -250,6 +248,18 @@
 ^451[ \-]+4\.7\.1\s+.*service is currently unavailable,defer,capacity,Server currently not available
 
 # Other servers
+
+# 550 Too many invalid recipients
+# Happens when a server starts blocking an IP after too many invalid RCPT TO calls were made
+# Blocking happens on connect, so no way to issue any valid commands to fix this
+^550[ \-]Too many invalid recipients,defer,blacklist,Sender IP blacklisted
+
+# 550 Black listed at hostkarma http://ipadmin.junkemailfilter.com/remove.php?ip=1.2.3.4
+^550[ \-]Black listed at\s,defer,blacklist,Sender IP blacklisted
+
+# 550 The sending IP (1.2.3.4) is listed on https://spamrl.com/. Please resolve this and retry.
+^550[ \-]The sending IP \([\d\.]+\) is listed,defer,blacklist,Sender IP blacklisted
+
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
 ^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
 ^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
