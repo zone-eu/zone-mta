@@ -261,6 +261,8 @@
 ^550[ \-]+5\.7\.0\s.*Local Policy Violation,reject,policy,Sender blocked by policy
 ^554\s.*#5\.1\.1\b,reject,recipient,Unknown user
 
+^550 Too many invalid recipients,defer,blacklist,Sender IP blacklisted
+
 # Temporary errors by Enhanced Status Codes
 
 ^\d{3}[ \-]+4\.0\.0\b,defer,other,Unknown Issue
