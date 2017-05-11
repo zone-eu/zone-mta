@@ -45,7 +45,7 @@ X-ZoneMTA-Queue-ID: ${bounce.id}
 X-ZoneMTA-Sender: rfc822; ${bounce.from}
 Arrival-Date: ${new Date(bounce.arrivalDate).toUTCString().replace(/GMT/, '+0000')}
 
-Final-Recipient: rfc822; asfgwawwe22wererll@hot.ee
+Final-Recipient: rfc822; ${bounce.to}
 Action: failed
 Status: 5.0.0
 ` + (bounce.mxHostname ? `Remote-MTA: dns; ${bounce.mxHostname}
