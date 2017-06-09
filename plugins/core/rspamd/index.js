@@ -111,7 +111,7 @@ module.exports.init = function(app, done) {
             }
         }
 
-        if (app.config.rejectSpam && envelope.spam.default.is_spam) {
+        if (app.config.rejectSpam && envelope.spam.default.is_spam && !envelope.ignoreSpamScore) {
             messageInfo.tests = envelope.spam.tests.join(',');
             return next(app.reject(envelope, 'spam', messageInfo, '550 This message was classified as SPAM and may not be delivered'));
         }
