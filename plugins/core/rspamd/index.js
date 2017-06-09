@@ -3,8 +3,7 @@
 const RspamdClient = require('./rspamd-client');
 
 module.exports.title = 'Rspamd Spam Check';
-module.exports.init = function (app, done) {
-
+module.exports.init = function(app, done) {
     app.addAnalyzerHook((envelope, source, destination) => {
         if (!app.config.interfaces.includes(envelope.interface)) {
             return source.pipe(destination);
@@ -27,8 +26,8 @@ module.exports.init = function (app, done) {
             // store spam result to the envelope
             envelope.spam = response;
             let score = (Number(response && response.default && response.default.score) || 0).toFixed(2);
-            let tests = [].concat(response && response.tests || []).join(', ');
-            let action = response && response.default && response.default.action || 'unknown';
+            let tests = [].concat((response && response.tests) || []).join(', ');
+            let action = (response && response.default && response.default.action) || 'unknown';
             app.logger.info('Rspamd', '%s RESULTS score=%s action="%s" [%s]', envelope.id, score, action, tests);
 
             app.remotelog(envelope.id, false, 'SPAMCHECK', {
@@ -84,13 +83,12 @@ module.exports.init = function (app, done) {
         }
 
         if (app.config.processSpam) {
-
             let score = Number(envelope.spam.default.score) || 0;
             score = Math.round(score * 100) / 100;
 
             messageInfo.score = score.toFixed(2);
 
-            if (!app.config.ignoreOrigins.includes(envelope.origin)) {
+            if (!app.config.ignoreOrigins.includes(envelope.origin) && !envelope.ignoreSpamScore) {
                 if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
                     // accept message and silently drop it
                     return next(app.drop(envelope, 'spam', messageInfo));
@@ -122,7 +120,6 @@ module.exports.init = function (app, done) {
 
     app.addHook('sender:headers', (delivery, connection, next) => {
         if (delivery.spam && delivery.spam.default) {
-
             // insert spam headers to the bottom of the header section
             let statusParts = [];
 
@@ -143,8 +140,11 @@ module.exports.init = function (app, done) {
             }
 
             delivery.headers.add('X-Zone-Spam-Resolution', delivery.spam.default.action, Infinity);
-            delivery.headers.add('X-Zone-Spam-Status', (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''), Infinity);
-
+            delivery.headers.add(
+                'X-Zone-Spam-Status',
+                (delivery.spam.default.is_spam ? 'Yes' : 'No') + (statusParts.length ? ', ' + statusParts.join(', ') : ''),
+                Infinity
+            );
         }
         next();
     });
