@@ -37,7 +37,7 @@ module.exports['Set and let expire'] = test => {
             test.equal(key2, 'val2');
         } else if (key2) {
             test.equal(key2, 'val2');
-        } else if(!key1 && !key2 && !key3) {
+        } else if (!key1 && !key2 && !key3) {
             test.ok(expireCbCalled);
             clearInterval(interval);
             test.done();

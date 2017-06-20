@@ -4,8 +4,7 @@ const fetch = require('nodemailer/lib/fetch');
 const addressTools = require('../../lib/address-tools');
 
 module.exports.title = 'HTTP Sender Config';
-module.exports.init = function (app, done) {
-
+module.exports.init = function(app, done) {
     let sessions = new WeakMap();
 
     let getConfig = (mailFrom, session, next) => {
@@ -83,7 +82,7 @@ module.exports.init = function (app, done) {
     // Listen for MAIL FROM command
     // Requests sender config from an API server
     app.addHook('smtp:mail_from', (address, session, next) => {
-        let mailFrom = addressTools.normalizeAddress(address && address.address || address);
+        let mailFrom = addressTools.normalizeAddress((address && address.address) || address);
 
         getConfig(mailFrom, session, next);
     });

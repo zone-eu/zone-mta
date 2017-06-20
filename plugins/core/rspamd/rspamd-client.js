@@ -109,7 +109,7 @@ class RspamdClient extends Transform {
             try {
                 response = JSON.parse(response.toString());
                 let tests = [];
-                Object.keys(response && response.default || {}).forEach(key => {
+                Object.keys((response && response.default) || {}).forEach(key => {
                     if (response.default[key] && response.default[key].name) {
                         tests.push(response.default[key].name + '=' + response.default[key].score);
                     }

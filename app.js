@@ -59,7 +59,6 @@ let startSMTPInterfaces = done => {
     startNext();
 };
 
-
 // Starts the queueing MTA
 startSMTPInterfaces(err => {
     if (err) {
@@ -158,11 +157,13 @@ let stop = code => {
     };
 
     // Stop accepting any new connections
-    smtpInterfaces.forEach(smtpInterface => smtpInterface.close(() => {
-        // wait until all connections to the SMTP server are closed
-        log.info(smtpInterface.logName, 'Service closed');
-        checkClosed();
-    }));
+    smtpInterfaces.forEach(smtpInterface =>
+        smtpInterface.close(() => {
+            // wait until all connections to the SMTP server are closed
+            log.info(smtpInterface.logName, 'Service closed');
+            checkClosed();
+        })
+    );
 
     apiServer.close(() => {
         // wait until all connections to the API HTTP are closed

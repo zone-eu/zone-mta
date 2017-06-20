@@ -60,11 +60,9 @@ module.exports['Calculate body hash byte all at once'] = test => {
 
         setImmediate(() => s.end(message));
     });
-
 };
 
 module.exports['Calculate body hash for empty message'] = test => {
-
     let message = Buffer.from('\r\n');
 
     let s = new DkimRelaxedBody({
@@ -87,5 +85,4 @@ module.exports['Calculate body hash for empty message'] = test => {
         setImmediate(stream);
     };
     setImmediate(stream);
-
 };

@@ -13,6 +13,7 @@ module.exports.init = (app, done) => {
             source.on('end', () => {
                 destination.end();
             });
-        });
+        }
+    );
     done();
 };

@@ -3,11 +3,9 @@
 const fetch = require('nodemailer/lib/fetch');
 
 module.exports.title = 'HTTP Bounce Notification';
-module.exports.init = function (app, done) {
-
+module.exports.init = function(app, done) {
     // Send bounce notification to a HTTP url
     app.addHook('queue:bounce', (bounce, maildrop, next) => {
-
         let retries = 0;
         let body = {
             id: bounce.id,

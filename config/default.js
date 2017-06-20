@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = {
-
     // If started as root then privileges are dropped after all ports are bound
     //user: 'nobody',
     //group: 'nogroup',
@@ -130,7 +129,6 @@ module.exports = {
 
     // You can define multiple listening SMTP interfaces, for example one for port 465, one for 587 etc
     smtpInterfaces: {
-
         // SMTP relay server that accepts messages for the outgoing queue
         feeder: {
             enabled: true,
@@ -174,14 +172,18 @@ module.exports = {
     },
 
     dns: {
-        // cache lookup results
+        // Cache lookup results in memory. Set to false if using local caching DNS server
         caching: true,
-        // Sets DNS servers to use for resolving MX/A/AAAA records
-        // Use only IP addresses
+
+        // Sets DNS servers to use for resolving MX/A/AAAA records. If not set
+        // then default nameservers are used. IP addresses only!
+        //
         //nameservers: ['127.0.0.1'],
+        //nameservers: ['8.8.8.8', '8.8.8.4'],
         nameservers: false,
-        blockLocalAddresses: true,
-        blockDomains: ['localhost', 'localhost.localdomain']
+
+        // If true, then do not allow sending to MX servers in localhost or private IP range
+        blockLocalAddresses: true
     },
 
     // Simple HTTP server for fetching info about messages
@@ -252,22 +254,27 @@ module.exports = {
     },
 
     pools: {
-        main: [{
-            address: '1.2.3.4',
-            name: 'host4'
-        }, {
-            address: '1.2.3.5',
-            name: 'host5'
-        }, {
-            address: '1.2.3.6',
-            name: 'host6'
-        }, {
-            address: '1.2.3.7',
-            name: 'host7',
-            // scale between 0 and 1, this indicates how much of the load this ip should handle
-            // by default all messages are shared equally between different addresses
-            ratio: 1 / 10
-        }]
+        main: [
+            {
+                address: '1.2.3.4',
+                name: 'host4'
+            },
+            {
+                address: '1.2.3.5',
+                name: 'host5'
+            },
+            {
+                address: '1.2.3.6',
+                name: 'host6'
+            },
+            {
+                address: '1.2.3.7',
+                name: 'host7',
+                // scale between 0 and 1, this indicates how much of the load this ip should handle
+                // by default all messages are shared equally between different addresses
+                ratio: 1 / 10
+            }
+        ]
     },
 
     // Sending Zone definitions

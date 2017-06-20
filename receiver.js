@@ -41,7 +41,7 @@ let sendCommand = (cmd, callback) => {
         };
     }
 
-    Object.keys(cmd).forEach(key => data[key] = cmd[key]);
+    Object.keys(cmd).forEach(key => (data[key] = cmd[key]));
     responseHandlers.set(id, callback);
     queueClient.send(data);
 };
@@ -117,7 +117,6 @@ queueClient.connect(err => {
             }
             smtpServer = smtp;
         });
-
     });
 });
 

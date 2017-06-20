@@ -4,12 +4,10 @@ const fetch = require('nodemailer/lib/fetch');
 const urllib = require('url');
 
 module.exports.title = 'HTTP Basic Authorization';
-module.exports.init = function (app, done) {
-
+module.exports.init = function(app, done) {
     // Listen for AUTH command
     // Make a Authorization:Basic call against an HTTP URL to authenticate an user
     app.addHook('smtp:auth', (auth, session, next) => {
-
         let urlparts = urllib.parse(app.config.url, true, true);
 
         urlparts.search = false;

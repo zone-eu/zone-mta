@@ -4,18 +4,16 @@ const os = require('os');
 const MimeNode = require('nodemailer/lib/mime-node');
 
 module.exports.title = 'Email Bounce Notification';
-module.exports.init = function (app, done) {
-
+module.exports.init = function(app, done) {
     // generate a multipart/report DSN failure response
     function generateBounceMessage(from, to, bounce) {
-
         let headers = bounce.headers;
         let messageId = headers.getFirst('Message-ID');
 
         let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
 
         // format Mailer Daemon address
-        let fromAddress = rootNode._convertAddresses(rootNode._parseAddresses(from)).replace(/\[HOSTNAME\]/ig, (bounce.name || os.hostname()));
+        let fromAddress = rootNode._convertAddresses(rootNode._parseAddresses(from)).replace(/\[HOSTNAME\]/gi, bounce.name || os.hostname());
 
         rootNode.setHeader('From', fromAddress);
         rootNode.setHeader('To', to);
@@ -37,7 +35,8 @@ Technical details of permanent failure:
 
 ${bounce.response}
 
-`);
+`
+        );
 
         rootNode.createChild('message/delivery-status').setHeader('Content-Description', 'Delivery report').setContent(
             `Reporting-MTA: dns; ${bounce.name || os.hostname()}
@@ -48,11 +47,15 @@ Arrival-Date: ${new Date(bounce.arrivalDate).toUTCString().replace(/GMT/, '+0000
 Final-Recipient: rfc822; ${bounce.to}
 Action: failed
 Status: 5.0.0
-` + (bounce.mxHostname ? `Remote-MTA: dns; ${bounce.mxHostname}
-` : '') +
-            `Diagnostic-Code: smtp; ${bounce.response}
+` +
+                (bounce.mxHostname
+                    ? `Remote-MTA: dns; ${bounce.mxHostname}
+`
+                    : '') +
+                `Diagnostic-Code: smtp; ${bounce.response}
 
-`);
+`
+        );
 
         rootNode.createChild('text/rfc822-headers').setHeader('Content-Description', 'Undelivered Message Headers').setContent(headers.build());
 
@@ -70,7 +73,13 @@ Status: 5.0.0
 
         if (headers.get('Received').length > 25) {
             // too many hops
-            app.logger.info('Bounce', 'Too many hops (%s)! Delivery loop detected for %s.%s, dropping message', headers.get('Received').length, bounce.seq, bounce.id);
+            app.logger.info(
+                'Bounce',
+                'Too many hops (%s)! Delivery loop detected for %s.%s, dropping message',
+                headers.get('Received').length,
+                bounce.seq,
+                bounce.id
+            );
             return next();
         }
 

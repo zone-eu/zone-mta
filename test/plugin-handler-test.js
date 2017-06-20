@@ -75,9 +75,13 @@ module.exports['Load plugins with a rewriter hook'] = test => {
         let splitter = new mailsplit.Splitter();
         let joiner = new mailsplit.Joiner();
 
-        plugins.runRewriteHooks({
-            test: true
-        }, splitter, joiner);
+        plugins.runRewriteHooks(
+            {
+                test: true
+            },
+            splitter,
+            joiner
+        );
 
         let output = '';
         joiner.on('data', chunk => {
@@ -103,9 +107,13 @@ module.exports['Load plugin with an analyzer hook'] = test => {
         let source = new PassThrough();
         let destination = new PassThrough();
 
-        plugins.runAnalyzerHooks({
-            test: true
-        }, source, destination);
+        plugins.runAnalyzerHooks(
+            {
+                test: true
+            },
+            source,
+            destination
+        );
 
         let output = '';
         destination.on('data', chunk => {

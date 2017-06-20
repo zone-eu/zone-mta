@@ -11,6 +11,7 @@ module.exports.init = (app, done) => {
                 destination.write(Buffer.from(chunk.toString().replace(/O/g, '0')));
             });
             source.on('end', () => destination.end());
-        });
+        }
+    );
     done();
 };
