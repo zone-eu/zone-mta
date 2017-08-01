@@ -15,7 +15,8 @@ module.exports.init = function(app, done) {
             to: envelope.to,
             user: envelope.user,
             id: envelope.id,
-            maxSize: app.config.maxSize
+            maxSize: app.config.maxSize,
+            ip: app.config.ip === true ? app.envelope.origin : app.config.ip
         });
 
         rspamdStream.on('fail', err => {

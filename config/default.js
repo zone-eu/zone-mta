@@ -80,6 +80,8 @@ module.exports = {
             processSpam: false, // if true then drops spam or modifies headers for suspicios messages
             maxAllowedScore: false, // if Number then drop messages with higher score
             rewriteSubject: false // if true, adds a [**SPAM**] prefix to mail subject
+            // ip: true // if true, then includes remote address in Rspamd input as the source IP
+            // ip: '1.2.3.4' // if not true but a string, then includes this value in Rspamd input as the source IP
         },
 
         // Rewrite MAIL FROM address using SRS

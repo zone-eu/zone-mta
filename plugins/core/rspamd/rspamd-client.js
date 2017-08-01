@@ -20,6 +20,10 @@ class RspamdClient extends Transform {
             'queue-id': options.id
         };
 
+        if (options.ip) {
+            headers.ip = options.ip;
+        }
+
         if (options.user) {
             headers.user = options.user;
         }
