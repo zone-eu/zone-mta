@@ -1,58 +1,58 @@
 {
-  "name": "zone-mta",
-  "private": false,
-  "version": "1.0.0-beta.61",
-  "description": "Tiny outbound MTA",
-  "main": "app.js",
-  "scripts": {
-    "test": "grunt",
-    "start": "node app.js"
-  },
-  "author": "Andris Reinman",
-  "license": "EUPL-1.1",
-  "dependencies": {
-    "addressparser": "1.0.1",
-    "config": "1.26.1",
-    "crc-32": "1.1.0",
-    "dnscache": "1.0.1",
-    "grid-fs": "1.0.1",
-    "iconv-lite": "0.4.18",
-    "ipaddr.js": "1.4.0",
-    "isemail": "3.0.0",
-    "libmime": "3.1.0",
-    "mailsplit": "4.0.2",
-    "mkdirp": "0.5.1",
-    "mongodb": "2.2.30",
-    "msgpack-js": "0.3.0",
-    "nodemailer": "^4.0.1",
-    "npmlog": "4.1.2",
-    "prom-client": "^10.0.2",
-    "request": "^2.81.0",
-    "restify": "5.0.1",
-    "seq-index": "1.1.0",
-    "smtp-server": "3.0.1",
-    "srs.js": "0.1.0",
-    "uuid": "3.1.0",
-    "yargs": "8.0.2"
-  },
-  "devDependencies": {
-    "eslint": "^4.3.0",
-    "grunt": "^1.0.1",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-nodeunit": "^1.0.0",
-    "grunt-eslint": "^20.0.0",
-    "moment": "^2.18.1",
-    "random-message": "^1.1.0",
-    "zip-stream": "^1.2.0"
-  },
-  "engines": {
-    "node": ">=6.0.0"
-  },
-  "optionalDependencies": {
-    "modern-syslog": "^1.1.4"
-  },
-  "bin": {
-    "zone-mta": "./bin/zone-mta.js",
-    "check-bounce": "./bin/check-bounce.js"
-  }
+    "name": "zone-mta",
+    "private": false,
+    "version": "1.0.0-beta.62",
+    "description": "Tiny outbound MTA",
+    "main": "app.js",
+    "scripts": {
+        "test": "grunt",
+        "start": "node app.js"
+    },
+    "author": "Andris Reinman",
+    "license": "EUPL-1.1",
+    "dependencies": {
+        "addressparser": "1.0.1",
+        "config": "1.26.1",
+        "crc-32": "1.1.0",
+        "dnscache": "1.0.1",
+        "grid-fs": "1.0.1",
+        "iconv-lite": "0.4.18",
+        "ipaddr.js": "1.4.0",
+        "isemail": "3.0.0",
+        "libmime": "3.1.0",
+        "mailsplit": "4.0.2",
+        "mkdirp": "0.5.1",
+        "mongodb": "2.2.30",
+        "msgpack-js": "0.3.0",
+        "nodemailer": "^4.0.1",
+        "npmlog": "4.1.2",
+        "prom-client": "^10.0.2",
+        "request": "^2.81.0",
+        "restify": "5.0.1",
+        "seq-index": "1.1.0",
+        "smtp-server": "3.0.1",
+        "srs.js": "0.1.0",
+        "uuid": "3.1.0",
+        "yargs": "8.0.2"
+    },
+    "devDependencies": {
+        "eslint": "^4.3.0",
+        "grunt": "^1.0.1",
+        "grunt-cli": "^1.2.0",
+        "grunt-contrib-nodeunit": "^1.0.0",
+        "grunt-eslint": "^20.0.0",
+        "moment": "^2.18.1",
+        "random-message": "^1.1.0",
+        "zip-stream": "^1.2.0"
+    },
+    "engines": {
+        "node": ">=6.0.0"
+    },
+    "optionalDependencies": {
+        "modern-syslog": "^1.1.4"
+    },
+    "bin": {
+        "zone-mta": "./bin/zone-mta.js",
+        "check-bounce": "./bin/check-bounce.js"
+    }
 }
