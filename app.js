@@ -34,6 +34,8 @@ const apiServer = new APIServer();
 const queueServer = new QueueServer();
 const queue = new MailQueue(config.queue);
 
+promClient.collectDefaultMetrics({ timeout: 5000 });
+
 plugins.init('main');
 
 let startSMTPInterfaces = done => {
