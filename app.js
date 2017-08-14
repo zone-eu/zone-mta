@@ -2,8 +2,9 @@
 
 // Main application file
 // Run as 'node app.js' to start
-
-const config = require('config');
+const path = require('path');
+process.env.NODE_CONFIG_DIR = path.join(__dirname, '.', 'config');
+const config = require('wild-config');
 const log = require('npmlog');
 log.level = config.log.level;
 require('./lib/logger');
@@ -13,7 +14,7 @@ process.execArgv = [];
 
 const promClient = require('prom-client'); // eslint-disable-line no-unused-vars
 
-const SMTPInterface = require('./lib/smtp-interface');
+const SMTPProxy = require('./lib/receiver/smtp-proxy');
 const APIServer = require('./lib/api-server');
 const QueueServer = require('./lib/queue-server');
 const MailQueue = require('./lib/mail-queue');
@@ -22,6 +23,10 @@ const plugins = require('./lib/plugins');
 const packageData = require('./package.json');
 
 process.title = config.ident + ': master process';
+
+config.on('reload', () => {
+    log.info('APP', 'Configuration reloaded');
+});
 
 log.info('ZoneMTA', ' _____             _____ _____ _____ ');
 log.info('ZoneMTA', '|__   |___ ___ ___|     |_   _|  _  |');
@@ -46,15 +51,15 @@ let startSMTPInterfaces = done => {
             return done();
         }
         let key = keys[pos++];
-        let smtp = new SMTPInterface(key, config.smtpInterfaces[key]);
-        smtp.start(err => {
+        let smtpProxy = new SMTPProxy(key, config.smtpInterfaces[key]);
+        smtpProxy.start(err => {
             if (err) {
-                log.error('SMTP/' + smtp.interface, 'Could not start ' + key + ' MTA server');
-                log.error('SMTP/' + smtp.interface, err);
+                log.error('SMTP/' + smtpProxy.interface, 'Could not start ' + key + ' MTA server');
+                log.error('SMTP/' + smtpProxy.interface, err);
                 return done(err);
             }
-            log.info('SMTP/' + smtp.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
-            smtpInterfaces.push(smtp);
+            log.info('SMTP/' + smtpProxy.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
+            smtpInterfaces.push(smtpProxy);
             return startNext();
         });
     };

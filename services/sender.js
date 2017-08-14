@@ -3,20 +3,21 @@
 // NB! This script is ran as a separate process, so no direct access to the queue, no data
 // sharing with other part of the code etc.
 
-const SendingZone = require('./lib/sending-zone').SendingZone;
-const config = require('config');
+const argv = require('minimist')(process.argv.slice(2));
+const SendingZone = require('../lib/sending-zone').SendingZone;
+const config = require('wild-config');
 const log = require('npmlog');
 
 // initialize plugin system
-const plugins = require('./lib/plugins');
+const plugins = require('../lib/plugins');
 plugins.init('sender');
 
-const Sender = require('./lib/sender');
+const Sender = require('../lib/sender');
 const crypto = require('crypto');
 
-const QueueClient = require('./lib/transport/client');
+const QueueClient = require('../lib/transport/client');
 const queueClient = new QueueClient(config.queueServer);
-const RemoteQueue = require('./lib/remote-queue');
+const RemoteQueue = require('../lib/remote-queue');
 
 const senders = new Set();
 
@@ -27,8 +28,8 @@ let closing = false;
 let zone;
 
 // Read command line arguments
-let currentZone = (process.argv[2] || '').toString().trim().toLowerCase();
-let clientId = (process.argv[3] || '').toString().trim().toLowerCase() || crypto.randomBytes(10).toString('hex');
+let currentZone = argv.senderName;
+let clientId = argv.senderId || crypto.randomBytes(10).toString('hex');
 
 // Find and setup correct Sending Zone
 Object.keys(config.zones || {}).find(zoneName => {
@@ -41,17 +42,21 @@ Object.keys(config.zones || {}).find(zoneName => {
 });
 
 if (!zone) {
-    require('./lib/logger'); // eslint-disable-line global-require
+    require('../lib/logger'); // eslint-disable-line global-require
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
     return process.exit(5);
 }
 
 let logName = 'Sender/' + zone.name + '/' + process.pid;
 log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
-require('./lib/logger'); // eslint-disable-line global-require
+require('../lib/logger'); // eslint-disable-line global-require
 log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;
+
+config.on('reload', () => {
+    log.info(logName, '[%s] Configuration reloaded', clientId);
+});
 
 let sendCommand = (cmd, callback) => {
     let id = ++cmdId;

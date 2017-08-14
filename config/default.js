@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 module.exports = {
     // If started as root then privileges are dropped after all ports are bound
     //user: 'nobody',
@@ -49,14 +51,14 @@ module.exports = {
         // the the user is considered as authenticated
         'core/http-auth': {
             enabled: false, // 'receiver'
-            url: 'http://localhost:8080/test-auth'
+            url: 'http://localhost:12080/test-auth'
         },
 
         // Load sender config (eg. DKIM key from a HTTP URL)
         'core/http-config': {
             enabled: false, // ['main', 'receiver']
             // An URL to check sender configuration from
-            url: 'http://localhost:8080/get-config'
+            url: 'http://localhost:12080/get-config'
         },
 
         // Validate message dropped to the API
@@ -118,7 +120,7 @@ module.exports = {
             //   response=server response message
             //   fbl=the value from X-Fbl header
             // If bounce reporting fails (non 2xx response), the notification is retried a few times during the next minutes
-            url: 'http://localhost:8080/report-bounce'
+            url: 'http://localhost:12080/report-bounce'
         },
 
         // Calculate and log md5 hashes for all image/* and application/* attachments. Attachment info with the hash
@@ -190,7 +192,7 @@ module.exports = {
 
     // Simple HTTP server for fetching info about messages
     api: {
-        port: 8080,
+        port: 12080,
         // bind to localhost only
         host: '127.0.0.1',
         // domain name to access the API server
@@ -199,7 +201,7 @@ module.exports = {
         // if true, allow posting message data in Nodemailer format to /send
         maildrop: true,
 
-        // hardcoded user credentials for the example authentication URL 'http://localhost:8080/test-auth'
+        // hardcoded user credentials for the example authentication URL 'http://localhost:12080/test-auth'
         user: 'zone', // username for the static example auth url
         pass: 'test' // password for the static example auth url
     },
@@ -208,7 +210,7 @@ module.exports = {
     queueServer: {
         // Set to false to disable any queue processing. Server would accept messages but would not send anything
         enabled: true,
-        port: 8081,
+        port: 12081,
         // bind to localhost only
         host: '127.0.0.1',
         // this is where the clients connect to
@@ -252,7 +254,7 @@ module.exports = {
         // overriden by
         hashAlgo: 'sha256',
         // Key folder for the default keys
-        keys: __dirname + '/../keys'
+        keys: path.join(__dirname, '..', 'keys')
     },
 
     pools: {

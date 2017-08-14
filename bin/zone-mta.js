@@ -36,9 +36,6 @@ yargs
             showhelp = false;
             let directory = argv.directory.charAt(0) === '/' ? argv.directory : path.join(process.cwd(), argv.directory);
 
-            //process.env.NODE_ENV = 'production';
-            process.env.SUPPRESS_NO_CONFIG_WARNING = 'yes';
-            process.env.NODE_CONFIG_DIR = path.join(__dirname, '..', 'config');
             let customConfig;
             let customPluginPath;
             if (argv.configFile) {
@@ -52,7 +49,7 @@ yargs
                     return process.exit(1);
                 }
             }
-            let config = require('config');
+            let config = require('wild-config');
             config.pluginsPath = customPluginPath || path.join(directory, 'plugins');
 
             require('../app');
