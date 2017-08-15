@@ -5,6 +5,7 @@
 const path = require('path');
 process.env.NODE_CONFIG_DIR = path.join(__dirname, '.', 'config');
 const config = require('wild-config');
+
 const fs = require('fs');
 const log = require('npmlog');
 log.level = config.log.level;

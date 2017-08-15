@@ -2,24 +2,28 @@
 
 Modern outbound SMTP relay (MTA/MSA) built on Node.js and MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
 
-> ZoneMTA is **in beta**, so handle with care! Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, processing 70-80 messages per second on peak times. Total messages successfully delivered by that server is more than 100 000 000 (+3 000 000 emails that have bounced).
+> Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, processing 70-80 messages per second on peak times. Total messages successfully delivered by that server is more than 100 000 000 (plus 3 000 000 emails that have bounced).
 
 ```
- _____             _____ _____ _____
-|__   |___ ___ ___|     |_   _|  _  |
-|   __| . |   | -_| | | | | | |     |
-|_____|___|_|_|___|_|_|_| |_| |__|__|
+███████╗ ██████╗ ███╗   ██╗███████╗███╗   ███╗████████╗ █████╗
+╚══███╔╝██╔═══██╗████╗  ██║██╔════╝████╗ ████║╚══██╔══╝██╔══██╗
+  ███╔╝ ██║   ██║██╔██╗ ██║█████╗  ██╔████╔██║   ██║   ███████║
+ ███╔╝  ██║   ██║██║╚██╗██║██╔══╝  ██║╚██╔╝██║   ██║   ██╔══██║
+███████╗╚██████╔╝██║ ╚████║███████╗██║ ╚═╝ ██║   ██║   ██║  ██║
+╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝     ╚═╝   ╚═╝   ╚═╝  ╚═╝
 ```
 
-The goal of this project is to provide granular control over routing different messages. Trusted senders can be routed through high-speed (more parallel connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting, IP warm-up or HTTP API for posting messages.
+ZoneMTA provides granular control over routing different messages. Trusted senders can be routed through high-speed (more parallel connections) virtual "sending zones" that use high reputation IP addresses, less trusted senders can be routed through slower (less connections) virtual "sending zones" or through IP addresses with less reputation. In addition the server comes packed with features more common to commercial software, ie. message rewriting, IP warm-up or HTTP API for posting messages.
 
 ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka it's for outbound only. Both systems run on Node.js and have a built in plugin system even though the designs are somewhat different. The [plugin system](https://github.com/zone-eu/zone-mta/tree/master/plugins) (and a lot more as well) for ZoneMTA is inherited from the [Nodemailer](https://nodemailer.com/) project and thus do not have direct relations to Haraka.
 
 There's also a web-based [administration interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 
-![](https://cldup.com/2h6320MiiE.png)
+## Upgrade notes
 
-(See all screenshots of ZMTA-WebAdmin [here](https://cloudup.com/c_TLoJ62sdY))
+ZoneMTA version 1.1 uses a different application configuration scheme than 1.0. See [zone-mta-template](https://github.com/zone-eu/zone-mta-template) for reference.
+
+Also, there is no zone-mta command line application anymore.
 
 ## Requirements
 
@@ -29,22 +33,22 @@ There's also a web-based [administration interface](https://github.com/zone-eu/z
 
 ## Quickstart
 
-Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), *MongoDB* running on localhost and *git*. There must be nothing listening on ports 2525 (SMTP), 8080 (HTTP API) and 8081 (internal data channel). All these ports are configurable.
+Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), *MongoDB* running on localhost and *git*. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
 
 #### Create ZoneMTA application
 
-If your user is not able to install global modules with npm then run the first command with *sudo*. In most cases you do not need root permissions to create or run ZoneMTA applications (at least not as long as you don't want to use privileged ports like 25 org 465).
+Fetch the ZoneMTA application template
 
-```bash
-$ npm install -g zone-mta
-$ zone-mta create path/to/app
-$ cd path/to/app
+```
+$ git clone git://github.com/zone-eu/zone-mta-template.git
+$ cd zone-mta-template
+$ npm install --production
 $ npm start
 ```
 
 If everything succeeds then you should have a SMTP relay with no authentication running on localhost port 2525 (does not accept remote connections).
 
-> See [default.js](config/default.js) for all possible config options that you can use for config.json in your app folder.
+Next you could try to install and configure an additional plugin or edit the default configuration in the config folder.
 
 Web administration console should be installed separately, it is not part of the default installation. See instructions in the [ZMTA-WebAdmin page](https://github.com/zone-eu/zmta-webadmin).
 
@@ -91,27 +95,6 @@ Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 ### Configuration
 
 Default configuration can be found from [default.js](config/default.js). You can override options in your application specific configuration but you do not need to specify these values that you want to keep as default.
-
-For example if the *default.js* states an object with multiple properties like this:
-
-```javascript
-{
-    mailerDaemon: {
-        name: 'Mail Delivery Subsystem',
-        address: 'mailer-daemon@' + os.hostname()
-    }
-}
-```
-
-Then you can override only a single property without changing the other values like this in config.json:
-
-```
-{
-    "mailerDaemon": {
-        "name": "Override default value"
-    }
-}
-```
 
 ## Features
 
@@ -233,7 +216,7 @@ Once your IP address is warm enough then you can either increase the load ratio 
 
 ### Delivery to HTTP
 
-Instead of delivering messages to SMTP you can POST messages to HTTP. In this case you need to set http option for a delivery to true and also set targetUrl property which is the URL the messageis POSTed to as a file upload. These changes can be done for example in a plugin.
+Instead of delivering messages to SMTP you can POST messages to HTTP. In this case you need to set http option for a delivery to true and also set targetUrl property which is the URL the message is POSTed to as a file upload. These changes can be done for example in a plugin.
 
 ```javascript
 app.addHook('sender:fetch', (delivery, next) => {
@@ -242,6 +225,10 @@ app.addHook('sender:fetch', (delivery, next) => {
     next();
 });    
 ```
+
+### Multiple instances support
+
+You can start up multiple ZoneMTA servers that share the same MongoDB backend. In this case you have to edit the queue/instanceId configuration option though, every instance needs its own immutable ID. This value is used to lock deferred messages to specific sender instance.
 
 ### HTTP API
 

@@ -55,11 +55,6 @@ log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;
 
-config.on('reload', () => {
-    bounces.reloadBounces();
-    log.info(logName, '[%s] Configuration reloaded', clientId);
-});
-
 let sendCommand = (cmd, callback) => {
     let id = ++cmdId;
     let data = {
@@ -127,22 +122,58 @@ queueClient.connect(err => {
             log.info(logName, '%s plugins loaded', plugins.handler.loaded.length);
         });
 
-        // start sending instances
-        for (let i = 0; i < zone.connections; i++) {
-            // use artificial delay to lower the chance of races
-            setTimeout(() => {
-                let sender = new Sender(clientId, i + 1, zone, sendCommand, queue);
-                senders.add(sender);
-                sender.once('error', err => {
-                    log.info(logName, 'Sender error. %s', err.message);
-                    closing = true;
+        let zoneCounter = 0;
+        let zoneConnections = zone.connections;
+
+        let spawnConnections = count => {
+            // start sending instances
+            for (let i = 0; i < count; i++) {
+                // use artificial delay to lower the chance of races
+                setTimeout(() => {
+                    let sender = new Sender(clientId, ++zoneCounter, zone, sendCommand, queue);
+                    senders.add(sender);
+                    sender.once('error', err => {
+                        log.info(logName, 'Sender error. %s', err.message);
+                        closing = true;
+                        senders.forEach(sender => {
+                            sender.removeAllListeners('error');
+                            sender.close();
+                        });
+                        senders.clear();
+                    });
+                }, Math.random() * 1500);
+            }
+        };
+
+        spawnConnections(zoneConnections);
+
+        config.on('reload', () => {
+            bounces.reloadBounces();
+
+            zone.update(config.zones[zone.name]);
+
+            if (zoneConnections !== zone.connections) {
+                if (zoneConnections < zone.connections) {
+                    spawnConnections(zone.connections - zoneConnections);
+                } else if (zoneConnections > zone.connections) {
+                    let i = 0;
+                    let deletedSenders = [];
                     senders.forEach(sender => {
+                        if (i++ > zone.connections) {
+                            deletedSenders.push(sender);
+                        }
+                    });
+                    deletedSenders.forEach(sender => {
                         sender.removeAllListeners('error');
                         sender.close();
+                        senders.delete(sender);
                     });
-                    senders.clear();
-                });
-            }, Math.random() * 1500);
-        }
+                    deletedSenders = false;
+                }
+                zoneConnections = zone.connections;
+            }
+
+            log.info(logName, '[%s] Configuration reloaded', clientId);
+        });
     });
 });

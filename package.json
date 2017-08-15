@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.0.0-beta.64",
+    "version": "1.1.0-beta.1",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -33,7 +33,7 @@
         "smtp-server": "3.0.1",
         "srs.js": "0.1.0",
         "uuid": "3.1.0",
-        "wild-config": "^1.2.3",
+        "wild-config": "^1.3.0",
         "yargs": "8.0.2"
     },
     "devDependencies": {
@@ -51,5 +51,8 @@
     },
     "optionalDependencies": {
         "modern-syslog": "^1.1.4"
+    },
+    "bin": {
+        "check-bounce": "./bin/check-bounce.js"
     }
 }

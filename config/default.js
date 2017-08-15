@@ -1,7 +1,5 @@
 'use strict';
 
-const path = require('path');
-
 module.exports = {
     // If started as root then privileges are dropped after all ports are bound
     //user: 'nobody',
@@ -69,13 +67,6 @@ module.exports = {
             url: 'http://localhost:12080/test-auth'
         },
 
-        // Load sender config (eg. DKIM key from a HTTP URL)
-        'core/http-config': {
-            enabled: false, // ['main', 'receiver']
-            // An URL to check sender configuration from
-            url: 'http://localhost:12080/get-config'
-        },
-
         // Validate message dropped to the API
         'core/api-send': {
             enabled: false, // 'main'
@@ -141,7 +132,20 @@ module.exports = {
         // This adds some CPU load as attachments need to be decoded and md5 hashes,
         // so increase smtpInterfaces.*.processes count to handle the increased load
         // Example: 15872511b0d000c239 ATTACHMENT name="foto-02.jpg" type="image/jpeg" size=1922193 md5=6e0a1c5a2276f7afca68ec7ee4c3200c
-        'core/image-hashes': false // 'receiver'
+        'core/image-hashes': false, // 'receiver',
+
+        // Sign outbound messages with DKIM
+        'core/dkim': {
+            enabled: false, //'sender',
+            // Domain name in the dkim signature. Leave blank to use the domain of From: address
+            domain: 'example.com',
+            // If true then uses the same key to add a signature for the hostname of the outbound IP address
+            signTransportDomain: true,
+            // Selector value in the dkim signature
+            selector: 'test',
+            // Key location
+            path: '/path/to/private/key.pem'
+        }
     },
 
     // You can define multiple listening SMTP interfaces, for example one for port 465, one for 587 etc
@@ -200,7 +204,7 @@ module.exports = {
         nameservers: false,
 
         // If true, then do not allow sending to MX servers in localhost or private IP range
-        blockLocalAddresses: true
+        blockLocalAddresses: false
     },
 
     // Simple HTTP server for fetching info about messages
@@ -247,27 +251,13 @@ module.exports = {
         }*/
     },
 
-    /*
-        DKIM keys are provided by sender config response.
-
-        Defualt DKIM private keys are stored in ./keys as {DOMAIN}.{SELECTOR}.pem
-
-        For example if you want to use a key for "kreata.ee" with selector "test" then
-        the private.key should be available from ./keys/kreata.ee.test.pem
-
-        DKIM signature is based on the domain name of the From: address or if there
-        is no From: address then by the domain name of the envelope MAIL FROM:.
-        If a matching key can not be found then the message is not signed
-     */
+    // General DKIM settings
     dkim: {
         // If DKIM signing is turned on then body hash is calculated for every message,
         // even if there is no key available for this sender
         enabled: true,
-        // Set default hash for the DKIM signature, eg. "sha1" or "sha256". This can be
-        // overriden by
-        hashAlgo: 'sha256',
-        // Key folder for the default keys
-        keys: path.join(__dirname, '..', 'keys')
+        // Set default hash for the DKIM signature, eg. "sha1" or "sha256"
+        hashAlgo: 'sha256'
     },
 
     pools: {
@@ -314,7 +304,7 @@ module.exports = {
             // How many parallel connections to open for this Sending Zone per process.
             // Local IP addresses from the pool are randomly distributed between
             // the connections.
-            connections: 5,
+            connections: 10,
 
             // Throttling applies per connection in a process
             // throttling: '100 messages/second', // max messages per minute, hour or second
@@ -410,5 +400,7 @@ module.exports = {
             }
         }
         */
-    }
+    },
+
+    pluginsPath: './plugins'
 };
