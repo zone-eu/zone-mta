@@ -13,9 +13,18 @@ module.exports = {
     // App key for process name, syslog ident etc
     ident: 'zone-mta',
 
+    dbs: {
+        // database connection string
+        mongo: 'mongodb://127.0.0.1:27017/zone-mta',
+        redis: 'redis://127.0.0.1:6379/3',
+        // database name
+        sender: 'zone-mta'
+    },
+
     queue: {
-        // MongoDB connection url
-        mongodb: 'mongodb://127.0.0.1:27017/zone-mta',
+        // for multi server setup use unique value for every instance
+        // this is needed to route deferred messages to correct instance
+        instanceId: 'default',
 
         // Collection name for GridFS storage
         gfs: 'mail',
@@ -32,17 +41,23 @@ module.exports = {
     // modules installed from npm
     plugins: {
         'core/example-plugin': false,
+
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
             enabled: ['receiver', 'main', 'sender'],
+
             // which interfaces to allow using routing headers like X-Sending-Zone
-            allowRountingHeaders: ['api', 'bounce'],
+            allowRoutingHeaders: ['api', 'bounce'],
+
             // Add missing headers (Message-ID, Date, etc.)
             addMissing: ['message-id', 'date'],
+
             // If true then delay messages according to the Date header. Messages can be deferred up to 1 year.
             // This only works if the Date header is higher than 5 minutes from now because of possible clock skew
             // This should probably be a separate plugin
             futureDate: false,
+
+            // add X-Originating-IP header
             xOriginatingIP: true
         },
 
@@ -69,19 +84,17 @@ module.exports = {
         },
 
         // Check if recipient MX exists when RCPT TO command is called
-        'core/rcpt-mx': false,
+        'core/rcpt-mx': false, // 'receiver'
 
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
             enabled: false, // ['receiver', 'main', 'sender'], // spam is checked in 'receiver' context, headers are added in 'sender' context
-            url: 'http://localhost:11333/check',
-            interfaces: ['feeder'],
-            ignoreOrigins: [],
+            url: 'http://localhost:11333/check', // Rspamd API endpoint
+            interfaces: ['feeder'], // use ['*'] to scan messages from all interfaces
+            ignoreOrigins: [], // a list of source IP addresses to ignore spam results for
             maxSize: 5 * 1024 * 1024, // do not check for spam if the message is very large
-            rejectSpam: false, // if false, then the message is passed on with a spam header, otherwise message is rejected
-            processSpam: false, // if true then drops spam or modifies headers for suspicios messages
-            maxAllowedScore: false, // if Number then drop messages with higher score
-            rewriteSubject: false // if true, adds a [**SPAM**] prefix to mail subject
+            dropSpam: false, // if true then silently drop spam messages instead of rejecting
+            rewriteSubject: false // if true adds a [**SPAM**] prefix to mail subject
             // ip: true // if true, then includes remote address in Rspamd input as the source IP
             // ip: '1.2.3.4' // if not true but a string, then includes this value in Rspamd input as the source IP
         },
@@ -99,7 +112,7 @@ module.exports = {
 
         // Send bounce message to the sender
         'core/email-bounce': {
-            enabled: false, // 'main'
+            enabled: 'main',
             // From: address for the bounce emails
             mailerDaemon: {
                 name: 'Mail Delivery Subsystem',
@@ -258,26 +271,26 @@ module.exports = {
     },
 
     pools: {
-        main: [
+        default: [
+            // You can set a list of interfaces here. If there are no IPv4 interfaces defined, then
+            // a default interface of {address:'0.0.0.0', name: os.hostname()} is used
+            /*
+
+            // pool entry can be just an IPv4 or IPv6 address
+            '1.2.3.4', // local address to bind to
+
+            // for more specific settings, use the object form
             {
+                // Local address to bind to
                 address: '1.2.3.4',
-                name: 'host4'
-            },
-            {
-                address: '1.2.3.5',
-                name: 'host5'
-            },
-            {
-                address: '1.2.3.6',
-                name: 'host6'
-            },
-            {
-                address: '1.2.3.7',
-                name: 'host7',
-                // scale between 0 and 1, this indicates how much of the load this ip should handle
-                // by default all messages are shared equally between different addresses
+                // Optional hostname to be used in EHLO/HELO commands, if not set then PTR of address is used
+                name: 'mta.example.com',
+                // Optional ratio value. A scale between 0 and 1, this indicates how much
+                // of the load this ip should handle.
+                // By default all messages are shared equally between different addresses
                 ratio: 1 / 10
             }
+             */
         ]
     },
 
@@ -297,22 +310,23 @@ module.exports = {
             ignoreIPv6: true,
 
             // How many child processes to run for this zone
-            processes: 2,
+            processes: 1,
             // How many parallel connections to open for this Sending Zone per process.
             // Local IP addresses from the pool are randomly distributed between
             // the connections.
             connections: 5,
 
             // Throttling applies per connection in a process
-            throttling: '100 messages/second', // max messages per minute, hour or second
+            // throttling: '100 messages/second', // max messages per minute, hour or second
 
             // Define address:name pairs (both IPv4 and IPv6) for outgoing IP addresses
             // This allows you to use different IP addresses for different messages:
             // For example, if you have 5 IP's listed and you open 5 parallel
             // connections against a domain then each of these seems to originate
             // from a different IP address (assuming you can locally bind to these addresses)
-            pool: []
+            pool: 'default'
         },
+
         // Sending Zone for sending bounce messages
         bounces: {
             preferIPv6: false,
@@ -320,8 +334,8 @@ module.exports = {
             connections: 1,
             processes: 1,
             // zone specific logging
-            logger: true,
-            logLevel: 'silly'
+            //logger: true,
+            //logLevel: 'silly'
 
             // * send through next MTA instead of MX
             // port: 587,
@@ -330,6 +344,7 @@ module.exports = {
             //    user: 'username@gmail.com',
             //    pass: 'ssssss'
             //}
+            pool: 'default'
         }
         /*
         loopback: {
@@ -366,9 +381,9 @@ module.exports = {
     },
 
     blacklist: {
-        // when an IP is blacklisted by spamhaus then disable using this ip for a domain for the next ttl ms
+        // when an IP is blacklisted then disable using this ip for a domain for the next ttl ms
         // this is in memory only, so if you restart the server the blacklist gets cleared
-        ttl: 6 * 60 * 60 * 1000
+        ttl: 1 * 60 * 60 * 1000
     },
 
     // Domain specific configuration
@@ -378,7 +393,7 @@ module.exports = {
         default: {
             // How many parallel connections per Sending Zone to use against a recipient domain
             maxConnections: 5,
-            // blacklisted IP addresses that should not be used to send mail
+            // blacklisted IP addresses that should not be used to send mail to this specific server
             disabledAddresses: []
         }
         /*

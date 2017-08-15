@@ -5,6 +5,7 @@
 const path = require('path');
 process.env.NODE_CONFIG_DIR = path.join(__dirname, '.', 'config');
 const config = require('wild-config');
+const fs = require('fs');
 const log = require('npmlog');
 log.level = config.log.level;
 require('./lib/logger');
@@ -24,15 +25,7 @@ const packageData = require('./package.json');
 
 process.title = config.ident + ': master process';
 
-config.on('reload', () => {
-    log.info('APP', 'Configuration reloaded');
-});
-
-log.info('ZoneMTA', ' _____             _____ _____ _____ ');
-log.info('ZoneMTA', '|__   |___ ___ ___|     |_   _|  _  |');
-log.info('ZoneMTA', '|   __| . |   | -_| | | | | | |     |');
-log.info('ZoneMTA', '|_____|___|_|_|___|_|_|_| |_| |__|__|');
-log.info('ZoneMTA', '            --- v' + packageData.version + ' ---');
+printLogo();
 
 const smtpInterfaces = [];
 const apiServer = new APIServer();
@@ -40,6 +33,11 @@ const queueServer = new QueueServer();
 const queue = new MailQueue(config.queue);
 
 promClient.collectDefaultMetrics({ timeout: 5000 });
+
+config.on('reload', () => {
+    queue.cache.flush();
+    log.info('APP', 'Configuration reloaded');
+});
 
 plugins.init('main');
 
@@ -198,3 +196,24 @@ process.on('uncaughtException', err => {
     log.error('Process', err);
     stop(4);
 });
+
+function printLogo() {
+    let logo = fs.readFileSync(__dirname + '/logo.txt', 'utf-8').replace(/^\n+|\n+$/g, '').split('\n');
+
+    let columnLength = logo.map(l => l.length).reduce((max, val) => (val > max ? val : max), 0);
+    let versionString = ' ' + packageData.name + '@' + packageData.version + ' ';
+    let versionPrefix = '-'.repeat(Math.round(columnLength / 2 - versionString.length / 2));
+    let versionSuffix = '-'.repeat(columnLength - versionPrefix.length - versionString.length);
+
+    log.info('App', ' ' + '-'.repeat(columnLength));
+    log.info('App', '');
+
+    logo.forEach(line => {
+        log.info('App', ' ' + line);
+    });
+
+    log.info('App', '');
+
+    log.info('App', ' ' + versionPrefix + versionString + versionSuffix);
+    log.info('App', '');
+}

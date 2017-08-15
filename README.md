@@ -25,7 +25,7 @@ There's also a web-based [administration interface](https://github.com/zone-eu/z
 
 1. **Node.js** v6.0.0+ for running the app
 2. **MongoDB** for storing messages in the queue
-3. **Redis** (optional) for counters
+3. **Redis** for locking and counters
 
 ## Quickstart
 
@@ -137,7 +137,7 @@ X-Sending-Zone: zone-identifier
 
 For example if you have a Sending Zone called "zone-identifier" set then messages with such header are routed through this Sending Zone.
 
-> **NB** This behavior is enabled by default only for 'api' and 'bounce' zones, see the `allowRountingHeaders` option in default config for details
+> **NB** This behavior is enabled by default only for 'api' and 'bounce' zones, see the `allowRoutingHeaders` option in default config for details
 
 #### Routing based on specific header value
 

@@ -7,6 +7,7 @@ const argv = require('minimist')(process.argv.slice(2));
 const SendingZone = require('../lib/sending-zone').SendingZone;
 const config = require('wild-config');
 const log = require('npmlog');
+const bounces = require('../lib/bounces');
 
 // initialize plugin system
 const plugins = require('../lib/plugins');
@@ -55,6 +56,7 @@ log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 process.title = config.ident + ': sender/' + currentZone;
 
 config.on('reload', () => {
+    bounces.reloadBounces();
     log.info(logName, '[%s] Configuration reloaded', clientId);
 });
 

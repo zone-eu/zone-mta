@@ -42,7 +42,7 @@ module.exports.init = function(app, done) {
         // Check Sending Zone for this message
         //   X-Sending-Zone: loopback
         // If Sending Zone is not set or missing then the default is used
-        if (!envelope.sendingZone && app.config.allowRountingHeaders.includes(envelope.interface)) {
+        if (!envelope.sendingZone && app.config.allowRoutingHeaders.includes(envelope.interface)) {
             let sZone = envelope.headers.getFirst('x-sending-zone').toLowerCase();
             if (sZone) {
                 app.logger.verbose('Queue', 'Detected Zone %s for %s by headers', sZone, mId);
