@@ -2,8 +2,11 @@
 
 // Main application file
 // Run as 'node app.js' to start
+const path = require('path');
+process.env.NODE_CONFIG_DIR = path.join(__dirname, '.', 'config');
+const config = require('wild-config');
 
-const config = require('config');
+const fs = require('fs');
 const log = require('npmlog');
 log.level = config.log.level;
 require('./lib/logger');
@@ -13,7 +16,7 @@ process.execArgv = [];
 
 const promClient = require('prom-client'); // eslint-disable-line no-unused-vars
 
-const SMTPInterface = require('./lib/smtp-interface');
+const SMTPProxy = require('./lib/receiver/smtp-proxy');
 const APIServer = require('./lib/api-server');
 const QueueServer = require('./lib/queue-server');
 const MailQueue = require('./lib/mail-queue');
@@ -23,11 +26,7 @@ const packageData = require('./package.json');
 
 process.title = config.ident + ': master process';
 
-log.info('ZoneMTA', ' _____             _____ _____ _____ ');
-log.info('ZoneMTA', '|__   |___ ___ ___|     |_   _|  _  |');
-log.info('ZoneMTA', '|   __| . |   | -_| | | | | | |     |');
-log.info('ZoneMTA', '|_____|___|_|_|___|_|_|_| |_| |__|__|');
-log.info('ZoneMTA', '            --- v' + packageData.version + ' ---');
+printLogo();
 
 const smtpInterfaces = [];
 const apiServer = new APIServer();
@@ -35,6 +34,11 @@ const queueServer = new QueueServer();
 const queue = new MailQueue(config.queue);
 
 promClient.collectDefaultMetrics({ timeout: 5000 });
+
+config.on('reload', () => {
+    queue.cache.flush();
+    log.info('APP', 'Configuration reloaded');
+});
 
 plugins.init('main');
 
@@ -46,15 +50,15 @@ let startSMTPInterfaces = done => {
             return done();
         }
         let key = keys[pos++];
-        let smtp = new SMTPInterface(key, config.smtpInterfaces[key]);
-        smtp.start(err => {
+        let smtpProxy = new SMTPProxy(key, config.smtpInterfaces[key]);
+        smtpProxy.start(err => {
             if (err) {
-                log.error('SMTP/' + smtp.interface, 'Could not start ' + key + ' MTA server');
-                log.error('SMTP/' + smtp.interface, err);
+                log.error('SMTP/' + smtpProxy.interface, 'Could not start ' + key + ' MTA server');
+                log.error('SMTP/' + smtpProxy.interface, err);
                 return done(err);
             }
-            log.info('SMTP/' + smtp.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
-            smtpInterfaces.push(smtp);
+            log.info('SMTP/' + smtpProxy.interface, 'SMTP ' + key + ' MTA server started listening on port %s', config.smtpInterfaces[key].port);
+            smtpInterfaces.push(smtpProxy);
             return startNext();
         });
     };
@@ -193,3 +197,24 @@ process.on('uncaughtException', err => {
     log.error('Process', err);
     stop(4);
 });
+
+function printLogo() {
+    let logo = fs.readFileSync(__dirname + '/logo.txt', 'utf-8').replace(/^\n+|\n+$/g, '').split('\n');
+
+    let columnLength = logo.map(l => l.length).reduce((max, val) => (val > max ? val : max), 0);
+    let versionString = ' ' + packageData.name + '@' + packageData.version + ' ';
+    let versionPrefix = '-'.repeat(Math.round(columnLength / 2 - versionString.length / 2));
+    let versionSuffix = '-'.repeat(columnLength - versionPrefix.length - versionString.length);
+
+    log.info('App', ' ' + '-'.repeat(columnLength));
+    log.info('App', '');
+
+    logo.forEach(line => {
+        log.info('App', ' ' + line);
+    });
+
+    log.info('App', '');
+
+    log.info('App', ' ' + versionPrefix + versionString + versionSuffix);
+    log.info('App', '');
+}

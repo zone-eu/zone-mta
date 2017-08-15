@@ -5,7 +5,8 @@ const RspamdClient = require('./rspamd-client');
 module.exports.title = 'Rspamd Spam Check';
 module.exports.init = function(app, done) {
     app.addAnalyzerHook((envelope, source, destination) => {
-        if (!app.config.interfaces.includes(envelope.interface)) {
+        let interfaces = Array.isArray(app.config.interfaces) ? app.config.interfaces : [].concat(app.config.interfaces || []);
+        if (!interfaces.includes(envelope.interface) && !interfaces.includes('*')) {
             return source.pipe(destination);
         }
 
@@ -79,43 +80,38 @@ module.exports.init = function(app, done) {
     });
 
     app.addHook('message:queue', (envelope, messageInfo, next) => {
-        if (!app.config.interfaces.includes(envelope.interface) || !envelope.spam || !envelope.spam.default) {
+        let interfaces = Array.isArray(app.config.interfaces) ? app.config.interfaces : [].concat(app.config.interfaces || []);
+        if ((!interfaces.includes(envelope.interface) && !interfaces.includes('*')) || !envelope.spam || !envelope.spam.default) {
             return next();
         }
 
-        if (app.config.processSpam) {
-            let score = Number(envelope.spam.default.score) || 0;
-            score = Math.round(score * 100) / 100;
+        let score = Number(envelope.spam.default.score) || 0;
+        score = Math.round(score * 100) / 100;
 
-            messageInfo.score = score.toFixed(2);
+        messageInfo.tests = envelope.spam.tests.join(',');
+        messageInfo.score = score.toFixed(2);
 
-            if (!app.config.ignoreOrigins.includes(envelope.origin) && !envelope.ignoreSpamScore) {
-                if (app.config.maxAllowedScore && envelope.spam.default.score >= app.config.maxAllowedScore) {
-                    // accept message and silently drop it
-                    return next(app.drop(envelope, 'spam', messageInfo));
-                }
-
-                switch (envelope.spam.default.action) {
-                    case 'reject':
+        if (!app.config.ignoreOrigins.includes(envelope.origin) && !envelope.ignoreSpamScore) {
+            switch (envelope.spam.default.action) {
+                case 'reject':
+                    if (app.config.dropSpam) {
                         // accept message and silently drop it
                         return next(app.drop(envelope, 'spam', messageInfo));
-                    case 'add header':
-                    case 'rewrite subject':
-                    case 'soft reject':
-                        if (app.config.rewriteSubject) {
-                            let subject = envelope.headers.getFirst('subject');
-                            subject = ('[***SPAM(' + score.toFixed(2) + ')***] ' + subject).trim();
-                            envelope.headers.update('Subject', subject);
-                        }
-                        break;
-                }
+                    }
+                    // reject spam
+                    return next(app.reject(envelope, 'spam', messageInfo, '550 This message was classified as SPAM and may not be delivered'));
+                case 'add header':
+                case 'rewrite subject':
+                case 'soft reject':
+                    if (app.config.rewriteSubject) {
+                        let subject = envelope.headers.getFirst('subject');
+                        subject = ('[***SPAM(' + score.toFixed(2) + ')***] ' + subject).trim();
+                        envelope.headers.update('Subject', subject);
+                    }
+                    break;
             }
         }
 
-        if (app.config.rejectSpam && envelope.spam.default.is_spam && !envelope.ignoreSpamScore) {
-            messageInfo.tests = envelope.spam.tests.join(',');
-            return next(app.reject(envelope, 'spam', messageInfo, '550 This message was classified as SPAM and may not be delivered'));
-        }
         next();
     });
 
