@@ -6,6 +6,11 @@ const path = require('path');
 process.env.NODE_CONFIG_DIR = path.join(__dirname, '.', 'config');
 const config = require('wild-config');
 
+if (process.env.NODE_CONFIG_ONLY === 'true') {
+    console.log(require('util').inspect(config, false, 22)); // eslint-disable-line
+    return process.exit();
+}
+
 const fs = require('fs');
 const log = require('npmlog');
 log.level = config.log.level;
