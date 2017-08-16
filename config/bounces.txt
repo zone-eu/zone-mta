@@ -254,7 +254,8 @@
 # 550 Too many invalid recipients
 # Happens when a server starts blocking an IP after too many invalid RCPT TO calls were made
 # Blocking happens on connect, so no way to issue any valid commands to fix this
-^550[ \-]Too many invalid recipients,defer,blacklist,Sender IP blacklisted
+# disabled for now, caused more issues than resolved
+^550[ \-]Too many invalid recipients,defer,other,Sender IP blacklisted
 
 # 550 Black listed at hostkarma http://ipadmin.junkemailfilter.com/remove.php?ip=1.2.3.4
 ^550[ \-]Black listed at\s,defer,blacklist,Sender IP blacklisted
