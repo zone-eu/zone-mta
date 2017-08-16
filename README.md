@@ -23,7 +23,7 @@ There's also a web-based [administration interface](https://github.com/zone-eu/z
 
 ZoneMTA version 1.1 uses a different application configuration scheme than 1.0. See [zone-mta-template](https://github.com/zone-eu/zone-mta-template) for reference.
 
-Also, there is no zone-mta command line application anymore.
+Also, there is no zone-mta command line application anymore, you need to include it as a module.
 
 ## Requirements
 
