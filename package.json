@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -28,7 +28,7 @@
         "prom-client": "^10.0.3",
         "redis": "^2.8.0",
         "request": "^2.81.0",
-        "restify": "5.1.0",
+        "restify": "5.2.0",
         "seq-index": "1.1.0",
         "smtp-server": "3.1.0",
         "srs.js": "0.1.0",
@@ -37,7 +37,7 @@
         "yargs": "8.0.2"
     },
     "devDependencies": {
-        "eslint": "^4.4.1",
+        "eslint": "^4.5.0",
         "grunt": "^1.0.1",
         "grunt-cli": "^1.2.0",
         "grunt-contrib-nodeunit": "^1.0.0",
