@@ -196,23 +196,23 @@
 
 # AOL error messages
 # https://postmaster.aol.com/error-codes
-^554[ \-]+\(?RTR:(BB|DU),reject,block,Using dynamic IP range
-^554[ \-]+\(?RTR:CH,reject,virus,Virus found
-^554[ \-]+\(?RTR:RD,reject,config,Invalid reverse DNS
-^554[ \-]+\(?RTR:(SC|BL),defer,blacklist,Sender IP blocked
-^554[ \-]+\(?RTR:GE,defer,other,Technical error
-^554[ \-]+\(?HVU:B\d,reject,message,Message content blocked
-^554[ \-]+\(?RLY:(B1|B2),slowdown,rate,Rate limit exceeded
-^554[ \-]+\(?RLY:(B2|BL),defer,blacklist,Sender IP blocked
-^554[ \-]+\(?RLY:BD,reject,message,Message content blocked
-^(421|554)[ \-]+\(?RLY:(CH),reject,spam,Spam detected
-^554[ \-]+\(?RLY:IR,reject,block,Using dynamic IP range
-^554[ \-]+\(?RLY:SN,reject,sender,Unauthorized sender
-^421[ \-]+\(?DYN:T\d,slowdown,rate,Rate limit exceeded
-^554[ \-]+\(?CON:B1,defer,blacklist,Sender IP blocked
-^421[ \-]+\(?CON:B1,defer,block,Sender IP temporary blocked
-^554[ \-]+\(?DMARC:,reject,dmarc,Message failed DMARC Evaluation
-^421[ \-]+\(?MFF:,defer,message,Future date in message
+^554[ \-]+.*\(?RTR:(BB|DU),reject,block,Using dynamic IP range
+^554[ \-]+.*\(?RTR:CH,reject,virus,Virus found
+^554[ \-]+.*\(?RTR:RD,reject,config,Invalid reverse DNS
+^554[ \-]+.*\(?RTR:(SC|BL),defer,blacklist,Sender IP blocked
+^554[ \-]+.*\(?RTR:GE,defer,other,Technical error
+^554[ \-]+.*\(?HVU:B\d,reject,message,Message content blocked
+^554[ \-]+.*\(?RLY:(B1|B2),slowdown,rate,Rate limit exceeded
+^554[ \-]+.*\(?RLY:(B2|BL),defer,blacklist,Sender IP blocked
+^554[ \-]+.*\(?RLY:BD,reject,message,Message content blocked
+^(421|554)[ \-]+.*\(?RLY:(CH),reject,spam,Spam detected
+^554[ \-]+.*\(?RLY:IR,reject,block,Using dynamic IP range
+^554[ \-]+.*\(?RLY:SN,reject,sender,Unauthorized sender
+^421[ \-]+.*\(?DYN:T\d,slowdown,rate,Rate limit exceeded
+^5\d\d[ \-]+.*\(?CON:B1,defer,blacklist,Sender IP blocked
+^421[ \-]+.*\(?CON:B1,defer,block,Sender IP temporary blocked
+^554[ \-]+.*\(?DMARC:,reject,dmarc,Message failed DMARC Evaluation
+^421[ \-]+.*\(?MFF:,defer,message,Future date in message
 
 # Gmail error messages
 # https://support.google.com/a/answer/3726730?hl=en
