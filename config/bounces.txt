@@ -183,6 +183,7 @@
 ^550[ \-]+SC\-002,defer,blacklist,Sender IP blocked
 ^550[ \-]+SC\-003,reject,block,Sender is open relay
 ^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
+^550[ \-]5\.4\.1.*Recipient address rejected: Access denied \[.*\.prod\.protection\.outlook\.com\],defer,blacklist,Sender IP blocked
 
 # Yahoo error messages
 # https://help.yahoo.com/kb/SLN23996.html
