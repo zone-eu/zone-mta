@@ -21,7 +21,7 @@ module.exports.init = function(app, done) {
         });
 
         rspamdStream.on('fail', err => {
-            app.logger.info('Rspamd', '%s SKIPPED "%s" (from=%s to=%s)', envelope.id, err.message, envelope.from, envelope.to.join(','));
+            app.logger.info('Rspamd', '%s SKIPPED "%s" (from=%s to=%s)', envelope.id, err.message, envelope.from, [].concat(envelope.to || []).join(','));
         });
 
         rspamdStream.on('response', response => {
