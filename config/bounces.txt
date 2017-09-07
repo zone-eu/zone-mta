@@ -184,6 +184,8 @@
 ^550[ \-]+SC\-003,reject,block,Sender is open relay
 ^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
 ^550[ \-]5\.4\.1.*Recipient address rejected: Access denied \[.*\.prod\.protection\.outlook\.com\],defer,blacklist,Sender IP blocked
+# 550 5.7.606 Access denied, banned sending IP [1.2.3.4]. To request removal from this list please visit https://sender.office.com/ and follow the directions. For more information please go to http://go.microsoft.com/fwlink/?LinkID=526655 (AS16012609) [DB5EUR01FT031.eop-EUR01.prod.protection.outlook.com]
+^550[ \-]5\.7\.606 Access denied, banned sending IP,defer,blacklist,Sender IP blocked
 
 # Yahoo error messages
 # https://help.yahoo.com/kb/SLN23996.html
