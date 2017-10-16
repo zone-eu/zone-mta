@@ -12,7 +12,9 @@ process.stdin.on('data', chunk => {
 });
 
 process.stdin.on('end', () => {
-    let str = Buffer.concat(chunks).toString().trim();
+    let str = Buffer.concat(chunks)
+        .toString()
+        .trim();
     let bounceInfo = bounces.check(str);
     console.log('data     : %s', str.replace(/\n/g, '\n' + ' '.repeat(11)));
     Object.keys(bounceInfo || {}).forEach(key => {

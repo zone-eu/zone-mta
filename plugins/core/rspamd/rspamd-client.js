@@ -14,11 +14,19 @@ class RspamdClient extends Transform {
 
         this.bytesWritten = 0;
 
-        let headers = {
-            from: options.from,
-            'deliver-to': options.to,
-            'queue-id': options.id
-        };
+        let headers = {};
+
+        if (options.from) {
+            headers.from = options.from;
+        }
+
+        if (options.to) {
+            headers['deliver-to'] = options.to;
+        }
+
+        if (options.id) {
+            headers['queue-id'] = options.id;
+        }
 
         if (options.ip) {
             headers.ip = options.ip;
