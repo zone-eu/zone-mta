@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -26,9 +26,9 @@
         "msgpack-js": "0.3.0",
         "nodemailer": "^4.3.1",
         "npmlog": "4.1.2",
-        "prom-client": "^10.2.0",
+        "prom-client": "^10.2.2",
         "request": "^2.83.0",
-        "restify": "6.2.3",
+        "restify": "6.3.1",
         "seq-index": "1.1.0",
         "smtp-server": "3.3.0",
         "srs.js": "0.1.0",
@@ -37,7 +37,7 @@
         "yargs": "10.0.3"
     },
     "devDependencies": {
-        "eslint": "^4.9.0",
+        "eslint": "^4.10.0",
         "grunt": "^1.0.1",
         "grunt-cli": "^1.2.0",
         "grunt-contrib-nodeunit": "^1.0.0",
