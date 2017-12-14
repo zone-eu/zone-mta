@@ -209,7 +209,7 @@ module.exports = {
 
     // Simple HTTP server for fetching info about messages
     api: {
-        port: 12080,
+        port: 8080,
         // bind to localhost only
         host: '127.0.0.1',
         // domain name to access the API server
