@@ -19,7 +19,7 @@
         "ipaddr.js": "1.5.4",
         "isemail": "3.0.0",
         "libmime": "3.1.0",
-        "mailsplit": "4.1.1",
+        "mailsplit": "4.1.2",
         "minimist": "^1.2.0",
         "mkdirp": "0.5.1",
         "mongodb": "3.0.0-rc0",
@@ -42,7 +42,7 @@
         "grunt-cli": "^1.2.0",
         "grunt-contrib-nodeunit": "^1.0.0",
         "grunt-eslint": "^20.1.0",
-        "moment": "^2.19.4",
+        "moment": "^2.20.0",
         "random-message": "^1.1.0",
         "zip-stream": "^1.2.0"
     },
