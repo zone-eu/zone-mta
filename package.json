@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -42,7 +42,7 @@
         "grunt-cli": "^1.2.0",
         "grunt-contrib-nodeunit": "^1.0.0",
         "grunt-eslint": "^20.1.0",
-        "moment": "^2.20.0",
+        "moment": "^2.20.1",
         "random-message": "^1.1.0",
         "zip-stream": "^1.2.0"
     },

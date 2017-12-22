@@ -110,7 +110,23 @@ module.exports = {
                 // [HOSTNAME] will be replaced with the hostname that was used to send this message
                 address: 'mailer-daemon@[HOSTNAME]'
             },
-            sendingZone: 'bounces'
+            sendingZone: 'bounces',
+            zoneConfig: {
+                // specify zone specific bounce options
+                myzonename: {
+                    // if true then ignore this block, revert to default
+                    disabled: true,
+                    // if not set then default mailerDaemon config is used
+                    mailerDaemon: {
+                        name: 'Mail Delivery Subsystem',
+                        // [HOSTNAME] will be replaced with the hostname that was used to send this message
+                        address: 'mailer-daemon@[HOSTNAME]'
+                    },
+                    // use same queue for handling bounces as for the original message
+                    // if not set then default queue is used
+                    sendingZone: 'myzonename'
+                }
+            }
         },
 
         // POST bounce data to a HTTP URL
@@ -209,7 +225,7 @@ module.exports = {
 
     // Simple HTTP server for fetching info about messages
     api: {
-        port: 8080,
+        port: 12080,
         // bind to localhost only
         host: '127.0.0.1',
         // domain name to access the API server
