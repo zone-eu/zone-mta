@@ -10,7 +10,7 @@ module.exports.init = function(app, done) {
         privKey = fs.readFileSync(app.config.path, 'ascii').trim();
     } catch (E) {
         app.logger.error('DKIM', 'Failed loading key: %s', E.message);
-        return done;
+        return done();
     }
 
     app.addHook('sender:connect', (delivery, options, next) => {
