@@ -9,7 +9,7 @@
         "start": "node app.js"
     },
     "author": "Andris Reinman",
-    "license": "EUPL-1.1",
+    "license": "EUPL-1.1+",
     "dependencies": {
         "addressparser": "1.0.1",
         "crc-32": "1.1.1",
