@@ -242,7 +242,7 @@
 
 # Hot.ee error messages
 ^550[ \-]+5\.2\.1\s+.*is expired account,reject,recipient,Expired Email account
-^451[ \-]+4\.3\.5\s+Server configuration problem,reject,envelope,User Name In Email Address Not Valid
+^451[ \-]+4\.3\.5\s+Server configuration problem,defer,envelope,User Name In Email Address Not Valid
 ^552[ \-]+5\.2\.2\s+.*Mailbox is full,reject,capacity,Hot.ee Mailbox is full
 
 # Mail.ee error messages
