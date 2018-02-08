@@ -1,0 +1,76 @@
+---
+indexes:
+
+- collection: files
+  key: gfs # actual collection name is options[gfs].files
+  index:
+    name: mailupload
+    key:
+      uploadDate: 1
+
+- collection: files
+  key: gfs
+  index:
+    name: mailfile
+    key:
+      filename: 1
+
+- collection: suppressionlist
+  index:
+    name: suppressed_address
+    key:
+      address: 1
+
+- collection: suppressionlist
+  index:
+    name: suppressed_domain
+    key:
+      domain: 1
+
+- collection: suppressionlist
+  index:
+    name: list_by_newer
+    key:
+      created: -1
+
+- collection: false # from variable based on .key
+  key: collection # actual collection name is options[collection]
+  index:
+    name: findall
+    key:
+      created: 1
+
+- collection: false # from variable based on .key
+  key: collection
+  index:
+    name: search_next
+    key:
+      sendingZone: 1
+      queued: 1
+      locked: 1
+      assigned: 1
+      domain: 1
+
+- collection: false # from variable based on .key
+  key: collection
+  index:
+    name: find_all_queued
+    key:
+      queued: 1
+
+- collection: false # from variable based on .key
+  key: collection
+  index:
+    name: delivery
+    key:
+      id: 1
+      seq: 1
+
+- collection: false # from variable based on .key
+  key: collection
+  index:
+    name: message_locking
+    key:
+      locked: 1
+      assigned: 1
+      lockTime: 1

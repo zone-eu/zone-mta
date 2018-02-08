@@ -33,7 +33,7 @@ Also, there is no zone-mta command line application anymore, you need to include
 
 ## Quickstart
 
-Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), *MongoDB* running on localhost and *git*. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
+Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), _MongoDB_ running on localhost and _git_. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
 
 #### Create ZoneMTA application
 
@@ -68,27 +68,27 @@ Delivering messages to destination (this image is outdated, LevelDB is not used 
 
 ## Features
 
-- Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
-- Cross platform. You can run ZoneMTA even on Windows
-- Fast. Send millions of messages per day
-- Send large messages with low overhead
-- Automatic DKIM signing
-- Adds *Message-Id* and *Date* headers if missing
-- Sending Zone support: send different messages using different IP addresses
-- Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
-- Assign specific recipient domains to specific Sending Zones
-- Queue is stored in MongoDB
-- Built in IPv6 support
-- Reports to Prometheus
-- Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
-- Smarter bounce handling
-- Throttling per Sending Zone connection
-- Spam detection using Rspamd
-- HTTP API to send messages
-- Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
-- Automatic back-off if an IP address gets blacklisted
-- Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
-- Delivery to HTTP using POST instead of SMTP
+* Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
+* Cross platform. You can run ZoneMTA even on Windows
+* Fast. Send millions of messages per day
+* Send large messages with low overhead
+* Automatic DKIM signing
+* Adds _Message-Id_ and _Date_ headers if missing
+* Sending Zone support: send different messages using different IP addresses
+* Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
+* Assign specific recipient domains to specific Sending Zones
+* Queue is stored in MongoDB
+* Built in IPv6 support
+* Reports to Prometheus
+* Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
+* Smarter bounce handling
+* Throttling per Sending Zone connection
+* Spam detection using Rspamd
+* HTTP API to send messages
+* Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
+* Automatic back-off if an IP address gets blacklisted
+* Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
+* Delivery to HTTP using POST instead of SMTP
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
@@ -223,7 +223,7 @@ app.addHook('sender:fetch', (delivery, next) => {
     delivery.http = true;
     delivery.targetUrl = 'http://requestb.in/1ed6q7l1';
     next();
-});    
+});
 ```
 
 ### Multiple instances support
@@ -298,9 +298,9 @@ The response includes an array of messages
 {
     "list": [
         {
-            "id":"157ca04cd5c000ddea",
-            "zone":"default",
-            "recipient":"example@example.com"
+            "id": "157ca04cd5c000ddea",
+            "zone": "default",
+            "recipient": "example@example.com"
         }
     ]
 }
@@ -332,19 +332,24 @@ The response includes general information about the message and lists all recipi
             "hashAlgo": "sha256",
             "bodyHash": "HAuESLcsVfL2FGQCUtFOwTL6Ax18XDXZO2vOeAz+DpI="
         },
-        "headers": [{
-            "key": "date",
-            "line": "Date: Mon, 03 Oct 2016 12:26:32 +0000"
-        }, {
-            "key": "from",
-            "line": "From: Sender <sender@example.com>"
-        }, {
-            "key": "message-id",
-            "line": "Message-ID: <95dc84ae-ff9e-4e95-aa75-8ee707bc018d@example.com>"
-        }, {
-            "key": "subject",
-            "line": "subject: test"
-        }],
+        "headers": [
+            {
+                "key": "date",
+                "line": "Date: Mon, 03 Oct 2016 12:26:32 +0000"
+            },
+            {
+                "key": "from",
+                "line": "From: Sender <sender@example.com>"
+            },
+            {
+                "key": "message-id",
+                "line": "Message-ID: <95dc84ae-ff9e-4e95-aa75-8ee707bc018d@example.com>"
+            },
+            {
+                "key": "subject",
+                "line": "subject: test"
+            }
+        ],
         "messageId": "<95dc84ae-ff9e-4e95-aa75-8ee707bc018d@example.com>",
         "date": "Mon, 03 Oct 2016 12:26:32 +0000",
         "parsedEnvelope": {
@@ -358,20 +363,22 @@ The response includes general information about the message and lists all recipi
         "bodySize": 3458,
         "created": 1475497593204
     },
-    "messages": [{
-        "id": "1578a823de00009fbb",
-        "seq": "002",
-        "zone": "default",
-        "recipient": "recipient1@example.com",
-        "status": "DEFERRED",
-        "deferred": {
-            "first": 1475499253068,
-            "count": 2,
-            "last": 1475499774161,
-            "next": 1475501274161,
-            "response": "450 4.3.2 Service currently unavailable"
+    "messages": [
+        {
+            "id": "1578a823de00009fbb",
+            "seq": "002",
+            "zone": "default",
+            "recipient": "recipient1@example.com",
+            "status": "DEFERRED",
+            "deferred": {
+                "first": 1475499253068,
+                "count": 2,
+                "last": 1475499774161,
+                "next": 1475501274161,
+                "response": "450 4.3.2 Service currently unavailable"
+            }
         }
-    }]
+    ]
 }
 ```
 
@@ -402,7 +409,7 @@ Hello world! This is a test message
 
 ZoneMTA allows basic recipient suppression where messages to specific recipient addresses or domains are silently dropped. Suppressed messages do not generate bounce messages.
 
-To see the currently suppressed addresses/domains, make a HTTP call to */suppressionlist*
+To see the currently suppressed addresses/domains, make a HTTP call to _/suppressionlist_
 
 ```bash
 curl http://localhost:8080/suppressionlist
@@ -412,16 +419,16 @@ The result is an JSON array
 
 ```json
 {
-  "suppressed":[
-    {
-      "id": "58da63cc77ebe70b883bec2d",
-      "address":"suppressed@address.com"
-    },
-    {
-      "id": "58da641f77ebe70b883bec2e",
-      "domain":"suppressed-domain.com"
-    }
-  ]
+    "suppressed": [
+        {
+            "id": "58da63cc77ebe70b883bec2d",
+            "address": "suppressed@address.com"
+        },
+        {
+            "id": "58da641f77ebe70b883bec2e",
+            "domain": "suppressed-domain.com"
+        }
+    ]
 }
 ```
 
@@ -441,10 +448,10 @@ With the result
 
 ```json
 {
-  "suppressed": {
-    "id": "58da63cc77ebe70b883bec2d",
-    "address":"suppressed@address.com"
-  }
+    "suppressed": {
+        "id": "58da63cc77ebe70b883bec2d",
+        "address": "suppressed@address.com"
+    }
 }
 ```
 
@@ -460,10 +467,10 @@ With the result
 
 ```json
 {
-  "suppressed": {
-    "id": "58da641f77ebe70b883bec2e",
-    "domain":"suppressed-domain.com"
-  }
+    "suppressed": {
+        "id": "58da641f77ebe70b883bec2e",
+        "domain": "suppressed-domain.com"
+    }
 }
 ```
 
@@ -481,7 +488,7 @@ With the result
 
 ```json
 {
-  "deleted": "58da641f77ebe70b883bec2e"
+    "deleted": "58da641f77ebe70b883bec2e"
 }
 ```
 
@@ -508,9 +515,9 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_delivery_status` exposes counters for delivery statuses. There are 3 different `result` label values
 
-  * `result="delivered"` – count of deliveries accepted by remote MX
-  * `result="rejected"` – count of deliveries that hard bounced
-  * `result="deferred"`– count of deliveries that soft bounced
+* `result="delivered"` – count of deliveries accepted by remote MX
+* `result="rejected"` – count of deliveries that hard bounced
+* `result="deferred"`– count of deliveries that soft bounced
 
 ##### zonemta_message_push
 
@@ -524,8 +531,8 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_queue_size` exposes gauges about current size of the queue. There are 2 `type` labels available:
 
-  * `type="queued"` – count of deliveries waiting to be delivered on the first occasion
-  * `type="deferred"` – count of deliveries waiting to be delivered on some later time
+* `type="queued"` – count of deliveries waiting to be delivered on the first occasion
+* `type="deferred"` – count of deliveries waiting to be delivered on some later time
 
 ##### zonemta_blacklisted
 
@@ -587,6 +594,6 @@ For speedier DNS resolving there are two options. First (the default) is to cach
 
 ## License
 
-European Union Public License 1.1 ([details](http://ec.europa.eu/idabc/eupl.html)) or later
+European Union Public License 1.2 ([details](http://ec.europa.eu/idabc/eupl.html)) or later
 
 ZoneMTA is created and maintained in the European Union, licensed under EUPL and its authors have no relations to the US, thus there can not be any infringements of US-based patents.
