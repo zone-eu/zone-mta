@@ -474,7 +474,7 @@ With the result
 }
 ```
 
-#### Delete and antry from Suppression list
+#### Delete an entry from Suppression list
 
 You can delete suppression entries by entry ID
 
