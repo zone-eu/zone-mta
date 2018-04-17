@@ -205,6 +205,15 @@ module.exports = {
             key: './keys/private.key',
             cert: './keys/server.crt'
             */
+
+            /*
+                // Additionally you can use the options listed in SMTPServer docs:
+                // https://nodemailer.com/extras/smtp-server/#step-3-create-smtpserver-instance
+                hideSTARTTLS: true,
+                hide8BITMIME: true,
+                useXClient: true,
+                ...
+             */
         }
     },
 
