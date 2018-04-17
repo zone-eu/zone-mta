@@ -14,7 +14,6 @@ if (process.env.NODE_CONFIG_ONLY === 'true') {
 const fs = require('fs');
 const log = require('npmlog');
 log.level = config.log.level;
-require('./lib/logger');
 
 // do not pass node args to children (--inspect, --max-old-space-size etc.)
 process.execArgv = [];
@@ -204,7 +203,10 @@ process.on('uncaughtException', err => {
 });
 
 function printLogo() {
-    let logo = fs.readFileSync(__dirname + '/logo.txt', 'utf-8').replace(/^\n+|\n+$/g, '').split('\n');
+    let logo = fs
+        .readFileSync(__dirname + '/logo.txt', 'utf-8')
+        .replace(/^\n+|\n+$/g, '')
+        .split('\n');
 
     let columnLength = logo.map(l => l.length).reduce((max, val) => (val > max ? val : max), 0);
     let versionString = ' ' + packageData.name + '@' + packageData.version + ' ';

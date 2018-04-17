@@ -43,14 +43,12 @@ Object.keys(config.zones || {}).find(zoneName => {
 });
 
 if (!zone) {
-    require('../lib/logger'); // eslint-disable-line global-require
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
     return process.exit(5);
 }
 
 let logName = 'Sender/' + zone.name + '/' + process.pid;
 log.level = 'logLevel' in zone ? zone.logLevel : config.log.level;
-require('../lib/logger'); // eslint-disable-line global-require
 log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;

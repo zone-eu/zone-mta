@@ -8,7 +8,7 @@ module.exports = {
     // App name to be used in the Received headers and greeting messages
     name: 'ZoneMTA',
 
-    // App key for process name, syslog ident etc
+    // App key for process name
     ident: 'zone-mta',
 
     dbs: {
@@ -218,14 +218,16 @@ module.exports = {
     },
 
     dns: {
-        // Cache lookup results in memory. Set to false if using local caching DNS server
+        // Cache lookup results in Redis. Set to false if using default DNS server
         caching: true,
+        cahceTTL: 600, // ttl of cached dns keys in seconds (only applies if caching:true)
 
         // Sets DNS servers to use for resolving MX/A/AAAA records. If not set
         // then default nameservers are used. IP addresses only!
         //
         //nameservers: ['127.0.0.1'],
         //nameservers: ['8.8.8.8', '8.8.8.4'],
+        //nameservers: ['1.1.1.1'],
         nameservers: false,
 
         // If true, then do not allow sending to MX servers in localhost or private IP range
@@ -262,13 +264,11 @@ module.exports = {
     log: {
         // silly, verbose, info, error
         level: 'info',
-        // log to syslog if true, otherwise to console
-        syslog: false,
         // set to true to see outgoing SMTP transaction log
         queue: false,
         remote: false
         /*
-        // emit structured log information over UDP
+        // emit structured log information over UDP, this can be used by ZMTA Webadmin
         remote: {
            protocol: 'udp4',
            host: false,
@@ -283,6 +283,11 @@ module.exports = {
         enabled: true,
         // Set default hash for the DKIM signature, eg. "sha1" or "sha256"
         hashAlgo: 'sha256'
+    },
+
+    uploads: {
+        // if target is an URL then use the following User-Agent identifier
+        userAgent: 'zone-mta'
     },
 
     pools: {

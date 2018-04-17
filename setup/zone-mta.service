@@ -1,12 +1,15 @@
 [Unit]
 Description=Zone Mail Transport Agent
 Conflicts=sendmail.service exim.service postfix.service
-After=syslog.target network.target
+After=network.target
 
 [Service]
 Environment="NODE_ENV=production"
+# replace with your actual working directory
 WorkingDirectory=/opt/zone-mta
 ExecStart=/usr/bin/node --max-old-space-size=2048 app.js
+ExecReload=/bin/kill -HUP $MAINPID
+SyslogIdentifier=zone-mta
 Type=simple
 Restart=always
 

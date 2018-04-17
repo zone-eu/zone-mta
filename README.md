@@ -27,9 +27,9 @@ Also, there is no zone-mta command line application anymore, you need to include
 
 ## Requirements
 
-1. **Node.js** v6.0.0+ for running the app
-2. **MongoDB** for storing messages in the queue
-3. **Redis** for locking and counters
+1.  **Node.js** v6.0.0+ for running the app
+2.  **MongoDB** for storing messages in the queue
+3.  **Redis** for locking and counters
 
 ## Quickstart
 
@@ -68,27 +68,27 @@ Delivering messages to destination (this image is outdated, LevelDB is not used 
 
 ## Features
 
-* Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
-* Cross platform. You can run ZoneMTA even on Windows
-* Fast. Send millions of messages per day
-* Send large messages with low overhead
-* Automatic DKIM signing
-* Adds _Message-Id_ and _Date_ headers if missing
-* Sending Zone support: send different messages using different IP addresses
-* Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
-* Assign specific recipient domains to specific Sending Zones
-* Queue is stored in MongoDB
-* Built in IPv6 support
-* Reports to Prometheus
-* Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
-* Smarter bounce handling
-* Throttling per Sending Zone connection
-* Spam detection using Rspamd
-* HTTP API to send messages
-* Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
-* Automatic back-off if an IP address gets blacklisted
-* Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
-* Delivery to HTTP using POST instead of SMTP
+*   Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
+*   Cross platform. You can run ZoneMTA even on Windows
+*   Fast. Send millions of messages per day
+*   Send large messages with low overhead
+*   Automatic DKIM signing
+*   Adds _Message-Id_ and _Date_ headers if missing
+*   Sending Zone support: send different messages using different IP addresses
+*   Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
+*   Assign specific recipient domains to specific Sending Zones
+*   Queue is stored in MongoDB
+*   Built in IPv6 support
+*   Reports to Prometheus
+*   Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
+*   Smarter bounce handling
+*   Throttling per Sending Zone connection
+*   Spam detection using Rspamd
+*   HTTP API to send messages
+*   Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
+*   Automatic back-off if an IP address gets blacklisted
+*   Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
+*   Delivery to HTTP using POST instead of SMTP
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
@@ -161,10 +161,10 @@ Use `recipientDomains` option in the Zone config to define that all recipients w
 
 The routing priority is the following:
 
-1. By the `X-Sending-Zone` header
-2. By matching `routingHeaders` headers
-3. By sender domain value in `senderDomains`
-4. By recipient domain value in `recipientDomains`
+1.  By the `X-Sending-Zone` header
+2.  By matching `routingHeaders` headers
+3.  By sender domain value in `senderDomains`
+4.  By recipient domain value in `recipientDomains`
 
 If no routing can be detected, then the "default" zone is used.
 
@@ -515,9 +515,9 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_delivery_status` exposes counters for delivery statuses. There are 3 different `result` label values
 
-* `result="delivered"` – count of deliveries accepted by remote MX
-* `result="rejected"` – count of deliveries that hard bounced
-* `result="deferred"`– count of deliveries that soft bounced
+*   `result="delivered"` – count of deliveries accepted by remote MX
+*   `result="rejected"` – count of deliveries that hard bounced
+*   `result="deferred"`– count of deliveries that soft bounced
 
 ##### zonemta_message_push
 
@@ -531,8 +531,8 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_queue_size` exposes gauges about current size of the queue. There are 2 `type` labels available:
 
-* `type="queued"` – count of deliveries waiting to be delivered on the first occasion
-* `type="deferred"` – count of deliveries waiting to be delivered on some later time
+*   `type="queued"` – count of deliveries waiting to be delivered on the first occasion
+*   `type="deferred"` – count of deliveries waiting to be delivered on some later time
 
 ##### zonemta_blacklisted
 
@@ -581,7 +581,7 @@ This is mostly needed if you want to allow large SMTP envelopes on submission (e
 
 ### DNS
 
-For speedier DNS resolving there are two options. First (the default) is to cache DNS responses by ZoneMTA in memory using the [dnscache](https://www.npmjs.com/package/dnscache) module. For better performance it would probably be better to use a dedicated DNS server, mostly because DNS caching is hard and it is better to leave it to software that is built for this.
+For speedier DNS resolving there are two options. First (the default) is to cache DNS responses by ZoneMTA in Redis using the [dnscache](https://www.npmjs.com/package/dnscache) module. For better performance it would probably be better to use a dedicated DNS server, mostly because DNS caching is hard and it is better to leave it to software that is built for this.
 
 [dnsmasq](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html) on localhost has worked great for us. The dns options for ZoneMTA would look like this if you are using local DNS cache like dnsmasq or similar:
 

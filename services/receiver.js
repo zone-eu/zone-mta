@@ -8,7 +8,6 @@ const log = require('npmlog');
 const crypto = require('crypto');
 
 log.level = config.log.level;
-require('../lib/logger');
 
 // initialize plugin system
 const plugins = require('../lib/plugins');
