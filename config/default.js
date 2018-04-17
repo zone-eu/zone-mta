@@ -345,6 +345,16 @@ module.exports = {
             // connections against a domain then each of these seems to originate
             // from a different IP address (assuming you can locally bind to these addresses)
             pool: 'default'
+
+            // Use next MTA instead of actual MX
+            /*
+            host: 'smtp.ethereal.email',
+            port: 587,
+            auth: {
+                user: 'jzzluvyzi6hdb5r3@ethereal.email',
+                pass: 'k6XGxbJc5h4Ny7PgtN'
+            }
+            */
         },
 
         // Sending Zone for sending bounce messages
