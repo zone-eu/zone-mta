@@ -172,6 +172,10 @@
 # 450 Requested action not taken:c1mx2, IwENCgC3+s5MYEpYXlIcAA--.4588S3, dnsbl.sorbs.net, please try again
 ^450[ \-]+Requested action not taken.*dnsbl,defer,blacklist,Sender IP blacklisted
 
+# Who knows what server this is
+# 553 5.3.0 flph825 DNSBL:ATTRBL 521< 1.2.3.4 >_is_blocked.For assistance forward this email to abuse@example.com
+^553[ \-]+5\.3\.0[ \-]+.*DNSBL:ATTRBL 5\d\d,defer,blacklist,Sender IP blacklisted
+
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
 ^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
