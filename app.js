@@ -121,15 +121,17 @@ startSMTPInterfaces(err => {
 
                 apiServer.setQueue(queue);
                 queueServer.setQueue(queue);
-                sendingZone.init(queue);
 
-                // spawn SMTP servers
-                smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
+                // spawn sending zones
+                sendingZone.init(queue, () => {
+                    // spawn SMTP server interfaces
+                    smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
 
-                plugins.handler.queue = queue;
-                plugins.handler.apiServer = apiServer;
-                plugins.handler.load(() => {
-                    log.info('Plugins', 'Plugins loaded');
+                    plugins.handler.queue = queue;
+                    plugins.handler.apiServer = apiServer;
+                    plugins.handler.load(() => {
+                        log.verbose('Plugins', 'Plugins loaded');
+                    });
                 });
             });
         });

@@ -14,7 +14,12 @@ module.exports = {
     dbs: {
         // database connection string
         mongo: 'mongodb://127.0.0.1:27017/zone-mta',
-        redis: 'redis://127.0.0.1:6379/3',
+        redis: {
+            host: '127.0.0.1',
+            port: 6379,
+            db: 3,
+            connectTimeout: 10000
+        },
         // optional database name if you want to use a different database than the connection string
         sender: 'zone-mta'
     },

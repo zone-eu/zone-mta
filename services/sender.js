@@ -117,7 +117,7 @@ queueClient.connect(err => {
         plugins.handler.queue = queue;
 
         plugins.handler.load(() => {
-            log.info(logName, '%s plugins loaded', plugins.handler.loaded.length);
+            log.verbose(logName, '%s plugins loaded', plugins.handler.loaded.length);
         });
 
         let zoneCounter = 0;
