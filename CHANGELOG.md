@@ -1,5 +1,9 @@
 # CHANGELOG
 
+*   v1.7.3 2018-04-28
+
+    *   Fixed race condition with Redis on large number of sending zone processes
+
 *   v1.7.0 2018-04-17
 
     *   Allow using SMTP [server options](https://nodemailer.com/extras/smtp-server/#step-3-create-smtpserver-instance) for SMTP interfaces
