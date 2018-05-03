@@ -47,7 +47,7 @@ module.exports = {
 
         // Make sure messages have all required headers like Date or Message-ID
         'core/default-headers': {
-            enabled: ['receiver', 'main', 'sender'],
+            enabled: ['*'],
 
             // which interfaces to allow using routing headers like X-Sending-Zone
             allowRoutingHeaders: ['api', 'bounce'],
