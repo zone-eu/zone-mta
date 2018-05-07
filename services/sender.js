@@ -173,5 +173,9 @@ queueClient.connect(err => {
 
             log.info(logName, '[%s] Configuration reloaded', clientId);
         });
+
+        setImmediate(() => {
+            process.send({ startup: true });
+        });
     });
 });

@@ -417,7 +417,7 @@ module.exports = {
 
     blacklist: {
         // when an IP is blacklisted then disable using this ip for a domain for the next ttl ms
-        // this is in memory only, so if you restart the server the blacklist gets cleared
+        // this is in memory only, so if you restart or reload the server the blacklist gets cleared
         ttl: 1 * 60 * 60 * 1000
     },
 

@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.7.7",
+    "version": "1.7.8",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -15,7 +15,7 @@
         "addressparser": "1.0.1",
         "crc-32": "1.2.0",
         "dnscache": "1.0.1",
-        "iconv-lite": "0.4.21",
+        "iconv-lite": "0.4.22",
         "ioredis": "3.2.2",
         "ipaddr.js": "1.7.0",
         "isemail": "3.1.2",
@@ -29,7 +29,7 @@
         "npmlog": "4.1.2",
         "prom-client": "11.0.0",
         "request": "2.85.0",
-        "restify": "6.3.4",
+        "restify": "7.1.1",
         "seq-index": "1.1.0",
         "smtp-server": "3.4.4",
         "srs.js": "0.1.0",

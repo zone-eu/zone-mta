@@ -127,6 +127,11 @@ queueClient.connect(err => {
 // start accepting sockets
 process.on('message', (m, socket) => {
     if (m === 'socket') {
+        if (!socket) {
+            log.verbose('SMTP/' + currentInterface + '/' + process.pid, 'Null Socket');
+            return;
+        }
+
         if (!smtpServer || !smtpServer.server) {
             let tryCount = 0;
             let nextTry = () => {
