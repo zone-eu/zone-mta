@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.7.8",
+    "version": "1.7.9",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
