@@ -1,5 +1,9 @@
 # CHANGELOG
 
+*   v1.8.0 2018-05-17
+
+*   Offload TCP connections for MX to mx-connect module
+
 *   v1.7.3 2018-04-28
 
     *   Fixed race condition with Redis on large number of sending zone processes

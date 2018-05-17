@@ -79,9 +79,6 @@ module.exports = {
             maxRecipients: 100
         },
 
-        // Check if recipient MX exists when RCPT TO command is called
-        'core/rcpt-mx': false, // 'receiver'
-
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
             enabled: false, // ['receiver', 'main', 'sender'], // spam is checked in 'receiver' context, headers are added in 'sender' context
