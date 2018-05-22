@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.8.0",
+    "version": "1.8.1",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -28,7 +28,7 @@
         "nodemailer": "4.6.4",
         "npmlog": "4.1.2",
         "prom-client": "11.0.0",
-        "request": "2.86.0",
+        "request": "2.87.0",
         "restify": "7.2.0",
         "seq-index": "1.1.0",
         "smtp-server": "3.4.4",
@@ -40,7 +40,7 @@
         "eslint": "^4.19.1",
         "grunt": "^1.0.2",
         "grunt-cli": "^1.2.0",
-        "grunt-contrib-nodeunit": "^1.0.0",
+        "grunt-contrib-nodeunit": "^2.0.0",
         "grunt-eslint": "^20.1.0",
         "moment": "^2.22.1",
         "random-message": "^1.1.0",
