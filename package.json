@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "1.8.4",
+    "version": "1.8.5",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -24,7 +24,7 @@
         "minimist": "1.2.0",
         "mongodb": "3.1.0-beta4",
         "msgpack-js": "0.3.0",
-        "mx-connect": "1.0.2",
+        "mx-connect": "1.0.5",
         "nodemailer": "4.6.5",
         "npmlog": "4.1.2",
         "prom-client": "11.0.0",

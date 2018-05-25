@@ -27,9 +27,9 @@ module.exports.init = function(app, done) {
             privateKey: privKey
         });
 
-        if (app.config.signTransportDomain && !delivery.dkim.keys.find(key => key.domainName === delivery.zoneAddress.name)) {
+        if (delivery.localHostname && app.config.signTransportDomain && !delivery.dkim.keys.find(key => key.domainName === delivery.localHostname)) {
             delivery.dkim.keys.push({
-                domainName: delivery.zoneAddress.name,
+                domainName: delivery.localHostname,
                 keySelector: app.config.selector,
                 privateKey: privKey
             });
