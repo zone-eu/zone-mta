@@ -122,11 +122,11 @@ startSMTPInterfaces(err => {
                 apiServer.setQueue(queue);
                 queueServer.setQueue(queue);
 
+                // spawn SMTP server interfaces
+                smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
+
                 // spawn sending zones
                 sendingZone.init(queue, () => {
-                    // spawn SMTP server interfaces
-                    smtpInterfaces.forEach(smtp => smtp.spawnReceiver());
-
                     plugins.handler.queue = queue;
                     plugins.handler.apiServer = apiServer;
                     plugins.handler.load(() => {
