@@ -1,5 +1,9 @@
 # CHANGELOG
 
+*   v1.8.4 2018-05-25
+
+    *   Fixed `host` option for zones
+
 *   v1.8.1 2018-05-22
 
     *   Use delivery object for the connect hook argument
