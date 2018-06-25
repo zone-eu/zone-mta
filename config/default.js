@@ -79,6 +79,15 @@ module.exports = {
             maxRecipients: 100
         },
 
+        // If enabled then checks message against a ClamD server
+        'core/clamav': {
+            enabled: false, // 'receiver',
+            port: 3310,
+            host: '127.0.0.1',
+            interfaces: ['feeder'], // use ['*'] to scan messages from all interfaces
+            ignoreOrigins: [] // a list of source IP addresses to ignore virus results for
+        },
+
         // If enabled then checks message against a Rspamd server
         'core/rspamd': {
             enabled: false, // ['receiver', 'main', 'sender'], // spam is checked in 'receiver' context, headers are added in 'sender' context
