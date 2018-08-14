@@ -24,6 +24,10 @@
 # 550 5.7.1 11.22.33.44 has been blocked by zen.spamhaus.org
 ^550[ \-]+5\.7\.1\s+[\d\.]+ has been blocked,defer,blacklist,Sender IP blacklisted
 
+# 554 5.7.1 Service unavailable; Client host [1.2.3.4] blocked using ee.countries.nerd.dk; Your IP is in ee, rejected based on geographical location
+# Should it reject immediatelly, as in most cases we have addresses from the same region?
+^554[ \-]+5\.7\.1\s+.*rejected based on geographical location,defer,blacklist,Sender IP blacklisted by region
+
 # 550 5.7.1 :127.0.0.4:Client host 11.22.33.44 blocked using 87.blocklist.zap; Mail from IP banned. To request removal from this list please visit http://www.spamhaus.org/query/bl?ip=$
 454 4.7.1 Service unavailable; Client host [1.2.3.4] blocked using dnsbl.sorbs.net; Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4
 ^[45]\d\d[ \-]+[45]\.7\.1\s+.*Client host \[?[\d\.]+\]? blocked using,defer,blacklist,Sender IP blacklisted
