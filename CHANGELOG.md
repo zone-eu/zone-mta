@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.10.2 2018-08-16
+
+    -   Fixed broken relay
+
 -   v1.10.0 2018-07-30
 
     -   Bumped dependencies. Upgraded MongoDB driver to 3.1.
