@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.10.4 2018-08-22
+
+    -   Fixed an issue with MX connection timeouts where a working MX exisits but never was tried
+
 -   v1.10.2 2018-08-16
 
     -   Fixed broken relay
