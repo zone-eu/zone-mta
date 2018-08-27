@@ -150,6 +150,7 @@ process.on('message', (m, socket) => {
             };
             return setTimeout(nextTry, 100).unref();
         }
+
         smtpServer.server.connect(socket);
     }
 });

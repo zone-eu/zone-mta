@@ -1,0 +1,6 @@
+{
+    "rules": {
+        "indent": 0
+    },
+    "extends": ["nodemailer", "prettier"]
+}
