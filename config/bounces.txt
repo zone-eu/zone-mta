@@ -64,7 +64,7 @@
 # 554 5.7.1 Service unavailable; Client host [mail.example.com] blocked using multi.uribl.com; 127.0.0.1 -> Query Refused. See http://uribl.com/refused.shtml for more information [Your DNS IP: 1.2.3.4]
 # 554 5.7.1 Service unavailable; Sender address [user@example.com] blocked using dbl.spamhaus.org; https://www.spamhaus.org/query/domain/example.com
 # This is URIBL, so no point retrying as the message still includes spammy URL
-^554[ \-]+5\.7\.1\s+.*(uribl.com|dbl.spamhaus),reject,spam,Spammy URL in message
+^554[ \-]+5\.7\.1\s+.*(uribl\.com| dbl\.),reject,spam,Spammy URL in message
 
 # Postfix default: $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using $rbl_domain${rbl_reason?; $rbl_reason}
 # 550 5.7.1 Service unavailable; client [11.22.33.44] blocked using spamhaus.org
