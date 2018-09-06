@@ -231,7 +231,7 @@ module.exports = {
     dns: {
         // Cache lookup results in Redis. Set to false if using default DNS server
         caching: true,
-        cahceTTL: 600, // ttl of cached dns keys in seconds (only applies if caching:true)
+        cacheTTL: 600, // ttl of cached dns keys in seconds (only applies if caching:true)
 
         // Sets DNS servers to use for resolving MX/A/AAAA records. If not set
         // then default nameservers are used. IP addresses only!
