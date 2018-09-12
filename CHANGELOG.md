@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.10.8 2018-09-12
+
+    -   Fixed issue with missing CA certs
+
 -   v1.10.4 2018-08-22
 
     -   Fixed an issue with MX connection timeouts where a working MX exisits but never was tried
