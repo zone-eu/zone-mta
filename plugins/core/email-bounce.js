@@ -82,6 +82,11 @@ Status: 5.0.0
 
     // Send bounce notification to the MAIL FROM email
     app.addHook('queue:bounce', (bounce, maildrop, next) => {
+        if ((app.config.disableInterfaces || []).includes(bounce.interface)) {
+            // bounces are disabled for messages from this interface (eg. forwarded messages)
+            return next();
+        }
+
         if (!bounce.from) {
             // nowhere to send the bounce to
             return next();

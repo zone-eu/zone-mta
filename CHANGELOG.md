@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v11.11.0 2018-09-14
+
+    -   Allow disabled bounce emails for messages from specific interfaces
+
 -   v1.10.8 2018-09-12
 
     -   Fixed issue with missing CA certs

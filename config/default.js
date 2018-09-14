@@ -121,6 +121,7 @@ module.exports = {
                 // [HOSTNAME] will be replaced with the hostname that was used to send this message
                 address: 'mailer-daemon@[HOSTNAME]'
             },
+            disableInterfaces: ['forwarder'], // do not bounce messages from this interface
             sendingZone: 'bounces',
             zoneConfig: {
                 // specify zone specific bounce options
