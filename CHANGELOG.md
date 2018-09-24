@@ -1,6 +1,10 @@
 # CHANGELOG
 
--   v11.11.0 2018-09-14
+-   v1.12.0 2018-09-24
+
+    -   Allow overrideing database entry keys for deferred messages using `delivery.updates = {keys}`
+
+-   v1.11.0 2018-09-14
 
     -   Allow disabled bounce emails for messages from specific interfaces
 
