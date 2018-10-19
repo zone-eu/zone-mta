@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.12.1 2018-10-19
+
+    -   Log connection errors to MX servers
+
 -   v1.12.0 2018-09-24
 
     -   Allow overrideing database entry keys for deferred messages using `delivery.updates = {keys}`
