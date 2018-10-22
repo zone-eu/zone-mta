@@ -212,8 +212,9 @@
 
 # Yahoo error messages
 # https://help.yahoo.com/kb/SLN23996.html
-^421[ \-]+4\.7\.0 \[TS0[12]\],reject,spam,Users complain about spam from this sender
-^421[ \-]+4\.7\.0 \[TS03\],defer,blacklist,Sender IP blocked
+# https://help.yahoo.com/kb/postmaster/SLN3434.html
+^421[ \-]+4\.7\.0,defer,spam,Unusual traffic or users complain about spam from this sender
+^421[ \-]+4\.7\.1,reject,blacklist,Sender IP blocked
 ^451[ \-]+VS1\-IP\b,reject,block,Sender is open relay
 ^451[ \-]+VS1\-MF\b,reject,spam,From address is spammer
 ^553[ \-]+5\.7\.1 \[BL,defer,blacklist,Blacklisted by Spamhaus
