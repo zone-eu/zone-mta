@@ -278,7 +278,17 @@ module.exports = {
         level: 'info',
         // set to true to see outgoing SMTP transaction log
         queue: false,
-        remote: false
+        remote: false,
+
+        gelf: {
+            enabled: false,
+            component: 'mta',
+            options: {
+                graylogPort: 12201,
+                graylogHostname: '127.0.0.1',
+                connection: 'lan'
+            }
+        }
         /*
         // emit structured log information over UDP, this can be used by ZMTA Webadmin
         remote: {

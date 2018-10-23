@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.13.0 2018-10-23
+
+    -   Added option for plugins to send messages to Graylog
+
 -   v1.12.1 2018-10-19
 
     -   Log connection errors to MX servers
