@@ -213,6 +213,8 @@
 # Yahoo error messages
 # https://help.yahoo.com/kb/SLN23996.html
 # https://help.yahoo.com/kb/postmaster/SLN3434.html
+# Yahoo IPTS04 has no 421 (Postfix shows it as non ESMTP error)
+IPTS04,defer,spam,temporarily deferred due to user complaints
 ^421[ \-]+4\.7\.0,defer,spam,Unusual traffic or users complain about spam from this sender
 ^421[ \-]+4\.7\.1,reject,blacklist,Sender IP blocked
 ^451[ \-]+VS1\-IP\b,reject,block,Sender is open relay
