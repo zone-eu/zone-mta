@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.14.0 2019-01-04
+
+    -   Fixed useProxy setting
+
 -   v1.13.0 2018-10-23
 
     -   Added option for plugins to send messages to Graylog
@@ -55,7 +59,7 @@
 -   v1.6.0 2018-02-08
 
     -   Changed index handling. Indexes are defined in indexes.yaml instead of being hard coded to mail-queue.js
-    -   Do not search using $ne, instead a separate index was added
+    -   Do not search using \$ne, instead a separate index was added
 
 ---
 

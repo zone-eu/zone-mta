@@ -182,6 +182,9 @@ module.exports = {
         feeder: {
             enabled: true,
 
+            // should it use HAProxy PROXY protocol?
+            useProxy: false,
+
             port: 2525,
 
             // how many processes to spawn

@@ -132,11 +132,22 @@ process.on('message', (m, socket) => {
             return;
         }
 
+        let passSocket = () =>
+            smtpServer.server._handleProxy(socket, (err, socketOptions) => {
+                if (err) {
+                    return socket.end('421 Unexpected error\r\n');
+                }
+                smtpServer.server.connect(
+                    socket,
+                    socketOptions
+                );
+            });
+
         if (!smtpServer || !smtpServer.server) {
             let tryCount = 0;
             let nextTry = () => {
                 if (smtpServer && smtpServer.server) {
-                    return smtpServer.server.connect(socket);
+                    return passSocket();
                 }
                 if (tryCount++ > 5) {
                     try {
@@ -151,6 +162,6 @@ process.on('message', (m, socket) => {
             return setTimeout(nextTry, 100).unref();
         }
 
-        smtpServer.server.connect(socket);
+        return passSocket();
     }
 });
