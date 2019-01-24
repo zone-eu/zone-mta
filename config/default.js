@@ -215,12 +215,12 @@ module.exports = {
 
             starttls: false, // set to true to enable STARTTLS (port 587)
             secure: false // set to true to start in TLS mode (port 465)
-            /*
+
             // define keys for STARTTLS/TLS
+            /*
             key: './keys/private.key',
             cert: './keys/server.crt'
             */
-
             /*
                 // Additionally you can use the options listed in SMTPServer docs:
                 // https://nodemailer.com/extras/smtp-server/#step-3-create-smtpserver-instance

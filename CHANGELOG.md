@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.15.0 2019-01-24
+
+    -   Fixed broken TLS support on connection
+
 -   v1.14.0 2019-01-04
 
     -   Fixed useProxy setting

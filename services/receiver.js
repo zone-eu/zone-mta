@@ -133,10 +133,7 @@ process.on('message', (m, socket) => {
         }
 
         let passSocket = () =>
-            smtpServer.server._handleProxy(socket, (err, socketOptions) => {
-                if (err) {
-                    return socket.end('421 Unexpected error\r\n');
-                }
+            smtpServer.server._handleProxy(socket, (proxyErr, socketOptions) => {
                 smtpServer.server.connect(
                     socket,
                     socketOptions

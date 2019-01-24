@@ -4,6 +4,8 @@ npm-debug.log
 data/
 .lev_history
 keys/*.pem
+keys/*.crt
+keys/*.key
 test/queuetest
 config/production.*
 config/development.*
