@@ -35,7 +35,7 @@
         "smtp-server": "3.5.0",
         "srs.js": "0.1.0",
         "uuid": "3.3.2",
-        "wild-config": "1.3.6"
+        "wild-config": "1.4.0"
     },
     "devDependencies": {
         "ajv": "6.7.0",
