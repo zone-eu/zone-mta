@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.15.4 2019-02-20
+
+    -   Fixed a typo in blacklist detection patterns
+
 -   v1.15.0 2019-01-24
 
     -   Fixed broken TLS support on connection
