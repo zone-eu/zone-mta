@@ -292,6 +292,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # 550 The sending IP (1.2.3.4) is listed on https://spamrl.com/. Please resolve this and retry.
 ^550[ \-]The sending IP \([\d\.]+\) is listed,defer,blacklist,Sender IP blacklisted
 
+# 550 5.7.1 1.2.3.4 listed at dnsbl.cobion.com
+^550[ \-]+5\.7\.1\s+[\d\.]+ listed at,defer,blacklist,Sender IP blacklisted
+
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
 ^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
 ^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
