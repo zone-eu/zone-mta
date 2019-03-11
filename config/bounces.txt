@@ -158,6 +158,9 @@
 # 550 Rejected due to DNSBL server response (dnsbl.cobion.com - 1.2.3.4)
 ^550[ \-]+Rejected due to DNSBL,defer,blacklist,Sender IP blacklisted
 
+# 550 Service unavailable; Client Host [1.2.3.4] blocked using Trend Micro RBL+. Please see http://www.mail-abuse.com/cgi-bin/lookup?ip_address=1.2.3.4
+^550[ \-]+.*blocked using Trend Micro RBL,defer,blacklist,Sender IP blacklisted
+
 # 550 5.7.1 --- SAATKE SEE TEADE OMA IT-MEHELE! --- TEIE server 1.2.3.4 on BLACKLISTIS dnsbl.sorbs.net, Sorbs blokeeris kirja! YOUR server 1.2.3.4 is in the blacklist dnsbl.sorbs.net, your message was blocked by Sorbs! Check http://www.robtex.com/ip/1.2.3.4.html#blacklists
 ^550[ \-]+5\.7\.1\s+.*YOUR server \[?[\d\.]+\]? is in the blacklist,defer,blacklist,Sender IP blacklisted
 
