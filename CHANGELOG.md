@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.15.5 2019-03-18
+
+    -   Added new headers to DKIM list
+
 -   v1.15.4 2019-02-20
 
     -   Fixed a typo in blacklist detection patterns
