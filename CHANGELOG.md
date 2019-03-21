@@ -1,5 +1,10 @@
 # CHANGELOG
 
+-   v1.15.6 2019-03-21
+
+    -   Reverted Restify from 8 to 7 as 8 does not support Node v6
+    -   Convert line endings for incoming messages to always use 0x0D 0x0A, otherwise DKIM might get messed up
+
 -   v1.15.5 2019-03-18
 
     -   Added new headers to DKIM list
