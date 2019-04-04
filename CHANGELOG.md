@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.16.0 2019-04-04
+
+    -   Added new hook "sender:delivered"
+
 -   v1.15.6 2019-03-21
 
     -   Reverted Restify from 8 to 7 as 8 does not support Node v6
