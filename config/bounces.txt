@@ -185,6 +185,10 @@
 # 450 Requested action not taken:c1mx2, IwENCgC3+s5MYEpYXlIcAA--.4588S3, dnsbl.sorbs.net, please try again
 ^450[ \-]+Requested action not taken.*dnsbl,defer,blacklist,Sender IP blacklisted
 
+# 550-"JunkMail rejected - [hostname] [1.2.3.4]:39153 is in an RBL on csi.cloudmark.com/reset-request/?ip=1.2.3.4 , see Poor Reputation Sender"
+# 554 *.terra.com cmsmtp 5.7.1 Service unavailable; Client host [1.2.3.4] blocked using cm-csi-v11; Cloudmark Poor Reputation Sender Blacklist http://csi.cloudmark.com/reset-request/?ip=1.2.3.4
+^5\d\d.*csi\.cloudmark\.com,defer,blacklist,Sender IP blacklisted
+
 # Who knows what server this is (edit: it's AT&T)
 #   https://www.pinpointe.com/blog/how-to-check-att-blacklist-request-ip-removal
 # 553 5.3.0 flph825 DNSBL:ATTRBL 521< 1.2.3.4 >_is_blocked.For assistance forward this email to abuse@example.com
