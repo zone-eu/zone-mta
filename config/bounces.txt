@@ -189,6 +189,9 @@
 # 554 *.terra.com cmsmtp 5.7.1 Service unavailable; Client host [1.2.3.4] blocked using cm-csi-v11; Cloudmark Poor Reputation Sender Blacklist http://csi.cloudmark.com/reset-request/?ip=1.2.3.4
 ^5\d\d.*csi\.cloudmark\.com,defer,blacklist,Sender IP blacklisted
 
+# 554 5.5.4 Your IP 1.2.3.4 address has a bad reputation. To unblock visit http://cloud-security.net/unblock?{query-string}
+^554.*bad reputation.*cloud\-security\.net,defer,blacklist,Sender IP blacklisted
+
 # Who knows what server this is (edit: it's AT&T)
 #   https://www.pinpointe.com/blog/how-to-check-att-blacklist-request-ip-removal
 # 553 5.3.0 flph825 DNSBL:ATTRBL 521< 1.2.3.4 >_is_blocked.For assistance forward this email to abuse@example.com
