@@ -30,7 +30,7 @@
         "npmlog": "4.1.2",
         "prom-client": "11.5.0",
         "request": "2.88.0",
-        "restify": "8.3.3",
+        "restify": "7.7.0",
         "seq-index": "1.1.0",
         "smtp-server": "3.5.0",
         "srs.js": "0.1.0",
