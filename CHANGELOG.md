@@ -1,5 +1,10 @@
 # CHANGELOG
 
+-   v1.16.1 2019-06-10
+
+    -   Bumped dependencies to get rid of security warnings
+    -   Some new blacklist filters
+
 -   v1.16.0 2019-04-04
 
     -   Added new hook "sender:delivered"
