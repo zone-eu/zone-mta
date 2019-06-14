@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v1.16.3 2019-06-14
+
+    -   Do not cache failed STARTTLS info, always try encryption first
+
 -   v1.16.1 2019-06-10
 
     -   Bumped dependencies to get rid of security warnings
