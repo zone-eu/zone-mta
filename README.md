@@ -42,6 +42,8 @@ Fetch the ZoneMTA application template
 ```
 $ git clone git://github.com/zone-eu/zone-mta-template.git
 $ cd zone-mta-template
+$ npm install eslint --save-dev
+$ npm init
 $ npm install --production
 $ npm start
 ```
