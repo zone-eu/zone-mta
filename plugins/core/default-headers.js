@@ -8,9 +8,14 @@ const hostname = os.hostname();
 
 module.exports.title = 'Default headers';
 module.exports.init = function(app, done) {
-    const addMissing = [].concat(app.config.addMissing || []).map(key => (key || '').toString().toLowerCase().trim());
+    const addMissing = [].concat(app.config.addMissing || []).map(key =>
+        (key || '')
+            .toString()
+            .toLowerCase()
+            .trim()
+    );
 
-    // Endusre default headers like Date, Message-ID etc
+    // Ensure default headers like Date, Message-ID etc
     app.addHook('message:headers', (envelope, messageInfo, next) => {
         // Fetch sender and receiver addresses
         envelope.parsedEnvelope = {
@@ -24,7 +29,10 @@ module.exports.init = function(app, done) {
 
         if (envelope.envelopeFromHeader) {
             envelope.from = envelope.parsedEnvelope.from || envelope.parsedEnvelope.sender || '';
-            envelope.to = [].concat(envelope.parsedEnvelope.to || []).concat(envelope.parsedEnvelope.cc || []).concat(envelope.parsedEnvelope.bcc || []);
+            envelope.to = []
+                .concat(envelope.parsedEnvelope.to || [])
+                .concat(envelope.parsedEnvelope.cc || [])
+                .concat(envelope.parsedEnvelope.bcc || []);
         }
 
         // Check Message-ID: value. Add if missing

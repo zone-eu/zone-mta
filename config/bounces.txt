@@ -215,7 +215,7 @@
 ^550[ \-]+SC\-003,reject,block,Sender is open relay
 ^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
 
-^550[ \-]5\.4\.1.*Recipient address rejected: Access denied \[.*\.prod\.protection\.outlook\.com\],reject,recipient,Recipient blocked IP
+^550[ \-]5\.4\.1.*Recipient address rejected: Access denied \[.*\.prod\.protection\.outlook\.com\],reject,recipient,Unknown user
 
 # 550 5.7.606 Access denied, banned sending IP [1.2.3.4]. To request removal from this list please visit https://sender.office.com/ and follow the directions. For more information please go to http://go.microsoft.com/fwlink/?LinkID=526655 (AS16012609) [DB5EUR01FT031.eop-EUR01.prod.protection.outlook.com]
 ^550[ \-]5\.7\.606 Access denied. banned sending IP,defer,blacklist,Sender IP blocked
@@ -289,6 +289,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^451[ \-]+4\.7\.1\s+.*service is currently unavailable,defer,capacity,Server currently not available
 
 # Other servers
+
+# 550 csi.mimecast.org Poor Reputation Sender. - https://community.mimecast.com/docs/DOC-1369#550 [vH7Ns8biNg-p6EfZ0QaVMQ.us149]
+^55[40][ \-].*Poor Reputation Sender,defer,blacklist,Sender IP blacklisted
 
 # 550 Too many invalid recipients
 # Happens when a server starts blocking an IP after too many invalid RCPT TO calls were made
