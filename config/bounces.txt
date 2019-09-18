@@ -290,6 +290,10 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 
 # Other servers
 
+# Barracuda
+# 550 permanent failure for one or more recipients (user@example.com:blocked)
+^550[ \-]+permanent failure.*:blocked,defer,blacklist,Sender IP blacklisted
+
 # 550 csi.mimecast.org Poor Reputation Sender. - https://community.mimecast.com/docs/DOC-1369#550 [vH7Ns8biNg-p6EfZ0QaVMQ.us149]
 ^55[40][ \-].*Poor Reputation Sender,defer,blacklist,Sender IP blacklisted
 
