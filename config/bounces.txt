@@ -195,7 +195,8 @@
 # Who knows what server this is (edit: it's AT&T)
 #   https://www.pinpointe.com/blog/how-to-check-att-blacklist-request-ip-removal
 # 553 5.3.0 flph825 DNSBL:ATTRBL 521< 1.2.3.4 >_is_blocked.For assistance forward this email to abuse@example.com
-^553[ \-]+5\.3\.0[ \-]+.*DNSBL:ATTRBL 5\d\d,defer,blacklist,Sender IP blacklisted
+# 553 5.3.0 flpd594 DNSBL:RBL 521< 1.2.3.4 >_is_blocked.For assistance forward this email to abuse_rbl@abuse-att.net
+^553[ \-]+5\.3\.0[ \-]+.*DNSBL:(ATT)?RBL 5\d\d,defer,blacklist,Sender IP blacklisted
 
 # 554-mx.example.com Your access to this mail system has been rejected due to the sending MTA's poor reputation. If you believe that this failure is in error, please contact the intended recipient
 ^554[ \-].*Your access to this mail system has been rejected due to the sending MTA's poor reputation,defer,blacklist,Sender IP blacklisted
