@@ -260,7 +260,7 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # Gmail error messages
 # https://support.google.com/a/answer/3726730?hl=en
 ^421[ \-]+4\.7\.0\s+.*IP not in whitelist,reject,block,Sender IP blocked
-^421[ \-]+4\.7\.0\s+.*unsolicited mail originating,reject,spam,Sender IP blocked for Spam
+^421[ \-]+4\.7\.0\s+.*unsolicited mail originating,reject,block,Sender IP blocked for Spam
 ^421[ \-]+4\.7\.0\s+.*unsolicited mail,defer,spam,Spam detected
 ^421[ \-]+4\.7\.0\s+.*message has been blocked,reject,spam,Spam detected
 ^421[ \-]+4\.7\.0\s+.*TLS required,defer,config,TLS required
