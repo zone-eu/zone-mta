@@ -28,6 +28,9 @@
 # Should it reject immediatelly, as in most cases we have addresses from the same region?
 ^554[ \-]+5\.7\.1\s+.*rejected based on geographical location,defer,blacklist,Sender IP blacklisted by region
 
+# 421 4.7.1 Service unavailable; Client host [1.2.3.4] blocked using grey.rbl - Rechazo temporal, intentelo mas tarde por favor...Greylisting in action, please try again later
+^[45]\d\d[ \-]+[45]\.7\.1\s+.*Client host \[?[\d\.]+\]? blocked using grey.rbl,defer,greylist,Message temporarily Greylisted
+
 # 550 5.7.1 :127.0.0.4:Client host 11.22.33.44 blocked using 87.blocklist.zap; Mail from IP banned. To request removal from this list please visit http://www.spamhaus.org/query/bl?ip=$
 454 4.7.1 Service unavailable; Client host [1.2.3.4] blocked using dnsbl.sorbs.net; Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4
 ^[45]\d\d[ \-]+[45]\.7\.1\s+.*Client host \[?[\d\.]+\]? blocked using,defer,blacklist,Sender IP blacklisted
@@ -227,7 +230,7 @@
 # https://help.yahoo.com/kb/postmaster/SLN3434.html
 # Yahoo IPTS04 has no 421 (Postfix shows it as non ESMTP error)
 IPTS04,defer,spam,temporarily deferred due to user complaints
-^421[ \-]+4\.7\.0,defer,spam,Unusual traffic or users complain about spam from this sender
+^421[ \-]+4\.7\.0 \[.*\] Messages from,defer,spam,Unusual traffic or users complain about spam from this sender
 ^421[ \-]+4\.7\.1,reject,blacklist,Sender IP blocked
 ^451[ \-]+VS1\-IP\b,reject,block,Sender is open relay
 ^451[ \-]+VS1\-MF\b,reject,spam,From address is spammer
@@ -258,6 +261,7 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # Gmail error messages
 # https://support.google.com/a/answer/3726730?hl=en
 ^421[ \-]+4\.7\.0\s+.*IP not in whitelist,reject,block,Sender IP blocked
+^421[ \-]+4\.7\.0\s+.*unsolicited mail originating,defer,block,Sender IP blocked for Spam
 ^421[ \-]+4\.7\.0\s+.*unsolicited mail,defer,spam,Spam detected
 ^421[ \-]+4\.7\.0\s+.*message has been blocked,reject,spam,Spam detected
 ^421[ \-]+4\.7\.0\s+.*TLS required,defer,config,TLS required
