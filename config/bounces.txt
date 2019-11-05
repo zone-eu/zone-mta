@@ -219,6 +219,9 @@
 ^550[ \-]+SC\-003,reject,block,Sender is open relay
 ^550[ \-]+SC\-004,reject,spam,Sender IP listed as spammer
 
+# 550 5.7.1 Unfortunately, messages from [1.2.3.4] weren't sent. Please contact your Internet service provider since part of their network is on our block list (S3150). You can also refer
+^550[ \-]5\.7\.\d+.*block list,defer,blacklist,Sender IP blocked
+
 ^550[ \-]5\.4\.1.*Recipient address rejected: Access denied \[.*\.prod\.protection\.outlook\.com\],reject,recipient,Unknown user
 
 # 550 5.7.606 Access denied, banned sending IP [1.2.3.4]. To request removal from this list please visit https://sender.office.com/ and follow the directions. For more information please go to http://go.microsoft.com/fwlink/?LinkID=526655 (AS16012609) [DB5EUR01FT031.eop-EUR01.prod.protection.outlook.com]
