@@ -98,6 +98,7 @@ To use these hooks you need to set `enabled` `'main'` or `['main',...]`
 
 To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['receiver',...]`
 
+-   **'smtp:connect'** with argument ` session`, called when the client connects to the interface
 -   **'smtp:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
 -   **'smtp:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
 -   **'smtp:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
