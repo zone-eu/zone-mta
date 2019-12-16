@@ -115,6 +115,25 @@ To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 -   **'sender:connect'** with arguments `delivery`, `options` called before connection is tried to open against the MX. If the options object includes a property socket after hook is finished, then this socket object is used to start the SMTP session
 -   **'sender:delivered'** with arguments `delivery`, `info` called after a message has been accepted by MX server
 
+### API
+
+Plugins can register their own API endpoints. To use these function you need to set `enabled` to `'main'` or `['main',...]`.
+You can still have hooks in an other context.
+
+Endpoints can be registered with following command:
+
+```javascript
+app.addAPI("GET", "/ping", (req, res, next) => {
+    res.end("my awesome plugin");
+    next();
+});
+```
+
+Parameters for the callback function are the one from `resitfy`. They are passed one on one to it.
+
+The plugin endpoints are reachable via `/plugin/<plugin key><path>`.
+E.g. `/plugin/awesome-plugin/test`
+
 ### Errors
 
 If you return an error with the smtp hook callback then the error message is returned to the client as the SMTP response. To set a specific return code to be returned, use `responseCode` property. Hook is processed until first error occurs.
