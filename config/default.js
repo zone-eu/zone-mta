@@ -172,7 +172,9 @@ module.exports = {
             // Selector value in the dkim signature
             selector: 'test',
             // Key location
-            path: '/path/to/private/key.pem'
+            path: '/path/to/private/key.pem',
+            // Headers to sign instead of default one
+            headerFields: []
         }
     },
 
