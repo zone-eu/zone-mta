@@ -378,9 +378,12 @@ module.exports = {
             // from a different IP address (assuming you can locally bind to these addresses)
             pool: 'default',
 
+            // Default connection cache settings
+            // Connections are cached per process.
+            // Connections are cached by 'Zone-Sending-IP' + 'To-Domain' + 'MX-Port'
             connectionCache: {
-                ttl: 5, // seconds
-                reuseCount: 100,
+                ttl: 5,             // how long should a connection kept open. Given in seconds
+                reuseCount: 100,    // how often should a connection be reused
             }
 
             // Use next MTA instead of actual MX
