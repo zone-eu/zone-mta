@@ -134,6 +134,8 @@ Parameters for the callback function are the one from `resitfy`. They are passed
 The plugin endpoints are reachable via `/plugin/<plugin key><path>`.
 E.g. `/plugin/awesome-plugin/test`
 
+For more information please see the [restify documentation](https://restify.com/docs/home/)
+
 ### Errors
 
 If you return an error with the smtp hook callback then the error message is returned to the client as the SMTP response. To set a specific return code to be returned, use `responseCode` property. Hook is processed until first error occurs.
