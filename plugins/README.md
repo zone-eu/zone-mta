@@ -223,6 +223,27 @@ app.addHook('sender:fetch', (delivery, next) => {
 -   **headers.update(key, value)** replaces a header value for the specified key
 -   **headers.delete(key)** remove header value for the specified key
 
+## HTTP API
+
+Plugins can register their own API endpoints. To use these function you need to set `enabled` to `'main'` or `['main',...]`.
+You can still have hooks in an other context.
+
+Endpoints can be registered with following command:
+
+```javascript
+app.addAPI("GET", "/ping", (req, res, next) => {
+    res.end("my awesome plugin");
+    next();
+});
+```
+
+Parameters for the callback function are the one from `resitfy`. They are passed one on one to it.
+
+The plugin endpoints are reachable via `/plugin/<plugin key><path>`.
+E.g. `/plugin/awesome-plugin/test`
+
+For more information please see the [restify documentation](http://restify.com/docs/home/)
+
 ## Using Message Analyzer
 
 If you want to check the original data stream coming from the input you can process it with the analyzer hook. You can modify the data inside the hook but this affects the next analyzers as these get their input from the output of your hook
@@ -264,27 +285,6 @@ module.exports.init = function(app, done) {
     done();
 };
 ```
-
-## HTTP API
-
-Plugins can register their own API endpoints. To use these function you need to set `enabled` to `'main'` or `['main',...]`.
-You can still have hooks in an other context.
-
-Endpoints can be registered with following command:
-
-```javascript
-app.addAPI("GET", "/ping", (req, res, next) => {
-    res.end("my awesome plugin");
-    next();
-});
-```
-
-Parameters for the callback function are the one from `resitfy`. They are passed one on one to it.
-
-The plugin endpoints are reachable via `/plugin/<plugin key><path>`.
-E.g. `/plugin/awesome-plugin/test`
-
-For more information please see the [restify documentation](http://restify.com/docs/home/)
 
 ## Using Message Rewriter
 
