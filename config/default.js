@@ -36,7 +36,10 @@ module.exports = {
         collection: 'zone-queue',
 
         // set to true if you do not want old data to be removed
-        disableGC: false
+        disableGC: false,
+
+        // default zone for any other mail not specified by zone
+        defaultZone: 'default'
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
