@@ -376,7 +376,12 @@ module.exports = {
             // For example, if you have 5 IP's listed and you open 5 parallel
             // connections against a domain then each of these seems to originate
             // from a different IP address (assuming you can locally bind to these addresses)
-            pool: 'default'
+            pool: 'default',
+
+            connectionCache: {
+                ttl: 5, // seconds
+                reuseCount: 100,
+            }
 
             // Use next MTA instead of actual MX
             /*
