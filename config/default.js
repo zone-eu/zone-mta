@@ -176,7 +176,7 @@ module.exports = {
             // Headers to sign instead of default one
             headerFields: [],
             // Adds additional header to sign beside to the default one
-            additionalHeaderField: []
+            additionalHeaderFields: []
         }
     },
 
