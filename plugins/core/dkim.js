@@ -20,18 +20,24 @@ module.exports.init = function(app, done) {
 
         let from = delivery.envelope.from || '';
         let fromDomain = from.substr(from.lastIndexOf('@') + 1).toLowerCase();
+        let headersToSign = app.config.headerFields.join(":") || '';
+        let additionalHeaderFields = app.config.additionalHeaderFields.join(":") || '';
 
         delivery.dkim.keys.push({
             domainName: app.config.domain || fromDomain,
             keySelector: app.config.selector,
-            privateKey: privKey
+            privateKey: privKey,
+            headerFieldNames: headersToSign,
+            additionalHeaderFieldNames: additionalHeaderFields,
         });
 
         if (options.localHostname && app.config.signTransportDomain && !delivery.dkim.keys.find(key => key.domainName === options.localHostname)) {
             delivery.dkim.keys.push({
                 domainName: options.localHostname,
                 keySelector: app.config.selector,
-                privateKey: privKey
+                privateKey: privKey,
+                headerFieldNames: headersToSign,
+                additionalHeaderFieldNames: additionalHeaderFields,
             });
         }
 

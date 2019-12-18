@@ -175,7 +175,11 @@ module.exports = {
             // Selector value in the dkim signature
             selector: 'test',
             // Key location
-            path: '/path/to/private/key.pem'
+            path: '/path/to/private/key.pem',
+            // Headers to sign instead of default one
+            headerFields: [],
+            // Adds additional header to sign beside to the default one
+            additionalHeaderFields: []
         }
     },
 
@@ -379,6 +383,7 @@ module.exports = {
             host: 'smtp.ethereal.email',
             port: 587,
             auth: {
+
                 user: 'jzzluvyzi6hdb5r3@ethereal.email',
                 pass: 'k6XGxbJc5h4Ny7PgtN'
             }
