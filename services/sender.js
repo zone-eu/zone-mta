@@ -131,7 +131,7 @@ queueClient.connect(err => {
             for (let i = 0; i < count; i++) {
                 // use artificial delay to lower the chance of races
                 setTimeout(() => {
-                    let sender = new Sender(clientId, ++zoneCounter, zone, sendCommand, queue);
+                    let sender = new Sender(clientId, ++zoneCounter, zone, sendCommand, queue, connectionPool);
                     senders.add(sender);
                     sender.once('error', err => {
                         log.info(logName, 'Sender error. %s', err.message);
