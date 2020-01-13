@@ -228,7 +228,8 @@ app.addHook('sender:fetch', (delivery, next) => {
 ## HTTP API
 
 Plugins can register their own API endpoints. To use these function you need to set `enabled` to `'main'` or `['main',...]`.
-You can still have hooks in an other context.
+You can still have hooks in an other context. **Please keep in mind that data can NOT be shared directly**
+There is no direct way to share data between "main", "sender" and "receiver" context.
 
 Endpoints can be registered with following command:
 
