@@ -1,5 +1,16 @@
 # CHANGELOG
 
+-   v1.17.0 2019-06-14
+
+    -   Fixed O365 bounce msg. (jpbede)
+    -   Make plugin api doc clear (jpbede)
+    -   Plugin HTTP API (jpbede)
+    -   DKIM: Configurable headers to sign (jpbede)
+    -   Make default zone configurable (jpbede)
+    -   Added new hook "smtp:connect" (jpbede)
+    -   added new outlook blacklist response
+    -   Add gmail block and odd greylist bounces (louis-lau)'
+
 -   v1.16.3 2019-06-14
 
     -   Do not cache failed STARTTLS info, always try encryption first
