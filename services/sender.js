@@ -19,6 +19,7 @@ const crypto = require('crypto');
 const QueueClient = require('../lib/transport/client');
 const queueClient = new QueueClient(config.queueServer);
 const RemoteQueue = require('../lib/remote-queue');
+const ConnectionPool = require('../lib/connection-pool');
 
 const senders = new Set();
 
@@ -31,6 +32,8 @@ let zone;
 // Read command line arguments
 let currentZone = argv.senderName;
 let clientId = argv.senderId || crypto.randomBytes(10).toString('hex');
+
+const connectionPool = new ConnectionPool();
 
 // Find and setup correct Sending Zone
 Object.keys(config.zones || {}).find(zoneName => {
@@ -128,7 +131,7 @@ queueClient.connect(err => {
             for (let i = 0; i < count; i++) {
                 // use artificial delay to lower the chance of races
                 setTimeout(() => {
-                    let sender = new Sender(clientId, ++zoneCounter, zone, sendCommand, queue);
+                    let sender = new Sender(clientId, ++zoneCounter, zone, sendCommand, queue, connectionPool);
                     senders.add(sender);
                     sender.once('error', err => {
                         log.info(logName, 'Sender error. %s', err.message);

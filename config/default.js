@@ -376,7 +376,15 @@ module.exports = {
             // For example, if you have 5 IP's listed and you open 5 parallel
             // connections against a domain then each of these seems to originate
             // from a different IP address (assuming you can locally bind to these addresses)
-            pool: 'default'
+            pool: 'default',
+
+            // Default connection cache settings
+            // Connections are cached per process.
+            // Connections are cached by 'Zone-Sending-IP' + 'To-Domain' + 'MX-Port'
+            connectionCache: {
+                ttl: 5,             // how long should a connection kept open. Given in seconds
+                reuseCount: 100,    // how often should a connection be reused
+            }
 
             // Use next MTA instead of actual MX
             /*
