@@ -33,8 +33,6 @@ let zone;
 let currentZone = argv.senderName;
 let clientId = argv.senderId || crypto.randomBytes(10).toString('hex');
 
-const connectionPool = new ConnectionPool();
-
 // Find and setup correct Sending Zone
 Object.keys(config.zones || {}).find(zoneName => {
     let zoneData = config.zones[zoneName];
@@ -72,6 +70,8 @@ let sendCommand = (cmd, callback) => {
     responseHandlers.set(id, callback);
     queueClient.send(data);
 };
+
+const connectionPool = new ConnectionPool(sendCommand);
 
 queueClient.connect(err => {
     if (err) {
