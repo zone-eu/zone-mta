@@ -73,6 +73,7 @@ Delivering messages to destination (this image is outdated, LevelDB is not used 
 *   Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 *   Cross platform. You can run ZoneMTA even on Windows
 *   Fast. Send millions of messages per day
+*   Connection pooling
 *   Send large messages with low overhead
 *   Automatic DKIM signing
 *   Adds _Message-Id_ and _Date_ headers if missing
@@ -539,6 +540,24 @@ The exposed metrics include a lot of different data but the most important ones 
 ##### zonemta_blacklisted
 
 `zonemta_blacklisted` exposes a gauge about currently blacklisted domain:localAddress combos. This value is reset to 0 whenever ZoneMTA master process is restarted. Additionally the blacklist information is cached for 6 hours.
+
+##### zonemta_connection_reuses
+
+`zonemta_connection_reuses` exposes a counter about how often a connections are reused since the last restart. Every time a connection gets reused the counter will be incremented.
+
+Example queries: 
+
+`sum(rate(zonemta_connection_reuses[15s])*60)` This creates a graph of connection reuses per minute (if you have multiple instances)
+
+##### zonemta_connection_pool_size
+
+`zonemta_connection_pool_size` exposes a gauge about the connection pool size of this instance. Every time a connection gets pooled or is getting removed from pool the gauge will be incremented or decremented.
+
+Example queries: 
+
+`zonemta_connection_pool_size` This creates a graph of connection pool size per instance (if you have multiple instances)
+
+`sum(zonemta_connection_pool_size)` This can be used to create a gauge in grafana which shows the overall connection pool size of the cluster
 
 ### Utilities
 
