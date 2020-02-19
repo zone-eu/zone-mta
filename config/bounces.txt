@@ -324,6 +324,12 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # 554 resimta-po-11v.sys.comcast.net resimta-po-11v.sys.comcast.net 1.2.3.4 found on one or more DNSBLs, see http://postmaster.comcast.net/smtp-error-codes.php#BL000010
 ^554 .* found on one or more DNSBLs,defer,blacklist,Sender IP blacklisted
 
+# 550 #5.7.1 Your access to submit messages to this e-mail system has been rejected.
+^550[ \-].* Your access to submit messages to this e-mail system has been rejected,defer,blacklist,Sender IP blacklisted
+
+# 554 5.7.1 You are not allowed to connect
+^554[ \-].* You are not allowed to connect,defer,blacklist,Sender IP blacklisted
+
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
 ^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
 ^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
