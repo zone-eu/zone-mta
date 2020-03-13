@@ -22,7 +22,7 @@
         "js-yaml": "3.13.1",
         "libmime": "4.2.1",
         "mailsplit": "4.6.4",
-        "minimist": "1.2.0",
+        "minimist": "1.2.5",
         "mongodb": "3.4.1",
         "msgpack-js": "0.3.0",
         "mx-connect": "1.1.2",
