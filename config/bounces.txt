@@ -7,6 +7,10 @@
 
 # This file will be cached after ZoneMTA is started, so in order to reload the rules, send a SIGHUP signal to the master process
 
+# Comcast
+
+^554[ \-].* found on one or more DNSBLs,defer,blacklist,Sender IP blacklisted
+
 # Spamhaus related error messages
 
 # 550 11.22.33.44 blacklisted see http://www.spamhaus.org/query/bl?ip=11.22.33.44
