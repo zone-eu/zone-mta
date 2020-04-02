@@ -27,13 +27,13 @@ Also, there is no zone-mta command line application anymore, you need to include
 
 ## Requirements
 
-1.  **Node.js** v6.0.0+ for running the app
+1.  **Node.js** v8.0.0+ for running the app
 2.  **MongoDB** for storing messages in the queue
 3.  **Redis** for locking and counters
 
 ## Quickstart
 
-Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v6.0.0+), _MongoDB_ running on localhost and _git_. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
+Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v8.0.0+), _MongoDB_ running on localhost and _git_. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
 
 #### Create ZoneMTA application
 
@@ -70,28 +70,28 @@ Delivering messages to destination (this image is outdated, LevelDB is not used 
 
 ## Features
 
-*   Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
-*   Cross platform. You can run ZoneMTA even on Windows
-*   Fast. Send millions of messages per day
-*   Connection pooling
-*   Send large messages with low overhead
-*   Automatic DKIM signing
-*   Adds _Message-Id_ and _Date_ headers if missing
-*   Sending Zone support: send different messages using different IP addresses
-*   Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
-*   Assign specific recipient domains to specific Sending Zones
-*   Queue is stored in MongoDB
-*   Built in IPv6 support
-*   Reports to Prometheus
-*   Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
-*   Smarter bounce handling
-*   Throttling per Sending Zone connection
-*   Spam detection using Rspamd
-*   HTTP API to send messages
-*   Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
-*   Automatic back-off if an IP address gets blacklisted
-*   Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
-*   Delivery to HTTP using POST instead of SMTP
+-   Web interface. See queue status and debug deferred messages through an easy to use [web interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
+-   Cross platform. You can run ZoneMTA even on Windows
+-   Fast. Send millions of messages per day
+-   Connection pooling
+-   Send large messages with low overhead
+-   Automatic DKIM signing
+-   Adds _Message-Id_ and _Date_ headers if missing
+-   Sending Zone support: send different messages using different IP addresses
+-   Built-in support for delayed messages. Just use a future value in the Date header and the message is not sent out before that time
+-   Assign specific recipient domains to specific Sending Zones
+-   Queue is stored in MongoDB
+-   Built in IPv6 support
+-   Reports to Prometheus
+-   Uses STARTTLS for outgoing messages by default, so no broken padlock images in Gmail
+-   Smarter bounce handling
+-   Throttling per Sending Zone connection
+-   Spam detection using Rspamd
+-   HTTP API to send messages
+-   Custom [plugins](https://github.com/zone-eu/zone-mta/tree/master/plugins)
+-   Automatic back-off if an IP address gets blacklisted
+-   Email Address Internationalization ([EAI](https://datatracker.ietf.org/wg/eai/about/)) and SMTPUTF8 extension. Send mail to unicode addresses like _андрис@уайлддак.орг_
+-   Delivery to HTTP using POST instead of SMTP
 
 Check the [WIKI](https://github.com/zone-eu/zone-mta/wiki) for more details
 
@@ -518,9 +518,9 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_delivery_status` exposes counters for delivery statuses. There are 3 different `result` label values
 
-*   `result="delivered"` – count of deliveries accepted by remote MX
-*   `result="rejected"` – count of deliveries that hard bounced
-*   `result="deferred"`– count of deliveries that soft bounced
+-   `result="delivered"` – count of deliveries accepted by remote MX
+-   `result="rejected"` – count of deliveries that hard bounced
+-   `result="deferred"`– count of deliveries that soft bounced
 
 ##### zonemta_message_push
 
@@ -534,8 +534,8 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_queue_size` exposes gauges about current size of the queue. There are 2 `type` labels available:
 
-*   `type="queued"` – count of deliveries waiting to be delivered on the first occasion
-*   `type="deferred"` – count of deliveries waiting to be delivered on some later time
+-   `type="queued"` – count of deliveries waiting to be delivered on the first occasion
+-   `type="deferred"` – count of deliveries waiting to be delivered on some later time
 
 ##### zonemta_blacklisted
 
@@ -545,7 +545,7 @@ The exposed metrics include a lot of different data but the most important ones 
 
 `zonemta_connection_reuses` exposes a counter about how often a connections are reused since the last restart. Every time a connection gets reused the counter will be incremented.
 
-Example queries: 
+Example queries:
 
 `sum(rate(zonemta_connection_reuses[15s])*60)` This creates a graph of connection reuses per minute (if you have multiple instances)
 
@@ -553,7 +553,7 @@ Example queries:
 
 `zonemta_connection_pool_size` exposes a gauge about the connection pool size of this instance. Every time a connection gets pooled or is getting removed from pool the gauge will be incremented or decremented.
 
-Example queries: 
+Example queries:
 
 `zonemta_connection_pool_size` This creates a graph of connection pool size per instance (if you have multiple instances)
 
