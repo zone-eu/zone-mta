@@ -314,6 +314,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # 550 csi.mimecast.org Poor Reputation Sender. - https://community.mimecast.com/docs/DOC-1369#550 [vH7Ns8biNg-p6EfZ0QaVMQ.us149]
 ^55[40][ \-].*Poor Reputation Sender,defer,blacklist,Sender IP blacklisted
 
+# 550 5.5.4 ETP208 Your IP 1.2.3.4 is listed by Invaluement. Please see http://www.invaluement.com/research/ if you feel this is in error - B15601640DCD26CE53bc5f8c6
+^550[ \-]+5\.5\.4\s+.*listed by Invaluement,defer,blacklist,Sender IP blacklisted
+
 # 550 Too many invalid recipients
 # Happens when a server starts blocking an IP after too many invalid RCPT TO calls were made
 # Blocking happens on connect, so no way to issue any valid commands to fix this
