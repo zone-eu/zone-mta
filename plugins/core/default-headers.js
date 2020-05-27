@@ -7,13 +7,8 @@ const sendingZone = require('../../lib/sending-zone');
 const hostname = os.hostname();
 
 module.exports.title = 'Default headers';
-module.exports.init = function(app, done) {
-    const addMissing = [].concat(app.config.addMissing || []).map(key =>
-        (key || '')
-            .toString()
-            .toLowerCase()
-            .trim()
-    );
+module.exports.init = function (app, done) {
+    const addMissing = [].concat(app.config.addMissing || []).map(key => (key || '').toString().toLowerCase().trim());
 
     // Ensure default headers like Date, Message-ID etc
     app.addHook('message:headers', (envelope, messageInfo, next) => {

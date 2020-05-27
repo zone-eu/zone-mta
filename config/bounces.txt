@@ -40,7 +40,8 @@
 ^[45]\d\d[ \-]+[45]\.7\.1\s+.*Client host \[?[\d\.]+\]? blocked using grey.rbl,defer,greylist,Message temporarily Greylisted
 
 # 550 5.7.1 :127.0.0.4:Client host 11.22.33.44 blocked using 87.blocklist.zap; Mail from IP banned. To request removal from this list please visit http://www.spamhaus.org/query/bl?ip=$
-454 4.7.1 Service unavailable; Client host [1.2.3.4] blocked using dnsbl.sorbs.net; Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4
+# 454 4.7.1 Service unavailable; Client host [1.2.3.4] blocked using dnsbl.sorbs.net; Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4
+# 554 5.7.1 Service unavailable; Client host [1.2.3.4] blocked using b.barracudacentral.org; http://www.barracudanetworks.com/reputation/?pr=1&ip=45.55.44.239
 ^[45]\d\d[ \-]+[45]\.7\.1\s+.*Client host \[?[\d\.]+\]? blocked using,defer,blacklist,Sender IP blacklisted
 
 # 550 5.7.1 <sender@example.com>... 11.22.33.44 listed at zen.spamhaus.org
@@ -147,6 +148,7 @@
 
 # 554 Service unavailable; Client host [11.22.33.44] blocked using zen.spamhaus.org; https://www.spamhaus.org/query/ip/11.22.33.44
 # 554 Service unavailable; Client host [mta.example.com] blocked by zen.spamhaus.org; 11.22.33.44
+# 554-Service unavailable; Client host [mta.example.com] blocked using Barracuda Reputation; http://www.barracudanetworks.com/reputation/?r=1&ip=1.2.3.4
 ^554[ \-]+Service unavailable.*blocked (using|by)\s,defer,blacklist,Sender IP blacklisted
 
 # 554 bosimpinc12 bizsmtp 11.22.33.44 is on the Spamhaus XBL blacklist. Please visit: http://www.spamhaus.org/query/bl?ip=11.22.33.44
@@ -289,7 +291,16 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^552[ \-]+5\.7\.0\s+.*potential security issue,reject,virus,Suspicious attachment
 ^550[ \-]+5\.1\.1\s+.*does not exist,reject,recipient,The email account does not exist
 ^552[ \-]+5\.7\.0\s+.*potential security issue,reject,virus,Message contains suspicious content
-^550[ \-]+5\.7\.1\s+.*due to domain's DMARC policy,reject,dmarc,Message rejected due to DMARC policy
+^550[ \-]+5\.7\.\d+\s+.*due to domain's DMARC policy,reject,dmarc,Message rejected due to DMARC policy
+
+# Orange error messages
+
+# 421 mwinf5c63 ME Trop de connexions, veuillez verifier votre configuration. Too many connections, slow down. OFR005_104 [104]
+^421[ \-].*Too many connections,defer,capacity,Too many connections
+# 552 5.1.1 Boite du destinataire pleine. Recipient overquota. OFR_417 [417]
+^552[ \-]+5\.1\.1\s+.*Recipient overquota,reject,capacity,Mailbox is full
+# 550 5.1.1 Adresse d au moins un destinataire invalide. Invalid recipient. OFR_416 [416]
+^550[ \-]+5\.1\.1\s+.*Invalid recipient,reject,recipient,The email account does not exist
 
 # Hot.ee error messages
 ^550[ \-]+5\.2\.1\s+.*is expired account,reject,recipient,Expired Email account
@@ -353,6 +364,18 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^550[ \-]+5\.7\.512\s.*message must be RFC,reject,message,Malformed message
 ^550[ \-]+5\.7\.0\s.*Local Policy Violation,reject,policy,Sender blocked by policy
 ^554\s.*#5\.1\.1\b,reject,recipient,Unknown user
+
+# 550 DNS error when resolving MX server for example.com: Domain name not found
+^550[ \-]+DNS error,defer,network,Email Routing Issue Due To Network
+
+# 550 5.1.1 Mail Refused - Address <user@example.com> Recipient Unknown
+^550[ \-]+5\.1\.1.*Recipient Unknown,reject,recipient,Recipient Unknown
+# 550 5.1.1 <user@example.com> recipient rejected
+^550[ \-]+5\.1\.1.*recipient rejected,reject,recipient,Recipient Unknown
+# 554 delivery error: dd Not a valid recipient - atlas315.free.mail.ne1.yahoo.com
+^554[ \-]+.*Not a valid recipient,reject,recipient,Recipient Unknown
+# 553 sorry, that domain isn't in my list of allowed rcpthosts; no valid cert for gatewaying (#5.7.1)
+^553[ \-]+.*list of allowed rcpthost,reject,recipient,Recipient Unknown
 
 # Temporary errors by Enhanced Status Codes
 
