@@ -39,7 +39,10 @@ module.exports = {
         disableGC: false,
 
         // default zone for any other mail not specified by zone
-        defaultZone: 'default'
+        defaultZone: 'default',
+
+        // remove messages from queue if not delivered or bounced before maxQueueTime
+        maxQueueTime: 30 * 24 * 3600 * 1000
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
@@ -382,8 +385,8 @@ module.exports = {
             // Connections are cached per process.
             // Connections are cached by 'Zone-Sending-IP' + 'To-Domain' + 'MX-Port'
             connectionCache: {
-                ttl: 5,             // how long should a connection kept open. Given in seconds
-                reuseCount: 100,    // how often should a connection be reused
+                ttl: 5, // how long should a connection kept open. Given in seconds
+                reuseCount: 100 // how often should a connection be reused
             }
 
             // Use next MTA instead of actual MX
