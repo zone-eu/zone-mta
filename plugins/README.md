@@ -113,8 +113,8 @@ To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
 -   **'sender:fetch'** with arguments `delivery` called when message is retrieved from queue for delivery
 -   **'sender:headers'** with arguments `delivery`, `connection` called when message is about to be sent (but before DKIM signing), this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connect'_ hook to perform actions that take more time
+-   **'sender:connecting'** with arguments `delivery` called when the system is about to establish a new or reuse a connection. 
 -   **'sender:connect'** with arguments `delivery`, `options` called before connection is tried to open against the MX. If the options object includes a property socket after hook is finished, then this socket object is used to start the SMTP session
--   **'sender:reuse'** with arguments `delivery` called when a connection is reused for a MX.
 -   **'sender:delivered'** with arguments `delivery`, `info` called after a message has been accepted by MX server
 -   **'sender:tlserror'**  with arguments `delivery`, `options` called after a TLS connection failed against the MX
 
