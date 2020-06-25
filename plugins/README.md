@@ -113,9 +113,10 @@ To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
 -   **'sender:fetch'** with arguments `delivery` called when message is retrieved from queue for delivery
 -   **'sender:headers'** with arguments `delivery`, `connection` called when message is about to be sent (but before DKIM signing), this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connection'_ hook to perform actions that take more time
--   **'sender:connect'** with arguments `delivery`, `options` called before connection is tried to open against the MX. If the options object includes a property socket after hook is finished, then this socket object is used to start the SMTP session. Do not use this for tasks that have to be performed for every message as the connection may get cached and reused.
+-   **'sender:connecting'** with arguments `delivery` called when a connection has been requested. This is mainly meant for logging.
+-   **'sender:connect'** with arguments `delivery`, `options` called before connection is tried to open against the MX. If the options object includes a property `socket` after hook is finished, then this socket object is used to start the SMTP session. Do not use this for tasks that have to be performed for every message as the connection may get cached and reused. This hook may also get called multiple times for a single message if the first MX IP is not accessible.
 -   **'sender:connected'** with arguments `delivery`, `connection`, `options`, `secure` called when a new connection has been established. This is mainly meant for logging.
--   **'sender:connection'** with arguments `delivery`, `connection` called when the system has established a new or reused an existing connection.
+-   **'sender:connection'** with arguments `delivery`, `connection` called once the system has established a new or reusing an existing connection.
 -   **'sender:delivered'** with arguments `delivery`, `info` called after a message has been accepted by MX server
 -   **'sender:tlserror'** with arguments `delivery`, `options` called after a TLS connection failed against the MX
 

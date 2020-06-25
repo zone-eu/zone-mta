@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v2.3.0 2020-06-25
+
+    -   Added new hook 'sender:connection' that is run for every message, even when using cached connections
+
 -   v2.2.0 2020-05-27
 
     -   Updated garbage collection to delete orphaned message chunks by \_id
