@@ -46,7 +46,7 @@ Config file:
 Plugin file "./plugins/user/my-plugin.js":
 
 ```javascript
-module.exports.init = function(app, done) {
+module.exports.init = function (app, done) {
     console.log(app.config['my-value']); // 123
     done();
 };
@@ -98,7 +98,7 @@ To use these hooks you need to set `enabled` `'main'` or `['main',...]`
 
 To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['receiver',...]`
 
--   **'smtp:connect'** with argument ` session`, called when the client connects to the interface
+-   **'smtp:connect'** with argument `session`, called when the client connects to the interface
 -   **'smtp:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
 -   **'smtp:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
 -   **'smtp:rcpt_to'** with arguments `address`, `session`, called when RCPT TO command is issued by the client
@@ -112,11 +112,12 @@ To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['rec
 To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
 -   **'sender:fetch'** with arguments `delivery` called when message is retrieved from queue for delivery
--   **'sender:headers'** with arguments `delivery`, `connection` called when message is about to be sent (but before DKIM signing), this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connect'_ hook to perform actions that take more time
--   **'sender:connecting'** with arguments `delivery` called when the system is about to establish a new or reuse a connection. 
--   **'sender:connect'** with arguments `delivery`, `options` called before connection is tried to open against the MX. If the options object includes a property socket after hook is finished, then this socket object is used to start the SMTP session
+-   **'sender:headers'** with arguments `delivery`, `connection` called when message is about to be sent (but before DKIM signing), this is your final chance to modify message headers or SMTP envelope. Do not spend too much time here as the SMTP connection is already open and might timeout. use _'sender:connection'_ hook to perform actions that take more time
+-   **'sender:connect'** with arguments `delivery`, `options` called before connection is tried to open against the MX. If the options object includes a property socket after hook is finished, then this socket object is used to start the SMTP session. Do not use this for tasks that have to be performed for every message as the connection may get cached and reused.
+-   **'sender:connected'** with arguments `delivery`, `connection`, `options`, `secure` called when a new connection has been established. This is mainly meant for logging.
+-   **'sender:connection'** with arguments `delivery`, `connection` called when the system has established a new or reused an existing connection.
 -   **'sender:delivered'** with arguments `delivery`, `info` called after a message has been accepted by MX server
--   **'sender:tlserror'**  with arguments `delivery`, `options` called after a TLS connection failed against the MX
+-   **'sender:tlserror'** with arguments `delivery`, `options` called after a TLS connection failed against the MX
 
 ### Errors
 
@@ -235,8 +236,8 @@ There is no direct way to share data between "main", "sender" and "receiver" con
 Endpoints can be registered with following command:
 
 ```javascript
-app.addAPI("GET", "/ping", (req, res, next) => {
-    res.end("my awesome plugin");
+app.addAPI('GET', '/ping', (req, res, next) => {
+    res.end('my awesome plugin');
     next();
 });
 ```
@@ -271,7 +272,7 @@ If you want to reject the message based on something detected from the message t
 
 ```javascript
 module.exports.title = 'My Awesome Plugin';
-module.exports.init = function(app, done) {
+module.exports.init = function (app, done) {
     let state = new WeakMap();
     app.addAnalyzerHook((envelope, source, destination) => {
         // store a random boolean to the WeakMap structure using envelope value as the key
