@@ -352,6 +352,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # 554 5.7.1 You are not allowed to connect
 ^554[ \-].* You are not allowed to connect,defer,blacklist,Sender IP blacklisted
 
+# 554 5.7.1 Rejected because Bad IP
+^554[ \-].* Bad IP,defer,blacklist,Sender IP blacklisted
+
 # 554 Blocked - see https://ipcheck.proofpoint.com/?ip=1.2.3.4
 ^554[ \-]Blocked,defer,blacklist,Sender IP blacklisted
 
