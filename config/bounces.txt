@@ -7,6 +7,15 @@
 
 # This file will be cached after ZoneMTA is started, so in order to reload the rules, send a SIGHUP signal to the master process
 
+#550-"JunkMail rejected - [hostname] [11.2.3.4]:24706 is in an RBL: Blocked - see https://www.spamcop.net/bl.shtml?1.2.3.4"
+^5\d\d.*www\.spamcop\.net,defer,blacklist,Sender IP blacklisted
+
+#550-Your message was rejected by this user and was not delivered -  mips space
+^550[ \-].*Your message was rejected by this user and was not delivered,defer,blacklist,Sender IP blacklisted
+
+#500 5.7.1 Symantec Zodiac
+^500[ \-]+5\.7\.1\s+Symantec Zodiac,defer,blacklist,Sender IP blacklisted
+
 # mail.com / GMX
 
 ^554[ \-].* Service not available No SMTP service IP address is black listed,defer,blacklist,Sender IP blacklisted
