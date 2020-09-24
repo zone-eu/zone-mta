@@ -1,8 +1,8 @@
 # Bounce rules list
 # Format:
-#   regex,action,reason,message
+#   regex,action,category,message
 # action: defer, reject, slowdown
-# reasons:
+# categories:
 #   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth, blacklist
 
 # This file will be cached after ZoneMTA is started, so in order to reload the rules, send a SIGHUP signal to the master process
@@ -333,6 +333,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 
 # 550 csi.mimecast.org Poor Reputation Sender. - https://community.mimecast.com/docs/DOC-1369#550 [vH7Ns8biNg-p6EfZ0QaVMQ.us149]
 ^55[40][ \-].*Poor Reputation Sender,defer,blacklist,Sender IP blacklisted
+
+# 550 Rejected by header based Anti-Spoofing policy: user@example.com - https://community.mimecast.com/docs/DOC-1369#550 [_g67iKwmNreAb9PeazQFDQ.us227]
+^550[ \-]+Rejected by.*policy,reject,policy,Blocked by recipient
 
 # 550 5.5.4 ETP208 Your IP 1.2.3.4 is listed by Invaluement. Please see http://www.invaluement.com/research/ if you feel this is in error - B15601640DCD26CE53bc5f8c6
 ^550[ \-]+5\.5\.4\s+.*listed by Invaluement,defer,blacklist,Sender IP blacklisted

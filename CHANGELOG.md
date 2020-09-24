@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v2.3.1 2020-09-24
+
+    -   Updates in bounce messages
+
 -   v2.3.0 2020-06-25
 
     -   Added new hook 'sender:connection' that is run for every message, even when using cached connections
