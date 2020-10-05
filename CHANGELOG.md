@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v2.3.2 2020-10-05
+
+    -   Do not categorize response codes like 550 automaticaly as "recipient"
+
 -   v2.3.1 2020-09-24
 
     -   Updates in bounce messages

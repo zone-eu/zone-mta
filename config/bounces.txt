@@ -534,8 +534,8 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^\d{3}[ \-]+5\.7\.16\b,reject,message,Message Too Large For Given Priority Level
 
 # General errors
-^450\b,defer,recipient,Mailbox unavailable
-^451\b,defer,recipient,Local error in processing
+^450\b,defer,other,Mailbox unavailable
+^451\b,defer,other,Local error in processing
 ^452\b,defer,capacity,Insufficient system storage
 ^500\b,reject,protocol,Syntax error, command unrecognized
 ^501\b,reject,protocol,Syntax error in parameters or arguments
@@ -544,8 +544,8 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^504\b,reject,protocol,Command parameter not implemented
 ^521\b,reject,recipient,Domain does not accept mail
 ^530\b,reject,auth,Access denied
-^550\b,reject,recipient,Mailbox unavailable
-^551\b,reject,recipient,User not local
+^550\b,reject,other,Mailbox unavailable
+^551\b,reject,other,User not local
 ^552\b,reject,capacity,Exceeded storage allocation
 ^553\b,reject,envelope,Mailbox name not allowed
 ^554\b,reject,other,Transaction failed
