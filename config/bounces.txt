@@ -259,6 +259,7 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^553[ \-]+5\.7\.1 \[BL,defer,blacklist,Blacklisted by Spamhaus
 ^554[ \-]+5\.7\.5 \(AU01\),reject,message,Invalid DKIM signature
 ^554[ \-]+.*This user doesn't have,reject,recipient,Unknown user
+^554[ \-]+.*\[PH01\],reject,blacklist,Policy error that appears to be blacklist
 
 # AOL error messages
 # https://postmaster.aol.com/error-codes
