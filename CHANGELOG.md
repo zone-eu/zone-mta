@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v2.3.3 2020-10-06
+
+    -   Minor changes in blacklist rules
+
 -   v2.3.2 2020-10-05
 
     -   Do not categorize response codes like 550 automaticaly as "recipient"
