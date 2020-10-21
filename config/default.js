@@ -15,6 +15,9 @@ module.exports = {
         // database connection string
         mongo: 'mongodb://127.0.0.1:27017/zone-mta',
         redis: {
+            // NB! When using DNS caching (see dns.cache option) then
+            // use IP addresses for Redis instead of hostnames
+            // Otherwise reconnections to Redis might fail
             host: '127.0.0.1',
             port: 6379,
             db: 3,
