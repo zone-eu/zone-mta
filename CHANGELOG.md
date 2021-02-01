@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v2.4.1 2021-02-01
+
+    -   another attempt to fix error message for too large emails
+
 -   v2.4.0 2021-02-01
 
     -   Handle suppression entries case-insensitive (teefax)
