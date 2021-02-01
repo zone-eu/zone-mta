@@ -1,5 +1,12 @@
 # CHANGELOG
 
+-   v2.4.0 2021-02-01
+
+    -   Handle suppression entries case-insensitive (teefax)
+    -   Add messageId to the entry object when using remote log (ohmysmtp)
+    -   do not wait longer than 500ms for DNS redis cache response
+    -   fix error message for too large emails
+
 -   v2.3.3 2020-10-06
 
     -   Minor changes in blacklist rules
@@ -35,7 +42,7 @@
     -   Make default zone configurable (jpbede)
     -   Added new hook "smtp:connect" (jpbede)
     -   added new outlook blacklist response
-    -   Add gmail block and odd greylist bounces (louis-lau)'
+    -   Add gmail block and odd greylist bounces (louis-lau)
 
 -   v1.16.3 2019-06-14
 
