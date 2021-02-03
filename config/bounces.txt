@@ -371,6 +371,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # 554 Blocked - see https://ipcheck.proofpoint.com/?ip=1.2.3.4
 ^554[ \-]Blocked,defer,blacklist,Sender IP blacklisted
 
+# 550 5.7.0 Blocked - see https://ipcheck.proofpoint.com/?ip=1.2.3.4
+^550[ \-].* Blocked,defer,blacklist,Sender IP blacklisted
+
 ^4\d\d\b.*Greylist,defer,greylist,Message temporarily Greylisted
 ^4\d\d\b.*try again,defer,greylist,Message temporarily Greylisted
 ^550[ \-]+5.7.1.*\bspam,reject,spam,Message detected as spam
