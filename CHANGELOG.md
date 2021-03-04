@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v2.4.3 2021-03-04
+
+    -   Prom Client uses promises, so had to fix compatibility for the API server
+
 -   v2.4.1 2021-02-01
 
     -   another attempt to fix error message for too large emails
