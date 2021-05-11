@@ -11,7 +11,7 @@ module.exports.init = function (app, done) {
     const addMissing = [].concat(app.config.addMissing || []).map(key => (key || '').toString().toLowerCase().trim());
 
     // Ensure default headers like Date, Message-ID etc
-    app.addHook('message:headers', (envelope, messageInfo, next) => {
+    app.addHook('message:headers', async (envelope, messageInfo) => {
         // Fetch sender and receiver addresses
         envelope.parsedEnvelope = {
             from: addressTools.parseAddressList(envelope.headers, 'from').shift() || false,
@@ -95,11 +95,9 @@ module.exports.init = function (app, done) {
                 envelope.sendingZone = sZone;
             }
         }
-
-        next();
     });
 
-    app.addHook('sender:headers', (delivery, connection, next) => {
+    app.addHook('sender:headers', async delivery => {
         // Ensure that there is at least one recipient header
 
         let hasRecipient = false;
@@ -129,8 +127,6 @@ module.exports.init = function (app, done) {
             // Add MIME-Version to bottom
             delivery.headers.add('MIME-Version', '1.0', Infinity);
         }
-
-        next();
     });
 
     done();

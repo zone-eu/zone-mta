@@ -75,9 +75,30 @@ app.addHook(name, handler);
 Where
 
 -   **name** is the event to hook into
--   **handler** is the hook function. Actual arguments vary by the hook but the last argument is always a return function that needs to be called before the message can be further processed
+-   **handler** is the hook function. Actual arguments vary by the hook
 
-Possible hook names are the following:
+`handler` function can either return a Promise or use the callback function that is provided as the last function argument in order to continue processing
+
+> **NB** Promises support for `handler` functions is available since zone-mta@3.0.0. Previous versions support callbacks only.
+
+When using Promises or async/await:
+
+```js
+app.addHook('smtp:auth', async (a, b) => {
+    // do something
+});
+```
+
+When using callbacks:
+
+```js
+app.addHook('smtp:auth', async (a, b, next) => {
+    // do something
+    next(); // or `next(error)` for failures
+});
+```
+
+#### Possible hook names are the following:
 
 **global context**
 
@@ -122,13 +143,13 @@ To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 
 ### Errors
 
-If you return an error with the smtp hook callback then the error message is returned to the client as the SMTP response. To set a specific return code to be returned, use `responseCode` property. Hook is processed until first error occurs.
+If you throw an error with the smtp hook then the error message is returned to the client as the SMTP response. To set a specific return code to be returned, use `responseCode` property. Hook is processed until first error occurs.
 
 ```javascript
-app.addHook('smtp:auth', (auth, session, next) => {
+app.addHook('smtp:auth', async (auth, session) => {
     let err = new Error('Invalid password');
     err.responseCode = 535;
-    next(err);
+    throw err;
 });
 ```
 
@@ -203,18 +224,16 @@ The object builds up in different steps, you can see the final envelope data in 
 If you add your own properties to the envelope object or modify existing ones then these are persisted and available in other hooks and later also from the delivery object. Only use values that can be serialized into JSON for custom properties.
 
 ```javascript
-app.addHook('smtp:data', (envelope, session, next) => {
+app.addHook('smtp:data', async (envelope, session) => {
     // Override existing source IP with something else.
     // This value ends up in the Received header
     envelope.origin = '1.2.3.4';
     // Add new custom property
     envelope.my_custom_value = 123;
-    next();
 });
 
-app.addHook('sender:fetch', (delivery, next) => {
+app.addHook('sender:fetch', delivery => {
     console.log(envelope.my_custom_value); // 123;
-    next();
 });
 ```
 
@@ -280,13 +299,12 @@ module.exports.init = function (app, done) {
         state.set(envelope, Math.random() >= 0.5);
         source.pipe(destination);
     });
-    app.addHook('message:store', (envelope, body, next) => {
+    app.addHook('message:store', async (envelope, body) => {
         // check from the WeakMap structure if there's a `true` for the envelope
         if (!state.get(envelope)) {
             // do not accept the message for delivery
-            return next(new Error('You have been randomly denied'));
+            throw new Error('You have been randomly denied');
         }
-        next(); // everything OK
     });
     done();
 };
@@ -375,15 +393,13 @@ from.set({
 
 In `sending` state you can override database entry keys for a delivery using `updates` object. If a message is deferred then whatever values are set in `updates` object are also set in db
 
-```
-app.addHook('sender:headers', (delivery, connection, next) => {
+```js
+app.addHook('sender:headers', async (delivery, connection) => {
     if (!delivery.updates) {
         // make sure the updates object exists
         delivery.updates = {};
     }
     // override Zone for this message if it is deferred, no effect if message bounces or is accepted
     delivery.updates.sendingZone = 'someother';
-
-    next();
 });
 ```
