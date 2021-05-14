@@ -7,7 +7,7 @@ const sendingZone = require('../../lib/sending-zone');
 const hostname = os.hostname();
 
 module.exports.title = 'Default headers';
-module.exports.init = function (app, done) {
+module.exports.init = async app => {
     const addMissing = [].concat(app.config.addMissing || []).map(key => (key || '').toString().toLowerCase().trim());
 
     // Ensure default headers like Date, Message-ID etc
@@ -128,6 +128,4 @@ module.exports.init = function (app, done) {
             delivery.headers.add('MIME-Version', '1.0', Infinity);
         }
     });
-
-    done();
 };

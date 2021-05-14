@@ -29,7 +29,9 @@ module.exports['Load plugins by order'] = test => {
                 enabled: true,
                 ordering: 1
             }
-        }
+        },
+        db: {},
+        log: {}
     });
     plugins.load(() => {
         test.equal(plugins.loaded.length, 2);
@@ -45,7 +47,9 @@ module.exports['Load plugins with a hook'] = test => {
         plugins: {
             'hook-1': true,
             'hook-2': true
-        }
+        },
+        db: {},
+        log: {}
     });
     plugins.load(() => {
         let a = {
@@ -69,7 +73,9 @@ module.exports['Load plugins with a rewriter hook'] = test => {
         plugins: {
             'rewriter-1': true,
             'rewriter-2': true
-        }
+        },
+        db: {},
+        log: {}
     });
     plugins.load(() => {
         let splitter = new mailsplit.Splitter();
@@ -101,7 +107,9 @@ module.exports['Load plugin with an analyzer hook'] = test => {
         plugins: {
             'analyzer-1': true,
             'analyzer-2': true
-        }
+        },
+        db: {},
+        log: {}
     });
     plugins.load(() => {
         let source = new PassThrough();

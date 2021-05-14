@@ -1,5 +1,12 @@
 # CHANGELOG
 
+-   v3.0.0 2021-05-14
+
+    -   Added new plugin hook 'smtp:sni' for custom secure context
+    -   Allow using promise based plugins instead of callbacks
+    -   Allow calling plugin hooks without ZoneMTA daemon running (allows to reuse ZoneMTA plugins in external applications)
+    -   Requires at least Node v10
+
 -   v2.4.3 2021-03-04
 
     -   Prom Client uses promises, so had to fix compatibility for the API server

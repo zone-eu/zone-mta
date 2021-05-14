@@ -134,10 +134,7 @@ process.on('message', (m, socket) => {
 
         let passSocket = () =>
             smtpServer.server._handleProxy(socket, (proxyErr, socketOptions) => {
-                smtpServer.server.connect(
-                    socket,
-                    socketOptions
-                );
+                smtpServer.server.connect(socket, socketOptions);
             });
 
         if (!smtpServer || !smtpServer.server) {

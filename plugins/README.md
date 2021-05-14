@@ -17,12 +17,13 @@ Plugins must expose an `init` method. This method should be used to register the
 
 ```javascript
 module.exports.title = 'My Awesome Plugin';
-module.exports.init = function(app, done){
+module.exports.init = async app => {
     // handle plugin initialization
     app.addHook(...);
-    done();
 };
 ```
+
+> **NB** pre zone-mta@v3.0.0 plugins must use the callback version `init = (app, done) => {actions(); done();}`
 
 Plugins are loaded in the order defined in `config.plugins` object. Plugins are loaded to the context of the main process but only after the current user is downgraded from root.
 
@@ -46,9 +47,8 @@ Config file:
 Plugin file "./plugins/user/my-plugin.js":
 
 ```javascript
-module.exports.init = function (app, done) {
+module.exports.init = async app => {
     console.log(app.config['my-value']); // 123
-    done();
 };
 ```
 
@@ -119,6 +119,7 @@ To use these hooks you need to set `enabled` `'main'` or `['main',...]`
 
 To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['receiver',...]`
 
+-   **'smtp:sni'** with arguments `servername`, `data`, called when the client tries to establish a SNI session. Set `data.secureContext` value if you want to override hostname specific secure context
 -   **'smtp:connect'** with argument `session`, called when the client connects to the interface
 -   **'smtp:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
 -   **'smtp:mail_from'** with arguments `address`, `session`, called when MAIL FROM command is issued by the client
@@ -292,7 +293,7 @@ If you want to reject the message based on something detected from the message t
 
 ```javascript
 module.exports.title = 'My Awesome Plugin';
-module.exports.init = function (app, done) {
+module.exports.init = async app => {
     let state = new WeakMap();
     app.addAnalyzerHook((envelope, source, destination) => {
         // store a random boolean to the WeakMap structure using envelope value as the key
@@ -401,5 +402,18 @@ app.addHook('sender:headers', async (delivery, connection) => {
     }
     // override Zone for this message if it is deferred, no effect if message bounces or is accepted
     delivery.updates.sendingZone = 'someother';
+});
+```
+
+## Custom SNI
+
+```js
+app.addHook('smtp:sni', async (servername, data) => {
+    if (servername === 'smtp.example.com') {
+        data.secureContext = tls.createSecureContext({
+            key: privateKey,
+            cert: certData
+        });
+    }
 });
 ```
