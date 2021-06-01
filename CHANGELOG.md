@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v3.1.0 2021-06-01
+
+    -   Bumped dependencies
+
 -   v3.0.0 2021-05-14
 
     -   Added new plugin hook 'smtp:sni' for custom secure context
