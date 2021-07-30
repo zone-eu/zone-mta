@@ -1,8 +1,6 @@
 # ZoneMTA (internal code name X-699)
 
-Modern outbound SMTP relay (MTA/MSA) built on Node.js and MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins that are way more flexible than milters.
-
-> Currently there's a single ZoneMTA instance deployed to production, it delivers about 500 000 messages per day, processing 70-80 messages per second on peak times. Total messages successfully delivered by that server is more than 100 000 000 (plus 3 000 000 emails that have bounced).
+Modern outbound SMTP relay (MTA/MSA) built on Node.js and MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins.
 
 ```
 ███████╗ ██████╗ ███╗   ██╗███████╗███╗   ███╗████████╗ █████╗
