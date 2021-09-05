@@ -1,5 +1,10 @@
 # CHANGELOG
 
+-   v3.2.0 2021-09-05
+
+    -   Update mongodb library from v3 to v4
+    -   Fix connection pooling with IPv6 (jpbede)
+
 -   v3.1.0 2021-06-01
 
     -   Bumped dependencies
