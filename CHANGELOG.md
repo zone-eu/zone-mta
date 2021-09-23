@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v3.2.3 2021-09-23
+
+    -   Fix broken mongodb collection.find()
+
 -   v3.2.0 2021-09-05
 
     -   Update mongodb library from v3 to v4
