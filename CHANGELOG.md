@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v3.2.4 2021-10-01
+
+    -   Extra logging options for HTTP message uploads
+
 -   v3.2.3 2021-09-23
 
     -   Fix broken mongodb collection.find()

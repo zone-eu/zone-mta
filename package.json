@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "3.2.3",
+    "version": "3.2.4",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -30,7 +30,7 @@
         "prom-client": "14.0.0",
         "punycode": "2.1.1",
         "request": "2.88.2",
-        "restify": "8.5.1",
+        "restify": "8.6.0",
         "seq-index": "1.1.0",
         "smtp-server": "3.9.0",
         "srs.js": "0.1.0",
