@@ -80,7 +80,7 @@ startSMTPInterfaces(err => {
             log.error('QS', err);
             return process.exit(2);
         }
-        log.info('QS', 'Queue server started');
+        log.info('QS', `Queue server started: instance ${queue.instanceId}`);
 
         // Starts the API HTTP REST server that is used by sending processes to fetch messages from the queue
         apiServer.start(err => {
