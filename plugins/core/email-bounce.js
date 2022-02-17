@@ -108,6 +108,7 @@ Status: 5.0.0
 
         let envelope = {
             interface: 'bounce',
+            sessionId: bounce.sessionId,
             from: '',
             to: bounce.from,
             transtype: 'HTTP',
