@@ -1,5 +1,10 @@
 # CHANGELOG
 
+-   v3.3.0 2022-02-23
+
+    -   Bumped deps (fixes issue with 334 response)
+    -   Replaced deprecated cursor.count() calls with collection.countDocuments()
+
 -   v3.2.4 2021-10-01
 
     -   Extra logging options for HTTP message uploads
