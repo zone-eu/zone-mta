@@ -185,7 +185,11 @@ module.exports = {
             // Headers to sign instead of default one
             headerFields: [],
             // Adds additional header to sign beside to the default one
-            additionalHeaderFields: []
+            additionalHeaderFields: [],
+            // Adds the signature timestamp, for default value see below
+            addSignatureTimestamp: false,
+            // Time validity of the signature given in seconds, for default value see below
+            signatureExpireIn: 0
         }
     },
 
