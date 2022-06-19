@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "3.3.0",
+    "version": "3.4.0",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -13,45 +13,45 @@
     "author": "Andris Reinman",
     "license": "EUPL-1.1+",
     "dependencies": {
-        "crc-32": "1.2.1",
+        "crc-32": "1.2.2",
         "dnscache": "1.0.2",
         "gelf": "2.0.1",
-        "ioredis": "4.28.5",
+        "ioredis": "5.0.6",
         "isemail": "3.2.0",
         "js-yaml": "4.1.0",
-        "libmime": "5.0.0",
-        "mailsplit": "5.3.1",
-        "minimist": "1.2.5",
-        "mongodb": "4.4.0",
+        "libmime": "5.1.0",
+        "mailsplit": "5.3.2",
+        "minimist": "1.2.6",
+        "mongodb": "4.7.0",
         "msgpack-js": "0.3.0",
         "mx-connect": "1.2.0",
-        "nodemailer": "6.7.2",
-        "npmlog": "6.0.1",
+        "nodemailer": "6.7.5",
+        "npmlog": "6.0.2",
         "prom-client": "14.0.1",
         "punycode": "2.1.1",
         "request": "2.88.2",
         "restify": "8.6.1",
         "seq-index": "1.1.0",
-        "smtp-server": "3.10.0",
+        "smtp-server": "3.11.0",
         "srs.js": "0.1.0",
         "uuid": "8.3.2",
-        "wild-config": "1.6.0"
+        "wild-config": "1.6.1"
     },
     "devDependencies": {
-        "ajv": "8.10.0",
-        "eslint": "8.9.0",
+        "ajv": "8.11.0",
+        "eslint": "8.18.0",
         "eslint-config-nodemailer": "1.2.0",
-        "eslint-config-prettier": "8.4.0",
-        "grunt": "1.4.1",
+        "eslint-config-prettier": "8.5.0",
+        "grunt": "1.5.3",
         "grunt-cli": "1.4.3",
         "grunt-contrib-nodeunit": "4.0.0",
         "grunt-eslint": "24.0.0",
-        "moment": "2.29.1",
+        "moment": "2.29.3",
         "random-message": "1.1.0",
         "zip-stream": "4.1.0"
     },
     "engines": {
-        "node": ">=10.0.0"
+        "node": ">=12.0.0 <17"
     },
     "bin": {
         "check-bounce": "bin/check-bounce.js"
