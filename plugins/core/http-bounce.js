@@ -9,6 +9,7 @@ module.exports.init = function(app, done) {
         let retries = 0;
         let body = {
             id: bounce.id,
+            sessionId: bounce.sessionId,
             to: bounce.to,
             seq: bounce.seq,
             returnPath: bounce.from,
