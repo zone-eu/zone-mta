@@ -3,7 +3,7 @@
 const RspamdClient = require('./rspamd-client');
 
 module.exports.title = 'Rspamd Spam Check';
-module.exports.init = function(app, done) {
+module.exports.init = function (app, done) {
     app.addAnalyzerHook((envelope, source, destination) => {
         let interfaces = Array.isArray(app.config.interfaces) ? app.config.interfaces : [].concat(app.config.interfaces || []);
         if (!interfaces.includes(envelope.interface) && !interfaces.includes('*')) {
