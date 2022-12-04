@@ -1,5 +1,10 @@
 # CHANGELOG
 
+-   v3.5.0 2022-12-04
+
+    -   Bumped Restify to v10 to support Node 18
+    -   Added new plugin hook `smtp:init`
+
 -   v3.3.0 2022-02-23
 
     -   Bumped deps (fixes issue with 334 response)

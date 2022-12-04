@@ -89,7 +89,7 @@ startSMTPInterfaces(err => {
                 log.error('API', err);
                 return process.exit(2);
             }
-            log.info('API', 'API server started');
+            log.info('API', 'API server started listening on port %s', config.api.port);
 
             // downgrade user if needed
             if (config.group) {

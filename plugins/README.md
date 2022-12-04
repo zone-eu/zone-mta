@@ -119,6 +119,7 @@ To use these hooks you need to set `enabled` `'main'` or `['main',...]`
 
 To use these hooks you need to set `enabled` to `true` or `'receiver'` or `['receiver',...]`
 
+-   **'smtp:init'** with arguments `server`, called when the SMTP interface has been initialized
 -   **'smtp:sni'** with arguments `servername`, `data`, called when the client tries to establish a SNI session. Set `data.secureContext` value if you want to override hostname specific secure context
 -   **'smtp:connect'** with argument `session`, called when the client connects to the interface
 -   **'smtp:auth'** with arguments `auth`, `session`, called when AUTH command is issued by the client
