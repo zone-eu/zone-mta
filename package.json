@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "3.5.0",
+    "version": "3.5.1",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -51,7 +51,7 @@
         "zip-stream": "4.1.0"
     },
     "engines": {
-        "node": ">=12.0.0 <17"
+        "node": ">=14.0.0"
     },
     "bin": {
         "check-bounce": "bin/check-bounce.js"
