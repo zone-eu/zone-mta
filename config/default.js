@@ -266,6 +266,10 @@ module.exports = {
         blockLocalAddresses: false
     },
 
+    mtaSts: {
+        enabled: true
+    },
+
     // Simple HTTP server for fetching info about messages
     api: {
         port: 12080,
