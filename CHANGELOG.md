@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v3.6.0 2023-02-02
+
+    -   Added support for MTA-STS. Disabled by default.
+
 -   v3.5.0 2022-12-04
 
     -   Bumped Restify to v10 to support Node 18
