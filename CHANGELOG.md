@@ -1,6 +1,6 @@
 # CHANGELOG
 
--   v3.6.1 2023-02-08
+-   v3.6.3 2023-02-08
 
     -   Do not stop mail processing if MTA-STS policy loading failed
 
