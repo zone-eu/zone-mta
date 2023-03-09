@@ -1,7 +1,7 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "3.6.4",
+    "version": "3.6.5",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -13,6 +13,7 @@
     "author": "Andris Reinman",
     "license": "EUPL-1.1+",
     "dependencies": {
+        "base32.js": "0.1.0",
         "crc-32": "1.2.2",
         "dnscache": "1.0.2",
         "gelf": "2.0.1",
