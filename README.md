@@ -199,6 +199,8 @@ Messages might get lost if the database gets into a corrupted state and it is no
 
 You can assign a new IP to the IP pool using lower load share than other addresses by using `ratio` option (value in the range of 0 and 1 where 0 means that this IP is never used and 1 means that only this IP is used)
 
+in `default.js` file:
+
 ```javascript
 {
     pools: {
@@ -212,6 +214,23 @@ You can assign a new IP to the IP pool using lower load share than other address
     }
 }
 ```
+
+or in `pools.toml` file:
+```
+[[ipWarmPool]]
+address="1.2.3.1"
+name="host1.example.com"
+
+[[ipWarmPool]]
+address="1.2.3.2"
+name="host2.example.com"
+
+[[ipWarmPool]]
+address="1.2.3.3"
+name="warmup.example.com"
+ratio="0.05"
+```
+
 
 Once your IP address is warm enough then you can either increase the load ratio for it or remove the parameter entirely to share load evenly between all addresses. Be aware though that every time you change pool structure it mixes up the address resolving, so a message that is currently deferred for greylisting does not get the same IP address that it previously used and thus might get greylisted again.
 
