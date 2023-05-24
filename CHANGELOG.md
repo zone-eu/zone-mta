@@ -1,5 +1,9 @@
 # CHANGELOG
 
+-   v3.6.6 2023-05-24
+
+    -   Bumped mx-connect for MTA-STS caching fix
+
 -   v3.6.3 2023-02-08
 
     -   Do not stop mail processing if MTA-STS policy loading failed
