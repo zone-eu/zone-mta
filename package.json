@@ -23,7 +23,7 @@
         "libmime": "5.2.1",
         "mailsplit": "5.4.0",
         "minimist": "1.2.8",
-        "mongodb": "4.14.0",
+        "mongodb": "4.17.0",
         "msgpack-js": "0.3.0",
         "mx-connect": "1.4.4",
         "nodemailer": "6.9.2",
