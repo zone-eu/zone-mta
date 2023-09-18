@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.9](https://github.com/zone-eu/zone-mta/compare/v3.6.8...v3.6.9) (2023-09-18)
+
+
+### Bug Fixes
+
+* **deploy:** Added repository URL for automatic publishing ([6172534](https://github.com/zone-eu/zone-mta/commit/6172534567299e0c9c568446c6b62e87949e9272))
+
 ## [3.6.8](https://github.com/zone-eu/zone-mta/compare/v3.6.7...v3.6.8) (2023-09-18)
 
 
