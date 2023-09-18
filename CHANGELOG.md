@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.8](https://github.com/zone-eu/zone-mta/compare/v3.6.7...v3.6.8) (2023-09-18)
+
+
+### Bug Fixes
+
+* **readme:** Updated readme to trigger package publish ([b90d31b](https://github.com/zone-eu/zone-mta/commit/b90d31b610862bf1c9db9c4df41af1a41a905866))
+
 ## [3.4.1](https://github.com/zone-eu/zone-mta/compare/v3.4.0...v3.4.1) (2023-09-18)
 
 
