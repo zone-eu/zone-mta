@@ -52,8 +52,12 @@
         "random-message": "1.1.0",
         "zip-stream": "5.0.1"
     },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/zone-eu/zone-mta.git"
+    },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=16.0.0"
     },
     "bin": {
         "check-bounce": "bin/check-bounce.js"
