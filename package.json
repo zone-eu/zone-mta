@@ -6,6 +6,7 @@
     "main": "app.js",
     "scripts": {
         "test": "grunt",
+        "runtest": "NODE_ENV=test grunt",
         "start": "node app.js",
         "show": "NODE_CONFIG_ONLY=true node app.js",
         "certs": "mkdir -p keys && cd keys && openssl req -x509 -newkey rsa:2048 -nodes -subj \"/C=US/ST=Oregon/L=Portland/O=Company Name/OU=Org/CN=www.example.com\" -keyout private.key -out server.crt -days 365"
