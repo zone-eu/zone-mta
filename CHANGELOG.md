@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.10](https://github.com/zone-eu/zone-mta/compare/v3.6.9...v3.6.10) (2023-09-29)
+
+
+### Bug Fixes
+
+* **bounces:** Fixed MS365 missing user bounce check regex ([3e0853a](https://github.com/zone-eu/zone-mta/commit/3e0853aef154bdfcdaf7d879017559991e03b507))
+
 ## [3.6.9](https://github.com/zone-eu/zone-mta/compare/v3.6.8...v3.6.9) (2023-09-18)
 
 
