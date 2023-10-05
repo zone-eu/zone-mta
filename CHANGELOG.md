@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.11](https://github.com/zone-eu/zone-mta/compare/v3.6.10...v3.6.11) (2023-10-05)
+
+
+### Bug Fixes
+
+* **mail2http:** retry 5xx responses ([33aa6d5](https://github.com/zone-eu/zone-mta/commit/33aa6d5b3c726206563649137de2b42e9bb38bd7))
+
 ## [3.6.10](https://github.com/zone-eu/zone-mta/compare/v3.6.9...v3.6.10) (2023-09-29)
 
 
