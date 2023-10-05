@@ -37,11 +37,11 @@
         "smtp-server": "3.13.0",
         "srs.js": "0.1.0",
         "uuid": "9.0.1",
-        "wild-config": "1.7.0"
+        "wild-config": "1.7.1"
     },
     "devDependencies": {
         "ajv": "8.12.0",
-        "eslint": "8.49.0",
+        "eslint": "8.50.0",
         "eslint-config-nodemailer": "1.2.0",
         "eslint-config-prettier": "9.0.0",
         "grunt": "1.6.1",
