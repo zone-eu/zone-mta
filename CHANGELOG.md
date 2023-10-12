@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.13](https://github.com/zone-eu/zone-mta/compare/v3.6.12...v3.6.13) (2023-10-12)
+
+
+### Bug Fixes
+
+* **deploy:** updated package-lock to fix release ([4248526](https://github.com/zone-eu/zone-mta/commit/42485265748bef6cbcf34eb570fdfae422128abb))
+
 ## [3.6.12](https://github.com/zone-eu/zone-mta/compare/v3.6.11...v3.6.12) (2023-10-12)
 
 
