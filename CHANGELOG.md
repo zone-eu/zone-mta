@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.6.12](https://github.com/zone-eu/zone-mta/compare/v3.6.11...v3.6.12) (2023-10-12)
+
+
+### Bug Fixes
+
+* **queue:** mark emails with 'mailbox full' responses as rejected, not deferred ([c2040e2](https://github.com/zone-eu/zone-mta/commit/c2040e284e337e79c6987b3cf393c669d08a04c8))
+* **queue:** replaced non-likely bounces from deferred to rejected ([c701efd](https://github.com/zone-eu/zone-mta/commit/c701efde4907ea969aef92e7dbfc517a993d8ce9))
+
 ## [3.6.11](https://github.com/zone-eu/zone-mta/compare/v3.6.10...v3.6.11) (2023-10-05)
 
 
