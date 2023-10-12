@@ -416,12 +416,12 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^\d{3}[ \-]+4\.1\.8\b,defer,config,Sending Address Is Bad Or Can't Accept Replies
 ^\d{3}[ \-]+4\.1\.9\b,defer,recipient,Message Routed To Non-Email System
 ^\d{3}[ \-]+4\.2\.0\b,defer,recipient,Unknown Issue With Mailbox
-^\d{3}[ \-]+4\.2\.1\b,defer,capacity,Mailbox Is Not Accepting New Messages
-^\d{3}[ \-]+4\.2\.2\b,defer,capacity,Mailbox Is Full
+^\d{3}[ \-]+4\.2\.1\b,reject,capacity,Mailbox Is Not Accepting New Messages
+^\d{3}[ \-]+4\.2\.2\b,reject,capacity,Mailbox Is Full
 ^\d{3}[ \-]+4\.2\.3\b,defer,message,Message Is Too Long
 ^\d{3}[ \-]+4\.2\.4\b,defer,recipient,Mailbox Has A Mailing List System Issue
 ^\d{3}[ \-]+4\.3\.0\b,defer,recipient,Unknown Issue With The Receiving System
-^\d{3}[ \-]+4\.3\.1\b,defer,capacity,Email System Is Full
+^\d{3}[ \-]+4\.3\.1\b,reject,capacity,Email System Is Full
 ^\d{3}[ \-]+4\.3\.2\b,defer,recipient,Receiving Email System Not Operating
 ^\d{3}[ \-]+4\.3\.3\b,defer,message,Message Features Not Supported By Receiving System
 ^\d{3}[ \-]+4\.3\.4\b,defer,message,Message Is Too Large
@@ -543,7 +543,7 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # General errors
 ^450\b,defer,other,Mailbox unavailable
 ^451\b,defer,other,Local error in processing
-^452\b,defer,capacity,Insufficient system storage
+^452\b,reject,capacity,Insufficient system storage
 ^500\b,reject,protocol,Syntax error, command unrecognized
 ^501\b,reject,protocol,Syntax error in parameters or arguments
 ^502\b,reject,protocol,Command not implemented
