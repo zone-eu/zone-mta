@@ -1,6 +1,6 @@
 # ZoneMTA (internal code name X-699)
 
-Modern outbound SMTP relay (MTA/MSA) built on Node.js and MongoDB (queue storage). It's kind of like Postfix for outbound but is able to use multiple local IP addresses and is easily extendable using plugins.
+Outbound SMTP relay (MTA/MSA) built on Node.js and MongoDB (queue storage).
 
 ```
 ███████╗ ██████╗ ███╗   ██╗███████╗███╗   ███╗████████╗ █████╗
@@ -17,21 +17,15 @@ ZoneMTA is comparable to [Haraka](https://haraka.github.io/) but unlike Haraka i
 
 There's also a web-based [administration interface](https://github.com/zone-eu/zmta-webadmin) (needs to be installed separately).
 
-## Upgrade notes
-
-ZoneMTA version 1.1 uses a different application configuration scheme than 1.0. See [zone-mta-template](https://github.com/zone-eu/zone-mta-template) for reference.
-
-Also, there is no zone-mta command line application anymore, you need to include it as a module.
-
 ## Requirements
 
-1.  **Node.js** v8.0.0+ for running the app
+1.  **Node.js** v16+ for running the app
 2.  **MongoDB** for storing messages in the queue
 3.  **Redis** for locking and counters
 
 ## Quickstart
 
-Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v8.0.0+), _MongoDB_ running on localhost and _git_. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
+Assuming [Node.js](https://nodejs.org/en/download/package-manager/) (v16+), _MongoDB_ running on localhost and _git_. There must be nothing listening on ports 2525 (SMTP), 12080 (HTTP API) and 12081 (internal data channel). All these ports are configurable.
 
 #### Create ZoneMTA application
 
@@ -199,6 +193,8 @@ Messages might get lost if the database gets into a corrupted state and it is no
 
 You can assign a new IP to the IP pool using lower load share than other addresses by using `ratio` option (value in the range of 0 and 1 where 0 means that this IP is never used and 1 means that only this IP is used)
 
+in `default.js` file:
+
 ```javascript
 {
     pools: {
@@ -211,6 +207,23 @@ You can assign a new IP to the IP pool using lower load share than other address
         ]
     }
 }
+```
+
+or in `pools.toml` file:
+
+```
+[[ipWarmPool]]
+address="1.2.3.1"
+name="host1.example.com"
+
+[[ipWarmPool]]
+address="1.2.3.2"
+name="host2.example.com"
+
+[[ipWarmPool]]
+address="1.2.3.3"
+name="warmup.example.com"
+ratio="0.05"
 ```
 
 Once your IP address is warm enough then you can either increase the load ratio for it or remove the parameter entirely to share load evenly between all addresses. Be aware though that every time you change pool structure it mixes up the address resolving, so a message that is currently deferred for greylisting does not get the same IP address that it previously used and thus might get greylisted again.

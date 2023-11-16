@@ -1,11 +1,12 @@
 {
     "name": "zone-mta",
     "private": false,
-    "version": "3.6.5",
+    "version": "3.6.13",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
         "test": "grunt",
+        "runtest": "NODE_ENV=test grunt",
         "start": "node app.js",
         "show": "NODE_CONFIG_ONLY=true node app.js",
         "certs": "mkdir -p keys && cd keys && openssl req -x509 -newkey rsa:2048 -nodes -subj \"/C=US/ST=Oregon/L=Portland/O=Company Name/OU=Org/CN=www.example.com\" -keyout private.key -out server.crt -days 365"
@@ -17,42 +18,46 @@
         "crc-32": "1.2.2",
         "dnscache": "1.0.2",
         "gelf": "2.0.1",
-        "ioredis": "5.3.1",
+        "ioredis": "5.3.2",
         "isemail": "3.2.0",
         "js-yaml": "4.1.0",
         "libmime": "5.2.1",
         "mailsplit": "5.4.0",
         "minimist": "1.2.8",
-        "mongodb": "4.12.1",
+        "mongodb": "4.17.0",
         "msgpack-js": "0.3.0",
-        "mx-connect": "1.4.3",
-        "nodemailer": "6.9.1",
+        "mx-connect": "1.4.4",
+        "nodemailer": "6.9.6",
         "npmlog": "7.0.1",
-        "prom-client": "14.2.0",
+        "prom-client": "15.0.0",
         "punycode": "2.3.0",
         "request": "2.88.2",
         "restify": "11.1.0",
         "seq-index": "1.1.0",
-        "smtp-server": "3.11.0",
+        "smtp-server": "3.13.0",
         "srs.js": "0.1.0",
-        "uuid": "9.0.0",
-        "wild-config": "1.7.0"
+        "uuid": "9.0.1",
+        "wild-config": "1.7.1"
     },
     "devDependencies": {
         "ajv": "8.12.0",
-        "eslint": "8.35.0",
+        "eslint": "8.51.0",
         "eslint-config-nodemailer": "1.2.0",
-        "eslint-config-prettier": "8.7.0",
+        "eslint-config-prettier": "9.0.0",
         "grunt": "1.6.1",
         "grunt-cli": "1.4.3",
-        "grunt-contrib-nodeunit": "4.0.0",
-        "grunt-eslint": "24.0.1",
+        "grunt-contrib-nodeunit": "5.0.0",
+        "grunt-eslint": "24.3.0",
         "moment": "2.29.4",
         "random-message": "1.1.0",
-        "zip-stream": "4.1.0"
+        "zip-stream": "5.0.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/zone-eu/zone-mta.git"
     },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=16.0.0"
     },
     "bin": {
         "check-bounce": "bin/check-bounce.js"

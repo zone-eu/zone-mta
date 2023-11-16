@@ -1,4 +1,61 @@
-# CHANGELOG
+# Changelog
+
+## [3.6.13](https://github.com/zone-eu/zone-mta/compare/v3.6.12...v3.6.13) (2023-10-12)
+
+
+### Bug Fixes
+
+* **deploy:** updated package-lock to fix release ([4248526](https://github.com/zone-eu/zone-mta/commit/42485265748bef6cbcf34eb570fdfae422128abb))
+
+## [3.6.12](https://github.com/zone-eu/zone-mta/compare/v3.6.11...v3.6.12) (2023-10-12)
+
+
+### Bug Fixes
+
+* **queue:** mark emails with 'mailbox full' responses as rejected, not deferred ([c2040e2](https://github.com/zone-eu/zone-mta/commit/c2040e284e337e79c6987b3cf393c669d08a04c8))
+* **queue:** replaced non-likely bounces from deferred to rejected ([c701efd](https://github.com/zone-eu/zone-mta/commit/c701efde4907ea969aef92e7dbfc517a993d8ce9))
+
+## [3.6.11](https://github.com/zone-eu/zone-mta/compare/v3.6.10...v3.6.11) (2023-10-05)
+
+
+### Bug Fixes
+
+* **mail2http:** retry 5xx responses ([33aa6d5](https://github.com/zone-eu/zone-mta/commit/33aa6d5b3c726206563649137de2b42e9bb38bd7))
+
+## [3.6.10](https://github.com/zone-eu/zone-mta/compare/v3.6.9...v3.6.10) (2023-09-29)
+
+
+### Bug Fixes
+
+* **bounces:** Fixed MS365 missing user bounce check regex ([3e0853a](https://github.com/zone-eu/zone-mta/commit/3e0853aef154bdfcdaf7d879017559991e03b507))
+
+## [3.6.9](https://github.com/zone-eu/zone-mta/compare/v3.6.8...v3.6.9) (2023-09-18)
+
+
+### Bug Fixes
+
+* **deploy:** Added repository URL for automatic publishing ([6172534](https://github.com/zone-eu/zone-mta/commit/6172534567299e0c9c568446c6b62e87949e9272))
+
+## [3.6.8](https://github.com/zone-eu/zone-mta/compare/v3.6.7...v3.6.8) (2023-09-18)
+
+
+### Bug Fixes
+
+* **readme:** Updated readme to trigger package publish ([b90d31b](https://github.com/zone-eu/zone-mta/commit/b90d31b610862bf1c9db9c4df41af1a41a905866))
+
+## [3.4.1](https://github.com/zone-eu/zone-mta/compare/v3.4.0...v3.4.1) (2023-09-18)
+
+
+### Bug Fixes
+
+* **deploy:** Set up auto publishing to NPM ([#338](https://github.com/zone-eu/zone-mta/issues/338)) ([b1d6fef](https://github.com/zone-eu/zone-mta/commit/b1d6fef8931a4e40042694414318d1dd5fda2914))
+* **tests:** Added Github action to run tests ([#341](https://github.com/zone-eu/zone-mta/issues/341)) ([908edf9](https://github.com/zone-eu/zone-mta/commit/908edf9321be5342426127d081997bde116ff23b))
+
+## CHANGELOG
+
+-   v3.6.6 2023-05-24
+
+    -   Bumped mx-connect for MTA-STS caching fix
 
 -   v3.6.3 2023-02-08
 
