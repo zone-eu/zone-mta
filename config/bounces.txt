@@ -241,7 +241,7 @@
 # 550 5.7.1 Unfortunately, messages from [1.2.3.4] weren't sent. Please contact your Internet service provider since part of their network is on our block list (S3150). You can also refer
 ^550[ \-]5\.7\.\d+.*block list,defer,blacklist,Sender IP blocked
 
-^550[ \-]5\.4\.1.*Recipient address rejected: Access denied.* \[.*\.prod\.protection\.outlook\.com,reject,recipient,Unknown user
+^550[ \-]5\.4\.1.*Recipient address rejected: Access denied.* \[.*\.prod\.(protection\.)?outlook\.com,reject,recipient,Unknown user
 
 # 550 5.7.606 Access denied, banned sending IP [1.2.3.4]. To request removal from this list please visit https://sender.office.com/ and follow the directions. For more information please go to http://go.microsoft.com/fwlink/?LinkID=526655 (AS16012609) [DB5EUR01FT031.eop-EUR01.prod.protection.outlook.com]
 # 550 5.7.511 Access denied, banned sender[1.2.3.4]. To request removal from this list please forward this message to delist@messaging.microsoft.com. For more information please go to http://go.microsoft.com/fwlink/?LinkId=526653. AS(508) [AM5EUR02FT019.eop-EUR02.prod.protection.outlook.com]
@@ -488,20 +488,14 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^\d{3}[ \-]+5\.2\.1\b,reject,capacity,Mailbox Is Not Accepting New Messages
 ^\d{3}[ \-]+5\.2\.2\b,reject,capacity,Mailbox Is Full
 ^\d{3}[ \-]+5\.2\.3\b,reject,message,Message Is Too Long
-^\d{3}[ \-]+5\.2\.4\b,defer,recipient,Mailbox Has A Mailing List System Issue
 ^\d{3}[ \-]+5\.3\.0\b,reject,recipient,Unknown Issue With The Receiving System
 ^\d{3}[ \-]+5\.3\.1\b,reject,capacity,Email System Is Full
-^\d{3}[ \-]+5\.3\.2\b,defer,recipient,Receiving Email System Not Operable
 ^\d{3}[ \-]+5\.3\.3\b,reject,message,Message Features Not Supported
 ^\d{3}[ \-]+5\.3\.4\b,reject,message,Message Is Too Large
 ^\d{3}[ \-]+5\.3\.5\b,reject,config,Incorrect Configuration Of System
 ^\d{3}[ \-]+5\.3\.6\b,reject,message,Message Priority Issue
 ^\d{3}[ \-]+5\.4\.0\b,reject,network,Unknown Issue With Network Connection
-^\d{3}[ \-]+5\.4\.1\b,defer,network,Network Is Busy
-^\d{3}[ \-]+5\.4\.2\b,defer,network,Network Connection Timed Out
-^\d{3}[ \-]+5\.4\.3\b,defer,network,Network Issue With The Receiving System
 ^\d{3}[ \-]+5\.4\.4\b,reject,network,Email Routing Issue Due To Network
-^\d{3}[ \-]+5\.4\.5\b,defer,network,Overloaded Network
 ^\d{3}[ \-]+5\.4\.6\b,reject,network,Network Issue Caused A Mail Loop
 ^\d{3}[ \-]+5\.4\.7\b,reject,network,Message Expired Before Delivery Completed
 ^\d{3}[ \-]+5\.5\.0\b,reject,config,Unknown Issue With Your Email Server
@@ -513,7 +507,6 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^\d{3}[ \-]+5\.5\.6\b,reject,protocol,Messaging Command In Transmission Too Long
 ^\d{3}[ \-]+5\.6\.0\b,reject,message,Unknown Issue With The Message Content
 ^\d{3}[ \-]+5\.6\.1\b,reject,message,Message Content Or Attachment Not Supported
-^\d{3}[ \-]+5\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
 ^\d{3}[ \-]+5\.6\.2\b,reject,message,Message Content Not Accepted By Recipient Server
 ^\d{3}[ \-]+5\.6\.3\b,reject,message,Message Content Could Not Be Processed For Delivery
 ^\d{3}[ \-]+5\.6\.4\b,reject,network,Content Loss During Delivery
@@ -539,6 +532,22 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^\d{3}[ \-]+5\.7\.14\b,reject,spam,Potential Security Issue For Sender
 ^\d{3}[ \-]+5\.7\.15\b,reject,message,Message Priority Level Too Low
 ^\d{3}[ \-]+5\.7\.16\b,reject,message,Message Too Large For Given Priority Level
+
+^4\d{2}[ \-]+5\.2\.4\b,defer,recipient,Mailbox Has A Mailing List System Issue
+^4\d{2}[ \-]+5\.3\.2\b,defer,recipient,Receiving Email System Not Operable
+^4\d{2}[ \-]+5\.4\.1\b,defer,network,Network Is Busy
+^4\d{2}[ \-]+5\.4\.2\b,defer,network,Network Connection Timed Out
+^4\d{2}[ \-]+5\.4\.3\b,defer,network,Network Issue With The Receiving System
+^4\d{2}[ \-]+5\.4\.5\b,defer,network,Overloaded Network
+^4\d{2}[ \-]+5\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
+
+^5\d{2}[ \-]+5\.2\.4\b,reject,recipient,Mailbox Has A Mailing List System Issue
+^5\d{2}[ \-]+5\.3\.2\b,reject,recipient,Receiving Email System Not Operable
+^5\d{2}[ \-]+5\.4\.1\b,reject,network,Network Is Busy
+^5\d{2}[ \-]+5\.4\.2\b,reject,network,Network Connection Timed Out
+^5\d{2}[ \-]+5\.4\.3\b,reject,network,Network Issue With The Receiving System
+^5\d{2}[ \-]+5\.4\.5\b,reject,network,Overloaded Network
+^5\d{2}[ \-]+5\.6\.10\b,reject,protocol,Email Servers Are Not Responding Appropriately
 
 # General errors
 ^450\b,defer,other,Mailbox unavailable
