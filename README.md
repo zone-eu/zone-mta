@@ -624,6 +624,52 @@ For speedier DNS resolving there are two options. First (the default) is to cach
 }
 ```
 
+## Database fields
+
+### Queue collection
+
+By default is called as `zone-queue`.
+
+Queue entries. Each recipient has a separate queue entry.
+
+-   `id`: email queue ID
+-   `seq`: incrementing recipient counter
+-   `domain`: target domain
+-   `sendingZone`: assigned [sending zone](https://github.com/zone-eu/zone-mta/tree/master#sending-zone) for this delivery
+-   `assigned`: Zone-MTA instance ID that is processing this message. "no" means unassigned.
+-   `recipient`: target email address
+-   `locked`: if `true`, then the message is currently processed for delivery
+-   `lockTime`: when message processing started
+-   `queued`: The message will not be processed for delivery until this time
+-   `created`: the time the queue entry was added
+
+### Content storage collection
+
+By default is called as `mail.files`.
+
+[GridFS](https://www.mongodb.com/docs/manual/core/gridfs/) database. Each email has a single entry in mail.files, and 1...N entries in mailqueue collection.
+
+-   `_id`, `length`, `chunkSize`, `uploadDate`, `filename`, and `contentType` are GridFS-specific values
+-   `metadata`: contains email information
+    -   `created`: when the email was added to the queue
+    -   `data`:
+        -   `id`: email queue ID
+        -   `from`: email sender address
+        -   `to`: list of all recipients from to/cc/bcc fields
+        -   `interface`: Which component added this email to the queue
+        -   `transtype`: How was the email added to the queue (SMTP or API)
+        -   `time`: same as `metadata.created` but milliseconds timestamp
+        -   `dkim`: DKIM signing info
+        -   `userId`: WildDuck user ID of the sender
+        -   `user`: Authentication username
+        -   `reason`: why the message was added to the queue (user submit, autoreply, forward)
+        -   `origin`: IP address of the sender
+        -   `headers`: all email headers in correct order
+        -   `parsedHeaders`: structured headers for easier usage
+        -   `messageId`: Message-ID value of the email
+        -   `date`: Date header of the message. If the email is scheduled to be sent in the future, then this header should be the actual delivery time. It is not the time the email was added to the queue.
+        -   `bodySize`: email byte size without headers
+
 ## License
 
 European Union Public License 1.2 ([details](http://ec.europa.eu/idabc/eupl.html)) or later
