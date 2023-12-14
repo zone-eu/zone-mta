@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.7.0](https://github.com/zone-eu/zone-mta/compare/v3.6.13...v3.7.0) (2023-12-14)
+
+
+### Features
+
+* **plugins:** Added new plugin hook sender:responseError, allow configuratble defer times ([#360](https://github.com/zone-eu/zone-mta/issues/360)) ([061248f](https://github.com/zone-eu/zone-mta/commit/061248f647a98a74f33fa0da09ea2a13e42be6ac))
+
+
+### Bug Fixes
+
+* **bounce:** Fixed Outlook no-such-user bounce detection ([#357](https://github.com/zone-eu/zone-mta/issues/357)) ([0b49571](https://github.com/zone-eu/zone-mta/commit/0b49571fb6677a1570ec1b266cecb81aa5e567e5))
+
 ## [3.6.13](https://github.com/zone-eu/zone-mta/compare/v3.6.12...v3.6.13) (2023-10-12)
 
 
