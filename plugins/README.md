@@ -142,6 +142,7 @@ To use these hooks you need to set `enabled` to `'sender'` or `['sender',...]`
 -   **'sender:connection'** with arguments `delivery`, `connection` called once the system has established a new or reusing an existing connection.
 -   **'sender:delivered'** with arguments `delivery`, `info` called after a message has been accepted by MX server
 -   **'sender:tlserror'** with arguments `delivery`, `options` called after a TLS connection failed against the MX
+-   **'sender:responseError'** with arguments `delivery`, `connection`, `err` called whenever an email failed to send
 
 ### Errors
 
