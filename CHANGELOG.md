@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.0](https://github.com/zone-eu/zone-mta/compare/v3.7.0...v3.8.0) (2024-01-15)
+
+
+### Features
+
+* **api:** Allow ordering queue listing ([41017ff](https://github.com/zone-eu/zone-mta/commit/41017ffa3cdc852e0ea4960ec45ea94092aa7699))
+
 ## [3.7.0](https://github.com/zone-eu/zone-mta/compare/v3.6.13...v3.7.0) (2023-12-14)
 
 
