@@ -4,7 +4,7 @@ const os = require('os');
 const MimeNode = require('nodemailer/lib/mime-node');
 
 module.exports.title = 'Email Bounce Notification';
-module.exports.init = function(app, done) {
+module.exports.init = function (app, done) {
     // generate a multipart/report DSN failure response
     function generateBounceMessage(bounce) {
         let headers = bounce.headers;
@@ -72,10 +72,7 @@ Status: 5.0.0
 `
             );
 
-        rootNode
-            .createChild('text/rfc822-headers')
-            .setHeader('Content-Description', 'Undelivered Message Headers')
-            .setContent(headers.build());
+        rootNode.createChild('text/rfc822-headers').setHeader('Content-Description', 'Undelivered Message Headers').setContent(headers.build());
 
         return rootNode;
     }
@@ -130,6 +127,30 @@ Status: 5.0.0
                 next();
             });
         });
+    });
+
+    app.addHook('queue:delayed', async (delivery, bounce, options) => {
+        if (!app.config.delayEmail || !app.config.delayEmail.enabled) {
+            return;
+        }
+
+        // check if past required time
+        let prevDiff = options.prev - options.first;
+        let curDiff = options.last - options.first;
+        if (prevDiff > app.config.delayEmail.after || curDiff < app.config.delayEmail.after) {
+            return;
+        }
+
+        app.logger.info(
+            'Bounce',
+            'Should send a delay email %s',
+            JSON.stringify({
+                id: delivery.id,
+                seq: delivery.seq,
+                recipient: delivery.recipient,
+                response: bounce.response
+            })
+        );
     });
 
     done();
