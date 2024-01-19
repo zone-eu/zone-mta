@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.0](https://github.com/zone-eu/zone-mta/compare/v3.8.0...v3.9.0) (2024-01-19)
+
+
+### Features
+
+* **bounces:** Send a delayed notification email if a delivery has not been completed after 3 hours ZMS-56 ([#363](https://github.com/zone-eu/zone-mta/issues/363)) ([a535e3a](https://github.com/zone-eu/zone-mta/commit/a535e3a7e10e517eaac13af6819420aa45d10725))
+
 ## [3.8.0](https://github.com/zone-eu/zone-mta/compare/v3.7.0...v3.8.0) (2024-01-15)
 
 
