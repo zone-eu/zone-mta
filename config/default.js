@@ -133,10 +133,10 @@ module.exports = {
             disableInterfaces: ['forwarder'], // do not bounce messages from this interface
             sendingZone: 'bounces',
 
-            // send a warning email about delayed delivery
+            // Send a warning email about delayed delivery
             delayEmail: {
                 enabled: true,
-                after: 3 * 3600 * 1000
+                after: 3 * 3600 * 1000 // 3h
             },
 
             zoneConfig: {
