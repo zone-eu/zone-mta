@@ -27,7 +27,7 @@
         "minimist": "1.2.8",
         "mongodb": "4.17.0",
         "msgpack-js": "0.3.0",
-        "mx-connect": "1.4.4",
+        "mx-connect": "1.5.3",
         "nodemailer": "6.9.8",
         "npmlog": "7.0.1",
         "prom-client": "15.1.0",
