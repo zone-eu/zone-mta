@@ -197,6 +197,14 @@ module.exports = {
             addSignatureTimestamp: false,
             // Time validity of the signature given in seconds, for default value see below
             signatureExpireIn: 0
+        },
+
+        // Make sure messages have all required headers like Date or Message-ID
+        'core/delivery-loop': {
+            enabled: ['receiver', 'main'],
+
+            // Reject messages with higher Received count
+            maxHops: 35
         }
     },
 
