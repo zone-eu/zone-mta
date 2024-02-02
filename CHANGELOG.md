@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.9.1](https://github.com/zone-eu/zone-mta/compare/v3.9.0...v3.9.1) (2024-02-02)
+
+
+### Bug Fixes
+
+* **api:** added endpoint to list locked domains ([25102ca](https://github.com/zone-eu/zone-mta/commit/25102ca71010951fb592c6d8bdb4852976a49c1e))
+* **loop:** reject messages with too many Received headers ([cbffa6d](https://github.com/zone-eu/zone-mta/commit/cbffa6d3dcadb937b9303a42fbe2603fd1668fb8))
+* **mime-head:** Increased allowd MIME node header size to 2MB ([26e4896](https://github.com/zone-eu/zone-mta/commit/26e48967bd96e8aa08b1986513fe4733961bd672))
+* **tls-options:** Retrieve ignoreTLS value from Sending Zone, or default to false ([#365](https://github.com/zone-eu/zone-mta/issues/365)) ([336e835](https://github.com/zone-eu/zone-mta/commit/336e8358be5992bd15392fc07064540fda4aa23d))
+
 ## [3.9.0](https://github.com/zone-eu/zone-mta/compare/v3.8.0...v3.9.0) (2024-01-19)
 
 
