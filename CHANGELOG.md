@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.9.3](https://github.com/zone-eu/zone-mta/compare/v3.9.2...v3.9.3) (2024-02-08)
+
+
+### Bug Fixes
+
+* **bounces:** fixed bounce handling in mail queue ([05d2b8d](https://github.com/zone-eu/zone-mta/commit/05d2b8d6ec21d4c280b5da7e7e1dd1053354f49d))
+* **sts:** do not try to store error object as JSON value ([9a45336](https://github.com/zone-eu/zone-mta/commit/9a45336a2bc92247c95880abf1aa0df42b682b2a))
+
 ## [3.9.2](https://github.com/zone-eu/zone-mta/compare/v3.9.1...v3.9.2) (2024-02-08)
 
 
