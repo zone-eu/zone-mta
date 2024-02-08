@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.9.2](https://github.com/zone-eu/zone-mta/compare/v3.9.1...v3.9.2) (2024-02-08)
+
+
+### Bug Fixes
+
+* **deps:** bumped nodemailer and smtp-server versions ([0a2371d](https://github.com/zone-eu/zone-mta/commit/0a2371dbc4dc5874ebea04b8ce3568030039d853))
+* **logs:** added new remote log entry QUEUE_POLL ([800b583](https://github.com/zone-eu/zone-mta/commit/800b5835e99a7f1e0370b114b2821464785ac30a))
+
 ## [3.9.1](https://github.com/zone-eu/zone-mta/compare/v3.9.0...v3.9.1) (2024-02-02)
 
 
