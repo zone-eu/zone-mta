@@ -137,7 +137,19 @@ Status: ${isDelayed ? '4.0.0' : '5.0.0'}
             maildrop.add(envelope, mail.createReadStream(), err => {
                 if (err && err.name !== 'SMTPResponse') {
                     app.logger.error('Bounce', err.message);
+                    app.remotelog(bounce.id, bounce.seq, 'QUEUE_BOUNCE', {
+                        queued: 'no',
+                        bounceType: 'failure',
+                        error: err.message
+                    });
+                } else {
+                    app.remotelog(bounce.id, bounce.seq, 'QUEUE_BOUNCE', {
+                        queued: 'yes',
+                        bounceType: 'failure',
+                        bounceId: envelope.id
+                    });
                 }
+
                 next();
             });
         });
@@ -206,7 +218,19 @@ Status: ${isDelayed ? '4.0.0' : '5.0.0'}
             maildrop.add(envelope, mail.createReadStream(), err => {
                 if (err && err.name !== 'SMTPResponse') {
                     app.logger.error('Bounce', err.message);
+                    app.remotelog(bounce.id, bounce.seq, 'QUEUE_BOUNCE', {
+                        queued: 'no',
+                        bounceType: 'delayed',
+                        error: err.message
+                    });
+                } else {
+                    app.remotelog(bounce.id, bounce.seq, 'QUEUE_BOUNCE', {
+                        queued: 'yes',
+                        bounceType: 'delayed',
+                        bounceId: envelope.id
+                    });
                 }
+
                 resolve();
             });
         });

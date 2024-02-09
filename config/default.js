@@ -45,7 +45,10 @@ module.exports = {
         defaultZone: 'default',
 
         // remove messages from queue if not delivered or bounced before maxQueueTime
-        maxQueueTime: 30 * 24 * 3600 * 1000
+        maxQueueTime: 30 * 24 * 3600 * 1000,
+
+        // log every poll query from queue
+        logQueuePolling: false
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
