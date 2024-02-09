@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.4](https://github.com/zone-eu/zone-mta/compare/v3.9.3...v3.9.4) (2024-02-09)
+
+
+### Bug Fixes
+
+* **logs:** send bounce information to remote log ([3fd3986](https://github.com/zone-eu/zone-mta/commit/3fd3986b3874071e135060fca7695a23715c4ff1))
+
 ## [3.9.3](https://github.com/zone-eu/zone-mta/compare/v3.9.2...v3.9.3) (2024-02-08)
 
 
