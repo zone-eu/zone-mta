@@ -28,14 +28,14 @@
         "mongodb": "4.17.2",
         "msgpack-js": "0.3.0",
         "mx-connect": "1.5.3",
-        "nodemailer": "6.9.10",
+        "nodemailer": "6.9.13",
         "npmlog": "7.0.1",
-        "prom-client": "15.1.0",
+        "prom-client": "15.1.1",
         "punycode": "2.3.1",
         "request": "2.88.2",
         "restify": "11.1.0",
         "seq-index": "1.1.0",
-        "smtp-server": "3.13.2",
+        "smtp-server": "3.13.3",
         "srs.js": "0.1.0",
         "uuid": "9.0.1",
         "wild-config": "1.7.1"
@@ -51,7 +51,7 @@
         "grunt-eslint": "24.3.0",
         "moment": "2.30.1",
         "random-message": "1.1.0",
-        "zip-stream": "5.0.1"
+        "zip-stream": "6.0.1"
     },
     "repository": {
         "type": "git",
