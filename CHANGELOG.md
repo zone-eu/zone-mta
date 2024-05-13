@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.6](https://github.com/zone-eu/zone-mta/compare/v3.9.5...v3.9.6) (2024-05-13)
+
+
+### Bug Fixes
+
+* **deps:** Bumped deps to clear out some security warnings ([3849037](https://github.com/zone-eu/zone-mta/commit/3849037ba0a6a680c4b9a3d2e4bd371c58bc33aa))
+
 ## [3.9.5](https://github.com/zone-eu/zone-mta/compare/v3.9.4...v3.9.5) (2024-03-27)
 
 
