@@ -1,7 +1,7 @@
 {
-    "name": "zone-mta",
+    "name": "@pulsar-sd/zone-mta",
     "private": false,
-    "version": "3.9.6",
+    "version": "0.1.0",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -12,7 +12,7 @@
         "certs": "mkdir -p keys && cd keys && openssl req -x509 -newkey rsa:2048 -nodes -subj \"/C=US/ST=Oregon/L=Portland/O=Company Name/OU=Org/CN=www.example.com\" -keyout private.key -out server.crt -days 365",
         "update": "rm -rf node_modules package-lock.json && ncu -u && npm install"
     },
-    "author": "Andris Reinman",
+    "author": "Pulsar SD <info@pulsar-sd.com>",
     "license": "EUPL-1.1+",
     "dependencies": {
         "base32.js": "0.1.0",
@@ -55,8 +55,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/zone-eu/zone-mta.git"
+        "url": "git+https://github.com/pulsar-sd/zone-mta.git"
     },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "bugs": {
+        "url": "https://github.com/pulsar-sd/zone-mta/issues"
+    },
+    "homepage": "https://github.com/pulsar-sd/zone-mta#readme",
     "engines": {
         "node": ">=16.0.0"
     },
