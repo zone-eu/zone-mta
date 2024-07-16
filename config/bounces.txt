@@ -3,7 +3,7 @@
 #   regex,action,category,message
 # action: defer, reject, slowdown
 # categories:
-#   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth, blacklist
+#   rate, block, spam, message, config, recipient, other, capacity, greylist, network, protocol, auth, blacklist, envelope
 
 # This file will be cached after ZoneMTA is started, so in order to reload the rules, send a SIGHUP signal to the master process
 
