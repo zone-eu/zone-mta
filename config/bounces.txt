@@ -455,14 +455,14 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^\d{3}[ \-]+4\.6\.10\b,defer,protocol,Email Servers Are Not Responding Appropriately
 ^\d{3}[ \-]+4\.7\.0\b,defer,policy,Unknown Security Or Policy Concern
 ^\d{3}[ \-]+4\.7\.1\b,defer,block,Message Sender Blocked By Receiving Server
-^\d{3}[ \-]+4\.7\.2,reject,auth,Not Authorized To Send To Mailing List
-^\d{3}[ \-]+4\.7\.3,defer,other,Security Features Could Not Be Interpreted
-^\d{3}[ \-]+4\.7\.4,defer,auth,User Authentication For Message Failed
-^\d{3}[ \-]+4\.7\.5,reject,message,Message Authentication Issues
-^\d{3}[ \-]+4\.7\.6,reject,message,Message Encryption Issues
-^\d{3}[ \-]+4\.7\.7,reject,message,Potentially Corrupt Message
-^\d{3}[ \-]+4\.7\.8,defer,auth,User Authentication Failed
-^\d{3}[ \-]+4\.7\.9,defer,auth,Security Issue With User Authentication
+^\d{3}[ \-]+4\.7\.2\b,reject,auth,Not Authorized To Send To Mailing List
+^\d{3}[ \-]+4\.7\.3\b,defer,other,Security Features Could Not Be Interpreted
+^\d{3}[ \-]+4\.7\.4\b,defer,auth,User Authentication For Message Failed
+^\d{3}[ \-]+4\.7\.5\b,reject,message,Message Authentication Issues
+^\d{3}[ \-]+4\.7\.6\b,reject,message,Message Encryption Issues
+^\d{3}[ \-]+4\.7\.7\b,reject,message,Potentially Corrupt Message
+^\d{3}[ \-]+4\.7\.8\b,defer,auth,User Authentication Failed
+^\d{3}[ \-]+4\.7\.9\b,defer,auth,Security Issue With User Authentication
 ^\d{3}[ \-]+4\.7\.10\b,reject,auth,Stronger Security Or Encryption Needed
 ^\d{3}[ \-]+4\.7\.11\b,reject,auth,Encryption Needed For Network Connection
 ^\d{3}[ \-]+4\.7\.12\b,defer,auth,Authentication Required
