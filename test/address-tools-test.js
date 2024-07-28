@@ -3,16 +3,16 @@
 let addressTools = require('../lib/address-tools');
 let Headers = require('mailsplit').Headers;
 
-module.exports['#parseAddressses, no names'] = test => {
-    let parsed = addressTools.parseAddressses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>']);
+module.exports['#parseAddresses, no names'] = test => {
+    let parsed = addressTools.parseAddresses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>']);
 
     test.deepEqual(['andris1@kreata.ee', 'andris2@kreata.ee', 'andris3@kreata.ee'], parsed);
 
     test.done();
 };
 
-module.exports['#parseAddressses, with names'] = test => {
-    let parsed = addressTools.parseAddressses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>'], true);
+module.exports['#parseAddresses, with names'] = test => {
+    let parsed = addressTools.parseAddresses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>'], true);
 
     test.deepEqual(
         [
@@ -35,8 +35,8 @@ module.exports['#parseAddressses, with names'] = test => {
     test.done();
 };
 
-module.exports['#parseAddressses, group with names'] = test => {
-    let parsed = addressTools.parseAddressses(
+module.exports['#parseAddresses, group with names'] = test => {
+    let parsed = addressTools.parseAddresses(
         ['andris1@kreata.ee, Disclosed:<andris2@kreata.ee>, Andris3 <andris3@kreata.ee>;', 'Andris4 <andris2@kreata.ee>'],
         true
     );

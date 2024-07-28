@@ -42,7 +42,7 @@
 ^550[ \-]+5\.7\.1\s+[\d\.]+ has been blocked,defer,blacklist,Sender IP blacklisted
 
 # 554 5.7.1 Service unavailable; Client host [1.2.3.4] blocked using ee.countries.nerd.dk; Your IP is in ee, rejected based on geographical location
-# Should it reject immediatelly, as in most cases we have addresses from the same region?
+# Should it reject immediately, as in most cases we have addresses from the same region?
 ^554[ \-]+5\.7\.1\s+.*rejected based on geographical location,defer,blacklist,Sender IP blacklisted by region
 
 # 421 4.7.1 Service unavailable; Client host [1.2.3.4] blocked using grey.rbl - Rechazo temporal, intentelo mas tarde por favor...Greylisting in action, please try again later

@@ -44,7 +44,7 @@
 
 * **api:** added endpoint to list locked domains ([25102ca](https://github.com/zone-eu/zone-mta/commit/25102ca71010951fb592c6d8bdb4852976a49c1e))
 * **loop:** reject messages with too many Received headers ([cbffa6d](https://github.com/zone-eu/zone-mta/commit/cbffa6d3dcadb937b9303a42fbe2603fd1668fb8))
-* **mime-head:** Increased allowd MIME node header size to 2MB ([26e4896](https://github.com/zone-eu/zone-mta/commit/26e48967bd96e8aa08b1986513fe4733961bd672))
+* **mime-head:** Increased allowed MIME node header size to 2MB ([26e4896](https://github.com/zone-eu/zone-mta/commit/26e48967bd96e8aa08b1986513fe4733961bd672))
 * **tls-options:** Retrieve ignoreTLS value from Sending Zone, or default to false ([#365](https://github.com/zone-eu/zone-mta/issues/365)) ([336e835](https://github.com/zone-eu/zone-mta/commit/336e8358be5992bd15392fc07064540fda4aa23d))
 
 ## [3.9.0](https://github.com/zone-eu/zone-mta/compare/v3.8.0...v3.9.0) (2024-01-19)
@@ -122,7 +122,7 @@
 ### Bug Fixes
 
 * **deploy:** Set up auto publishing to NPM ([#338](https://github.com/zone-eu/zone-mta/issues/338)) ([b1d6fef](https://github.com/zone-eu/zone-mta/commit/b1d6fef8931a4e40042694414318d1dd5fda2914))
-* **tests:** Added Github action to run tests ([#341](https://github.com/zone-eu/zone-mta/issues/341)) ([908edf9](https://github.com/zone-eu/zone-mta/commit/908edf9321be5342426127d081997bde116ff23b))
+* **tests:** Added GitHub action to run tests ([#341](https://github.com/zone-eu/zone-mta/issues/341)) ([908edf9](https://github.com/zone-eu/zone-mta/commit/908edf9321be5342426127d081997bde116ff23b))
 
 ## CHANGELOG
 
@@ -193,7 +193,7 @@
 
 -   v2.3.2 2020-10-05
 
-    -   Do not categorize response codes like 550 automaticaly as "recipient"
+    -   Do not categorize response codes like 550 automatically as "recipient"
 
 -   v2.3.1 2020-09-24
 
@@ -280,7 +280,7 @@
 
 -   v1.10.4 2018-08-22
 
-    -   Fixed an issue with MX connection timeouts where a working MX exisits but never was tried
+    -   Fixed an issue with MX connection timeouts where a working MX exists but never was tried
 
 -   v1.10.2 2018-08-16
 
