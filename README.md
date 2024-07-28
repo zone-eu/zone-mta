@@ -179,7 +179,7 @@ If the message hard bounces (or after too many retries for soft bounces) a bounc
 
 ### Blacklist back-off
 
-If the bounce occured because your sending IP is blacklisted then this IP gets disabled for that MX for the next 6 hours and message is retried from a different IP. You can also disable local IP addresses permanently for specific domains with `disabledAddresses` option.
+If the bounce occurred because your sending IP is blacklisted then this IP gets disabled for that MX for the next 6 hours and message is retried from a different IP. You can also disable local IP addresses permanently for specific domains with `disabledAddresses` option.
 
 ### Error Recovery
 
