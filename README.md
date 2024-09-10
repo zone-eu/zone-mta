@@ -527,7 +527,7 @@ The exposed metrics include a lot of different data but the most important ones 
 
 ##### zonemta_delivery_status
 
-`zonemta_delivery_status` exposes counters for delivery statuses. There are 3 different `result` label values
+`zonemta_delivery_status` exposes counters for delivery statuses. There are 3 different `result` label values. The zone name is exposed in the `zone` label.
 
 -   `result="delivered"` – count of deliveries accepted by remote MX
 -   `result="rejected"` – count of deliveries that hard bounced
