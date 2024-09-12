@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.10.0](https://github.com/zone-eu/zone-mta/compare/v3.9.6...v3.10.0) (2024-09-10)
+
+
+### Features
+
+* add zone name to prometheus ([#422](https://github.com/zone-eu/zone-mta/issues/422)) ([df06cba](https://github.com/zone-eu/zone-mta/commit/df06cba31adb78bb151679a292df0cd947246b4c))
+
+
+### Bug Fixes
+
+* **bounces:** Require word boundary when matching extended status codes ([#413](https://github.com/zone-eu/zone-mta/issues/413)) ([93b532c](https://github.com/zone-eu/zone-mta/commit/93b532c47c488bf88f6b4bf74199cac8838e4131))
+* **tls:** sender.js will on a tls failure try a delivery with out tls. However on freebsd 13 a misconfigured server may show ([#393](https://github.com/zone-eu/zone-mta/issues/393)) ([530b495](https://github.com/zone-eu/zone-mta/commit/530b495959fdcd2f5585738ddf6e01492754cfa9))
+* typos ([#415](https://github.com/zone-eu/zone-mta/issues/415)) ([33c5d28](https://github.com/zone-eu/zone-mta/commit/33c5d284ef0962f3b4f00b453db4ba70fd4fedc8))
+
 ## [3.9.6](https://github.com/zone-eu/zone-mta/compare/v3.9.5...v3.9.6) (2024-05-13)
 
 
