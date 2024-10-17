@@ -676,4 +676,4 @@ European Union Public License 1.2 ([details](http://ec.europa.eu/idabc/eupl.html
 
 ZoneMTA is created and maintained in the European Union, licensed under EUPL and its authors have no relations to the US, thus there can not be any infringements of US-based patents.
 
-> ZoneMTA is part of the Zone Mail Suite (ZMS). Suite of programs and modules for an efficient, modern email server.
+> ZoneMTA is part of the Zone Mail Suite (ZMS). Suite of programs and modules for an efficient, fast and modern email server.
