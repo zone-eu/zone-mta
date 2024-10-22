@@ -1,7 +1,7 @@
 'use strict';
 
 const os = require('os');
-const uuid = require('uuid');
+const crypto = require('crypto');
 const addressTools = require('../../lib/address-tools');
 const sendingZone = require('../../lib/sending-zone');
 const hostname = os.hostname();
@@ -33,7 +33,7 @@ module.exports.init = async app => {
         // Check Message-ID: value. Add if missing
         let mId = envelope.headers.getFirst('message-id');
         if (!mId) {
-            mId = '<' + uuid.v4() + '@' + (envelope.from.substr(envelope.from.lastIndexOf('@') + 1) || hostname) + '>';
+            mId = '<' + crypto.randomUUID() + '@' + (envelope.from.substr(envelope.from.lastIndexOf('@') + 1) || hostname) + '>';
             if (addMissing.includes('message-id')) {
                 envelope.headers.remove('message-id'); // in case there's an empty value
                 envelope.headers.add('Message-ID', mId);
