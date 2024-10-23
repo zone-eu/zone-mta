@@ -675,3 +675,7 @@ By default is called as `mail.files`.
 European Union Public License 1.2 ([details](http://ec.europa.eu/idabc/eupl.html)) or later
 
 ZoneMTA is created and maintained in the European Union, licensed under EUPL and its authors have no relations to the US, thus there can not be any infringements of US-based patents.
+
+> ZoneMTA is part of the Zone Mail Suite (ZMS). Suite of programs and modules for an efficient, fast and modern email server.
+
+Copyright (c) 2024 Zone Media OÜ
