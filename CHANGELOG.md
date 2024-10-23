@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.10.0](https://github.com/zone-eu/zone-mta/compare/v3.9.6...v3.10.0) (2024-10-23)
+
+
+### Features
+
+* add zone name to prometheus ([#422](https://github.com/zone-eu/zone-mta/issues/422)) ([df06cba](https://github.com/zone-eu/zone-mta/commit/df06cba31adb78bb151679a292df0cd947246b4c))
+
+
+### Bug Fixes
+
+* **bounces:** Require word boundary when matching extended status codes ([#413](https://github.com/zone-eu/zone-mta/issues/413)) ([93b532c](https://github.com/zone-eu/zone-mta/commit/93b532c47c488bf88f6b4bf74199cac8838e4131))
+* **DKIM:** Use Mailauth to calculate message body hashes ([9117281](https://github.com/zone-eu/zone-mta/commit/9117281b84d8339062a728624728b6ce03925850))
+* **mta-sts:** set MTA-STS as disabled if redis error ZMS-170 ([#425](https://github.com/zone-eu/zone-mta/issues/425)) ([a9d543e](https://github.com/zone-eu/zone-mta/commit/a9d543efb71fe76e9f66c3ea2f46d8010200418d))
+* **readme:** ZMS-180 ([cfed6c8](https://github.com/zone-eu/zone-mta/commit/cfed6c89812953c742fdf7b4ab1f33c745db198e))
+* **tls:** sender.js will on a tls failure try a delivery with out tls. However on freebsd 13 a misconfigured server may show ([#393](https://github.com/zone-eu/zone-mta/issues/393)) ([530b495](https://github.com/zone-eu/zone-mta/commit/530b495959fdcd2f5585738ddf6e01492754cfa9))
+* typos ([#415](https://github.com/zone-eu/zone-mta/issues/415)) ([33c5d28](https://github.com/zone-eu/zone-mta/commit/33c5d284ef0962f3b4f00b453db4ba70fd4fedc8))
+
 ## [3.9.6](https://github.com/zone-eu/zone-mta/compare/v3.9.5...v3.9.6) (2024-05-13)
 
 
