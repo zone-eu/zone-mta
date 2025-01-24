@@ -1,7 +1,7 @@
 {
     "name": "@pulsar-sd/zone-mta",
     "private": false,
-    "version": "0.1.14",
+    "version": "0.1.17",
     "description": "Tiny outbound MTA",
     "main": "app.js",
     "scripts": {
@@ -38,6 +38,7 @@
         "seq-index": "1.1.0",
         "smtp-server": "3.13.6",
         "srs.js": "0.1.0",
+        "swagger-jsdoc": "^6.2.8",
         "wild-config": "1.7.1"
     },
     "devDependencies": {

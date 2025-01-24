@@ -1,0 +1,10 @@
+{
+  "name": "swagger-ui-dist",
+  "version": "5.18.2",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@scarf/scarf": "=1.4.0"
+  },
+  "devDependencies": {}
+}
