@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.1](https://github.com/zone-eu/zone-mta/compare/v3.10.0...v3.10.1) (2025-03-14)
+
+
+### Bug Fixes
+
+* **outbound-mta-relay:** Added support for outbound MTA relay ZMS-171 ([e54e0ba](https://github.com/zone-eu/zone-mta/commit/e54e0ba5e00394e6ada894f6c95acc220cf3822c))
+
 ## [3.10.0](https://github.com/zone-eu/zone-mta/compare/v3.9.6...v3.10.0) (2024-10-23)
 
 
