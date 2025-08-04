@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.10.2](https://github.com/zone-eu/zone-mta/compare/v3.10.1...v3.10.2) (2025-08-04)
+
+
+### Bug Fixes
+
+* bump deps ([#448](https://github.com/zone-eu/zone-mta/issues/448)) ([31421a9](https://github.com/zone-eu/zone-mta/commit/31421a90ed3a240daf68ec092c5d9b78a7a9a593))
+* ZMS-247 onConnect hook check if server is already closing, also fix CI/CD ([#450](https://github.com/zone-eu/zone-mta/issues/450)) ([cdab3f2](https://github.com/zone-eu/zone-mta/commit/cdab3f26c79a0bccee591f56142097b6577125a2))
+
 ## [3.10.1](https://github.com/zone-eu/zone-mta/compare/v3.10.0...v3.10.1) (2025-03-14)
 
 
