@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.3](https://github.com/zone-eu/zone-mta/compare/v3.10.2...v3.10.3) (2025-08-12)
+
+
+### Bug Fixes
+
+* ZMS-231 use chunkedPassthrough when passing chunks to mailsplit splitter ([#451](https://github.com/zone-eu/zone-mta/issues/451)) ([1040a69](https://github.com/zone-eu/zone-mta/commit/1040a69fcd68a8b1abd28ffec23be80e66d62ff1))
+
 ## [3.10.2](https://github.com/zone-eu/zone-mta/compare/v3.10.1...v3.10.2) (2025-08-04)
 
 
