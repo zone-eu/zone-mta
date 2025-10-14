@@ -1,6 +1,6 @@
 'use strict';
 
-const PluginHandler = require('../lib/plugin-handler');
+const PluginHandler = require('@zone-eu/wild-plugins');
 const mailsplit = require('mailsplit');
 const PassThrough = require('stream').PassThrough;
 
