@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.10.3](https://github.com/zone-eu/zone-mta/compare/v3.10.2...v3.10.3) (2025-10-14)
+
+
+### Bug Fixes
+
+* **pluginhandler:** move pluginhandler to separate package, update deps ([#455](https://github.com/zone-eu/zone-mta/issues/455)) ([83c27ac](https://github.com/zone-eu/zone-mta/commit/83c27acee6da9e49dad0e797d4f9e512e9cd15ad))
+* ZMS-231 use chunkedPassthrough when passing chunks to mailsplit splitter ([#451](https://github.com/zone-eu/zone-mta/issues/451)) ([1040a69](https://github.com/zone-eu/zone-mta/commit/1040a69fcd68a8b1abd28ffec23be80e66d62ff1))
+
 ## [3.10.2](https://github.com/zone-eu/zone-mta/compare/v3.10.1...v3.10.2) (2025-08-04)
 
 
