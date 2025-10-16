@@ -1,5 +1,5 @@
 {
-    "name": "zone-mta",
+    "name": "@zone-eu/zone-mta",
     "private": false,
     "version": "3.10.3",
     "description": "Tiny outbound MTA",
@@ -15,7 +15,10 @@
     "author": "Andris Reinman",
     "license": "EUPL-1.1+",
     "dependencies": {
-        "@zone-eu/wild-plugins": "^1.0.1",
+        "@zone-eu/mailsplit": "5.4.7",
+        "@zone-eu/seq-index": "1.1.2",
+        "@zone-eu/wild-config": "1.7.2",
+        "@zone-eu/wild-plugins": "1.0.3",
         "base32.js": "0.1.0",
         "crc-32": "1.2.2",
         "dnscache": "1.0.2",
@@ -25,7 +28,6 @@
         "js-yaml": "4.1.0",
         "libmime": "5.3.7",
         "mailauth": "4.9.5",
-        "mailsplit": "5.4.6",
         "minimist": "1.2.8",
         "mongodb": "4.17.2",
         "msgpack-js": "0.3.0",
@@ -36,10 +38,8 @@
         "punycode": "2.3.1",
         "request": "2.88.2",
         "restify": "11.1.0",
-        "seq-index": "1.1.0",
         "smtp-server": "3.15.0",
-        "srs.js": "0.1.0",
-        "wild-config": "1.7.1"
+        "srs.js": "0.1.0"
     },
     "devDependencies": {
         "ajv": "8.17.1",

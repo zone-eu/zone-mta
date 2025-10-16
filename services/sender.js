@@ -5,7 +5,7 @@
 
 const argv = require('minimist')(process.argv.slice(2));
 const SendingZone = require('../lib/sending-zone').SendingZone;
-const config = require('wild-config');
+const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const bounces = require('../lib/bounces');
 

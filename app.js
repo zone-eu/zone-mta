@@ -4,7 +4,7 @@
 // Run as 'node app.js' to start
 const path = require('path');
 process.env.NODE_CONFIG_DIR = path.join(__dirname, '.', 'config');
-const config = require('wild-config');
+const config = require('@zone-eu/wild-config');
 
 if (process.env.NODE_CONFIG_ONLY === 'true') {
     console.log(require('util').inspect(config, false, 22)); // eslint-disable-line
