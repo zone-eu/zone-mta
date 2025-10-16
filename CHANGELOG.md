@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.4](https://github.com/zone-eu/zone-mta/compare/v3.10.3...v3.10.4) (2025-10-16)
+
+
+### Bug Fixes
+
+* ZMSA-1: bump deps, update release workflow, scope package ([#456](https://github.com/zone-eu/zone-mta/issues/456)) ([be22053](https://github.com/zone-eu/zone-mta/commit/be22053763f84a85eb72d6cd6f7a87e13f8f2342))
+
 ## [3.10.3](https://github.com/zone-eu/zone-mta/compare/v3.10.2...v3.10.3) (2025-10-14)
 
 
