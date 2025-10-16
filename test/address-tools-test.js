@@ -1,7 +1,7 @@
 'use strict';
 
 let addressTools = require('../lib/address-tools');
-let Headers = require('mailsplit').Headers;
+let Headers = require('@zone-eu/mailsplit').Headers;
 
 module.exports['#parseAddresses, no names'] = test => {
     let parsed = addressTools.parseAddresses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>']);

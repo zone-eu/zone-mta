@@ -1,7 +1,7 @@
 'use strict';
 
 const PluginHandler = require('@zone-eu/wild-plugins');
-const mailsplit = require('mailsplit');
+const mailsplit = require('@zone-eu/mailsplit');
 const PassThrough = require('stream').PassThrough;
 
 module.exports['Loading empty plugin with no init method should fail'] = test => {

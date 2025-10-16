@@ -3,7 +3,7 @@
 // NB! This script is ran as a separate process
 
 const argv = require('minimist')(process.argv.slice(2));
-const config = require('wild-config');
+const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const crypto = require('crypto');
 
