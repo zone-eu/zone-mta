@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.5](https://github.com/zone-eu/zone-mta/compare/v3.10.4...v3.10.5) (2025-11-03)
+
+
+### Bug Fixes
+
+* ZMS-280: bump deps ([#459](https://github.com/zone-eu/zone-mta/issues/459)) ([63cacbe](https://github.com/zone-eu/zone-mta/commit/63cacbea54346f292c6a916f26e76e1c5b1df852))
+
 ## [3.10.4](https://github.com/zone-eu/zone-mta/compare/v3.10.3...v3.10.4) (2025-10-16)
 
 
