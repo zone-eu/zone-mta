@@ -515,5 +515,6 @@ module.exports = {
         */
     },
 
-    pluginsPath: './plugins'
+    pluginsPath: './plugins',
+    corePluginsPath: './plugins'
 };
