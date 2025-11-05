@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.6](https://github.com/zone-eu/zone-mta/compare/v3.10.5...v3.10.6) (2025-11-05)
+
+
+### Bug Fixes
+
+* allow to config corePluginsPath ([#461](https://github.com/zone-eu/zone-mta/issues/461)) ([c442b81](https://github.com/zone-eu/zone-mta/commit/c442b815a7b1b6a0901fd9996f38011f77c216fc))
+
 ## [3.10.5](https://github.com/zone-eu/zone-mta/compare/v3.10.4...v3.10.5) (2025-11-03)
 
 
