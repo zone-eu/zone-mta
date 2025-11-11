@@ -23,6 +23,7 @@
         "crc-32": "1.2.2",
         "dnscache": "1.0.2",
         "gelf": "2.0.1",
+        "http-parser-js": "0.5.10",
         "ioredis": "5.8.2",
         "isemail": "3.2.0",
         "js-yaml": "4.1.0",
