@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.8](https://github.com/zone-eu/zone-mta/compare/v3.10.7...v3.10.8) (2025-11-11)
+
+
+### Bug Fixes
+
+* add http_parser polyfill ([#465](https://github.com/zone-eu/zone-mta/issues/465)) ([d39e9c3](https://github.com/zone-eu/zone-mta/commit/d39e9c3c0379c01ff903ed2836bc383e0270a533))
+
 ## [3.10.7](https://github.com/zone-eu/zone-mta/compare/v3.10.6...v3.10.7) (2025-11-05)
 
 
