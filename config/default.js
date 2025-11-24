@@ -52,7 +52,7 @@ module.exports = {
     },
 
     // plugin files to load into ZoneMTA, relative to ./plugins folder
-    // use "core/{name}" to load built-in modules or "module/{name}" to load
+    // use "core/{name}" to load built-in modules or "modules/{name}" to load
     // modules installed from npm
     plugins: {
         'core/example-plugin': false,
