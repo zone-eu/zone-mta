@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.10.9](https://github.com/zone-eu/zone-mta/compare/v3.10.8...v3.10.9) (2025-11-24)
+
+
+### Bug Fixes
+
+* rename ambiguous "id" parameter to "message-id" ([#469](https://github.com/zone-eu/zone-mta/issues/469)) ([c01feb4](https://github.com/zone-eu/zone-mta/commit/c01feb4504b4a57697f9b5901061d16170f90143))
+* ZMSA-26: plugins/default.js fix comment - use modules instead of module ([#470](https://github.com/zone-eu/zone-mta/issues/470)) ([8be4eb0](https://github.com/zone-eu/zone-mta/commit/8be4eb055748295b630fac3aeabd20c26ecd547d))
+
 ## [3.10.8](https://github.com/zone-eu/zone-mta/compare/v3.10.7...v3.10.8) (2025-11-11)
 
 
