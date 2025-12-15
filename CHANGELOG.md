@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.11](https://github.com/zone-eu/zone-mta/compare/v3.10.10...v3.10.11) (2025-12-15)
+
+
+### Bug Fixes
+
+* **tls-conf&tls-log:** ZMSA-49: smtp-interface add support for specifying ciphers and seclevel ([#474](https://github.com/zone-eu/zone-mta/issues/474)) ([87f033a](https://github.com/zone-eu/zone-mta/commit/87f033a26e1f5a3d343027708ed803b3f2cbf8a5))
+
 ## [3.10.10](https://github.com/zone-eu/zone-mta/compare/v3.10.9...v3.10.10) (2025-12-09)
 
 
