@@ -49,6 +49,10 @@ const gelfEnabled = !!(gelfConfig && gelfConfig.enabled);
 const gelf = gelfEnabled ? new Gelf(gelfConfig.options) : null;
 
 const loggelf = (message, requiredKeys = []) => {
+    if (!gelf) {
+        return;
+    }
+
     if (typeof message === 'string') {
         message = {
             short_message: message
@@ -70,10 +74,11 @@ const loggelf = (message, requiredKeys = []) => {
             delete message[key];
         }
     });
-    if (gelf) {
-        gelf.emit('gelf.log', message);
-    }
+    gelf.emit('gelf.log', message);
 };
+
+log.gelfEnabled = gelfEnabled;
+log.loggelf = loggelf;
 
 const originalLogError = log.error.bind(log);
 log.error = (...args) => {
