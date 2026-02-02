@@ -80,7 +80,6 @@ const loggelf = (message, requiredKeys = []) => {
 };
 
 log.gelfEnabled = gelfEnabled;
-log.gelf = loggelf;
 log.loggelf = loggelf;
 
 const originalLogError = log.error.bind(log);
