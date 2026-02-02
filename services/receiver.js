@@ -7,6 +7,7 @@ const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const crypto = require('crypto');
 const { gelfCode, emitGelf } = require('../lib/log-gelf');
+require('../lib/log-setup')(config);
 
 log.level = config.log.level;
 

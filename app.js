@@ -36,81 +36,10 @@ if (process.env.NODE_CONFIG_ONLY === 'true') {
 }
 
 const fs = require('fs');
-const os = require('os');
-const util = require('util');
-const Gelf = require('gelf');
 const log = require('npmlog');
+require('./lib/log-setup')(config);
 const { gelfCode } = require('./lib/log-gelf');
 log.level = config.log.level;
-
-const gelfConfig = (config.log && config.log.gelf) || {};
-const component = gelfConfig.component || 'mta';
-const hostname = gelfConfig.hostname || os.hostname();
-const gelfEnabled = !!(gelfConfig && gelfConfig.enabled);
-const gelf = gelfEnabled ? new Gelf(gelfConfig.options) : null;
-log._gelfComponent = (component || 'mta').toUpperCase();
-
-const loggelf = (message, requiredKeys = []) => {
-    if (typeof message === 'string') {
-        message = {
-            short_message: message
-        };
-    }
-    message = message || {};
-
-    if (!message.short_message || message.short_message.indexOf(component.toUpperCase()) !== 0) {
-        message.short_message = component.toUpperCase() + ' ' + (message.short_message || '');
-    }
-
-    message.facility = component;
-    message.host = hostname;
-    message.timestamp = Date.now() / 1000;
-    message._component = component;
-    Object.keys(message).forEach(key => {
-        if (!message[key] && !requiredKeys.includes(key)) {
-            // remove the key if it empty/falsy/undefined/null and it is not required to stay
-            delete message[key];
-        }
-    });
-    if (gelf) {
-        gelf.emit('gelf.log', message);
-    } else {
-        log.info('Gelf', JSON.stringify(message));
-    }
-};
-
-log.gelfEnabled = gelfEnabled;
-log.loggelf = loggelf;
-
-const originalLogError = log.error.bind(log);
-log.error = (...args) => {
-    originalLogError(...args);
-
-    const hasPrefix = typeof args[0] === 'string';
-    const logPrefix = hasPrefix ? args[0] : '';
-    const messageArgs = hasPrefix ? args.slice(1) : args;
-    const error = messageArgs.find(arg => arg instanceof Error);
-
-    let formattedMessage = '';
-    if (messageArgs.length) {
-        if (messageArgs.length === 1 && error) {
-            formattedMessage = error.message || error.toString();
-        } else {
-            const safeArgs = messageArgs.map(arg => (arg instanceof Error ? arg.message || arg.toString() : arg));
-            formattedMessage = util.format(...safeArgs);
-        }
-    }
-
-    const shortMessage = [logPrefix, formattedMessage].filter(Boolean).join(' ');
-    loggelf(
-        {
-            short_message: shortMessage || (error && (error.message || error.toString())) || logPrefix || 'Error',
-            full_message: error && error.stack ? error.stack : undefined,
-            _logger: logPrefix
-        },
-        ['short_message']
-    );
-};
 
 // do not pass node args to children (--inspect, --max-old-space-size etc.)
 process.execArgv = [];

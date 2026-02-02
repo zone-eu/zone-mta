@@ -9,6 +9,7 @@ const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const bounces = require('../lib/bounces');
 const { gelfCode, emitGelf } = require('../lib/log-gelf');
+require('../lib/log-setup')(config);
 
 // initialize plugin system
 const plugins = require('../lib/plugins');
