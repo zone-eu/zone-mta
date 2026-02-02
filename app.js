@@ -40,6 +40,7 @@ const os = require('os');
 const util = require('util');
 const Gelf = require('gelf');
 const log = require('npmlog');
+const { gelfCode } = require('./lib/log-gelf');
 log.level = config.log.level;
 
 const gelfConfig = (config.log && config.log.gelf) || {};
@@ -47,12 +48,9 @@ const component = gelfConfig.component || 'mta';
 const hostname = gelfConfig.hostname || os.hostname();
 const gelfEnabled = !!(gelfConfig && gelfConfig.enabled);
 const gelf = gelfEnabled ? new Gelf(gelfConfig.options) : null;
+log._gelfComponent = (component || 'mta').toUpperCase();
 
 const loggelf = (message, requiredKeys = []) => {
-    if (!gelf) {
-        return;
-    }
-
     if (typeof message === 'string') {
         message = {
             short_message: message
@@ -74,19 +72,20 @@ const loggelf = (message, requiredKeys = []) => {
             delete message[key];
         }
     });
-    gelf.emit('gelf.log', message);
+    if (gelf) {
+        gelf.emit('gelf.log', message);
+    } else {
+        log.info('Gelf', JSON.stringify(message));
+    }
 };
 
 log.gelfEnabled = gelfEnabled;
+log.gelf = loggelf;
 log.loggelf = loggelf;
 
 const originalLogError = log.error.bind(log);
 log.error = (...args) => {
     originalLogError(...args);
-
-    if (!gelfEnabled) {
-        return;
-    }
 
     const hasPrefix = typeof args[0] === 'string';
     const logPrefix = hasPrefix ? args[0] : '';
@@ -157,6 +156,14 @@ let startSMTPInterfaces = done => {
         smtpProxy.start(err => {
             if (err) {
                 log.error('SMTP/' + smtpProxy.interface, 'Could not start ' + key + ' MTA server');
+                log.loggelf({
+                    short_message: `${gelfCode('SMTP_START_FAILED')} Could not start SMTP interface`,
+                    full_message: err && err.stack ? err.stack : undefined,
+                    _logger: 'SMTP/' + smtpProxy.interface,
+                    _smtp_interface: smtpProxy.interface,
+                    _smtp_key: key,
+                    _port: config.smtpInterfaces[key] && config.smtpInterfaces[key].port
+                });
                 log.error('SMTP/' + smtpProxy.interface, err);
                 return done(err);
             }
@@ -176,6 +183,13 @@ startSMTPInterfaces(err => {
     queueServer.start(err => {
         if (err) {
             log.error('QS', 'Could not start Queue server');
+            log.loggelf({
+                short_message: `${gelfCode('QUEUE_SERVER_START_FAILED')} Could not start queue server`,
+                full_message: err && err.stack ? err.stack : undefined,
+                _logger: 'QS',
+                _port: config.queueServer && config.queueServer.port,
+                _host: config.queueServer && (config.queueServer.host || config.queueServer.hostname)
+            });
             log.error('QS', err);
             return process.exit(2);
         }
@@ -185,6 +199,13 @@ startSMTPInterfaces(err => {
         apiServer.start(err => {
             if (err) {
                 log.error('API', 'Could not start API server');
+                log.loggelf({
+                    short_message: `${gelfCode('API_START_FAILED')} Could not start API server`,
+                    full_message: err && err.stack ? err.stack : undefined,
+                    _logger: 'API',
+                    _port: config.api && config.api.port,
+                    _host: config.api && (config.api.host || config.api.hostname)
+                });
                 log.error('API', err);
                 return process.exit(2);
             }
@@ -197,6 +218,12 @@ startSMTPInterfaces(err => {
                     log.info('Service', 'Changed group to "%s" (%s)', config.group, process.getgid());
                 } catch (E) {
                     log.error('Service', 'Failed to change group to "%s" (%s)', config.group, E.message);
+                    log.loggelf({
+                        short_message: `${gelfCode('SETGID_FAILED')} Failed to change group`,
+                        full_message: E && E.stack ? E.stack : undefined,
+                        _logger: 'Service',
+                        _group: config.group
+                    });
                     return process.exit(1);
                 }
             }
@@ -206,6 +233,12 @@ startSMTPInterfaces(err => {
                     log.info('Service', 'Changed user to "%s" (%s)', config.user, process.getuid());
                 } catch (E) {
                     log.error('Service', 'Failed to change user to "%s" (%s)', config.user, E.message);
+                    log.loggelf({
+                        short_message: `${gelfCode('SETUID_FAILED')} Failed to change user`,
+                        full_message: E && E.stack ? E.stack : undefined,
+                        _logger: 'Service',
+                        _user: config.user
+                    });
                     return process.exit(1);
                 }
             }
@@ -213,6 +246,11 @@ startSMTPInterfaces(err => {
             queue.init(err => {
                 if (err) {
                     log.error('Queue', 'Could not initialize sending queue');
+                    log.loggelf({
+                        short_message: `${gelfCode('QUEUE_INIT_FAILED')} Could not initialize sending queue`,
+                        full_message: err && err.stack ? err.stack : undefined,
+                        _logger: 'Queue'
+                    });
                     log.error('Queue', err);
                     return process.exit(3);
                 }
@@ -299,6 +337,11 @@ process.on('SIGTERM', () => stop());
 
 process.on('uncaughtException', err => {
     log.error('Process', 'Uncaught exception');
+    log.loggelf({
+        short_message: `${gelfCode('UNCAUGHT_EXCEPTION')} Uncaught exception`,
+        full_message: err && err.stack ? err.stack : undefined,
+        _logger: 'Process'
+    });
     log.error('Process', err);
     stop(4);
 });

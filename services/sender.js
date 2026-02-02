@@ -8,6 +8,7 @@ const SendingZone = require('../lib/sending-zone').SendingZone;
 const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const bounces = require('../lib/bounces');
+const { gelfCode, emitGelf } = require('../lib/log-gelf');
 
 // initialize plugin system
 const plugins = require('../lib/plugins');
@@ -45,6 +46,12 @@ Object.keys(config.zones || {}).find(zoneName => {
 
 if (!zone) {
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
+    emitGelf({
+        short_message: `${gelfCode('SENDER_UNKNOWN_ZONE')} Unknown sending zone`,
+        _logger: 'Sender/' + process.pid,
+        _zone: currentZone,
+        _pid: process.pid
+    });
     return process.exit(5);
 }
 
@@ -76,12 +83,28 @@ const connectionPool = new ConnectionPool(sendCommand);
 queueClient.connect(err => {
     if (err) {
         log.error(logName, 'Could not connect to Queue server. %s', err.message);
+        emitGelf({
+            short_message: `${gelfCode('QUEUE_CONNECT_FAILED')} Could not connect to queue server`,
+            full_message: err && err.stack ? err.stack : undefined,
+            _logger: logName,
+            _zone: zone && zone.name,
+            _pid: process.pid,
+            _queue_host: config.queueServer && (config.queueServer.host || config.queueServer.hostname),
+            _queue_port: config.queueServer && config.queueServer.port,
+            _error: err.message
+        });
         process.exit(1);
     }
 
     queueClient.on('close', () => {
         if (!closing) {
             log.error(logName, 'Connection to Queue server closed unexpectedly');
+            emitGelf({
+                short_message: `${gelfCode('QUEUE_CONNECTION_CLOSED')} Queue server connection closed unexpectedly`,
+                _logger: logName,
+                _zone: zone && zone.name,
+                _pid: process.pid
+            });
             process.exit(1);
         }
     });
@@ -89,6 +112,14 @@ queueClient.connect(err => {
     queueClient.on('error', err => {
         if (!closing) {
             log.error(logName, 'Connection to Queue server ended with error %s', err.message);
+            emitGelf({
+                short_message: `${gelfCode('QUEUE_CONNECTION_ERROR')} Queue server connection error`,
+                full_message: err && err.stack ? err.stack : undefined,
+                _logger: logName,
+                _zone: zone && zone.name,
+                _pid: process.pid,
+                _error: err.message
+            });
             process.exit(1);
         }
     });
@@ -114,6 +145,14 @@ queueClient.connect(err => {
     queue.init(sendCommand, err => {
         if (err) {
             log.error(logName, 'Queue error %s', err.message);
+            emitGelf({
+                short_message: `${gelfCode('QUEUE_ERROR')} Queue error`,
+                full_message: err && err.stack ? err.stack : undefined,
+                _logger: logName,
+                _zone: zone && zone.name,
+                _pid: process.pid,
+                _error: err.message
+            });
             return process.exit(1);
         }
 
