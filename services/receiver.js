@@ -6,6 +6,8 @@ const argv = require('minimist')(process.argv.slice(2));
 const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const crypto = require('crypto');
+const { gelfCode, emitGelf } = require('../lib/log-gelf');
+require('../lib/log-setup')(config);
 
 log.level = config.log.level;
 
@@ -55,6 +57,14 @@ let startSMTPInterface = (key, done) => {
     smtp.setup(err => {
         if (err) {
             log.error(smtp.logName, 'Could not start ' + key + ' MTA server');
+            emitGelf({
+                short_message: `${gelfCode('SMTP_RECEIVER_START_FAILED')} Failed to start SMTP interface`,
+                full_message: err && err.stack ? err.stack : undefined,
+                _logger: smtp.logName,
+                _smtp_key: key,
+                _interface: currentInterface,
+                _pid: process.pid
+            });
             log.error(smtp.logName, err);
             return done(err);
         }
@@ -66,6 +76,15 @@ let startSMTPInterface = (key, done) => {
 queueClient.connect(err => {
     if (err) {
         log.error('SMTP/' + currentInterface + '/' + process.pid, 'Could not connect to Queue server');
+        emitGelf({
+            short_message: `${gelfCode('QUEUE_CONNECT_FAILED')} Could not connect to queue server`,
+            full_message: err && err.stack ? err.stack : undefined,
+            _logger: 'SMTP/' + currentInterface + '/' + process.pid,
+            _interface: currentInterface,
+            _pid: process.pid,
+            _queue_host: config.queueServer && (config.queueServer.host || config.queueServer.hostname),
+            _queue_port: config.queueServer && config.queueServer.port
+        });
         log.error('SMTP/' + currentInterface + '/' + process.pid, err.message);
         process.exit(1);
     }
@@ -73,6 +92,12 @@ queueClient.connect(err => {
     queueClient.on('close', () => {
         if (!closing) {
             log.error('SMTP/' + currentInterface + '/' + process.pid, 'Connection to Queue server closed unexpectedly');
+            emitGelf({
+                short_message: `${gelfCode('QUEUE_CONNECTION_CLOSED')} Queue server connection closed unexpectedly`,
+                _logger: 'SMTP/' + currentInterface + '/' + process.pid,
+                _interface: currentInterface,
+                _pid: process.pid
+            });
             process.exit(1);
         }
     });
@@ -80,6 +105,14 @@ queueClient.connect(err => {
     queueClient.on('error', err => {
         if (!closing) {
             log.error('SMTP/' + currentInterface + '/' + process.pid, 'Connection to Queue server ended with error %s', err.message);
+            emitGelf({
+                short_message: `${gelfCode('QUEUE_CONNECTION_ERROR')} Queue server connection error`,
+                full_message: err && err.stack ? err.stack : undefined,
+                _logger: 'SMTP/' + currentInterface + '/' + process.pid,
+                _interface: currentInterface,
+                _pid: process.pid,
+                _error: err.message
+            });
             process.exit(1);
         }
     });
@@ -105,6 +138,14 @@ queueClient.connect(err => {
     queue.init(sendCommand, err => {
         if (err) {
             log.error('SMTP/' + currentInterface + '/' + process.pid, 'Queue error %s', err.message);
+            emitGelf({
+                short_message: `${gelfCode('QUEUE_ERROR')} Queue error`,
+                full_message: err && err.stack ? err.stack : undefined,
+                _logger: 'SMTP/' + currentInterface + '/' + process.pid,
+                _interface: currentInterface,
+                _pid: process.pid,
+                _error: err.message
+            });
             return process.exit(1);
         }
 
@@ -117,6 +158,14 @@ queueClient.connect(err => {
         startSMTPInterface(currentInterface, (err, smtp) => {
             if (err) {
                 log.error('SMTP/' + currentInterface + '/' + process.pid, 'SMTP error %s', err.message);
+                emitGelf({
+                    short_message: `${gelfCode('SMTP_ERROR')} SMTP server error`,
+                    full_message: err && err.stack ? err.stack : undefined,
+                    _logger: 'SMTP/' + currentInterface + '/' + process.pid,
+                    _interface: currentInterface,
+                    _pid: process.pid,
+                    _error: err.message
+                });
                 return process.exit(1);
             }
             smtpServer = smtp;
