@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.12](https://github.com/zone-eu/zone-mta/compare/v3.10.11...v3.10.12) (2026-02-03)
+
+
+### Bug Fixes
+
+* **logging-gelf:** ZMSA-53: add support for logging errors to gelf ([#476](https://github.com/zone-eu/zone-mta/issues/476)) ([10edf68](https://github.com/zone-eu/zone-mta/commit/10edf68b0ffac0f855bf5e956d8525f25d2c495b))
+
 ## [3.10.11](https://github.com/zone-eu/zone-mta/compare/v3.10.10...v3.10.11) (2025-12-15)
 
 
