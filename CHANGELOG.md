@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.10.14](https://github.com/zone-eu/zone-mta/compare/v3.10.13...v3.10.14) (2026-02-23)
+
+
+### Bug Fixes
+
+* bump deps, fix mx error logs ([#482](https://github.com/zone-eu/zone-mta/issues/482)) ([34edc3f](https://github.com/zone-eu/zone-mta/commit/34edc3fb0a5e5ed9ee93f670445b890c37403744))
+* ZMS-18: improve connecting-to-MX error info ([#480](https://github.com/zone-eu/zone-mta/issues/480)) ([b81a9f2](https://github.com/zone-eu/zone-mta/commit/b81a9f2124d6818c4d343855c2360a1866211365))
+
 ## [3.10.13](https://github.com/zone-eu/zone-mta/compare/v3.10.12...v3.10.13) (2026-02-11)
 
 
