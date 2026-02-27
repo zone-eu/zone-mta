@@ -59,6 +59,7 @@ let startSMTPInterface = (key, done) => {
             log.error(smtp.logName, 'Could not start ' + key + ' MTA server');
             emitGelf({
                 short_message: `${gelfCode('SMTP_RECEIVER_START_FAILED')} Failed to start SMTP interface`,
+                level: 3,
                 full_message: err && err.stack ? err.stack : undefined,
                 _logger: smtp.logName,
                 _smtp_key: key,
@@ -78,7 +79,8 @@ queueClient.connect(err => {
         log.error('SMTP/' + currentInterface + '/' + process.pid, 'Could not connect to Queue server');
         emitGelf({
             short_message: `${gelfCode('QUEUE_CONNECT_FAILED')} Could not connect to queue server`,
-            full_message: err && err.stack ? err.stack : undefined,
+            level: 4,
+            _stack: err && err.stack ? err.stack : undefined,
             _logger: 'SMTP/' + currentInterface + '/' + process.pid,
             _interface: currentInterface,
             _pid: process.pid,
@@ -94,6 +96,7 @@ queueClient.connect(err => {
             log.error('SMTP/' + currentInterface + '/' + process.pid, 'Connection to Queue server closed unexpectedly');
             emitGelf({
                 short_message: `${gelfCode('QUEUE_CONNECTION_CLOSED')} Queue server connection closed unexpectedly`,
+                level: 4,
                 _logger: 'SMTP/' + currentInterface + '/' + process.pid,
                 _interface: currentInterface,
                 _pid: process.pid
@@ -107,7 +110,8 @@ queueClient.connect(err => {
             log.error('SMTP/' + currentInterface + '/' + process.pid, 'Connection to Queue server ended with error %s', err.message);
             emitGelf({
                 short_message: `${gelfCode('QUEUE_CONNECTION_ERROR')} Queue server connection error`,
-                full_message: err && err.stack ? err.stack : undefined,
+                level: 4,
+                _stack: err && err.stack ? err.stack : undefined,
                 _logger: 'SMTP/' + currentInterface + '/' + process.pid,
                 _interface: currentInterface,
                 _pid: process.pid,
@@ -140,7 +144,8 @@ queueClient.connect(err => {
             log.error('SMTP/' + currentInterface + '/' + process.pid, 'Queue error %s', err.message);
             emitGelf({
                 short_message: `${gelfCode('QUEUE_ERROR')} Queue error`,
-                full_message: err && err.stack ? err.stack : undefined,
+                level: 4,
+                _stack: err && err.stack ? err.stack : undefined,
                 _logger: 'SMTP/' + currentInterface + '/' + process.pid,
                 _interface: currentInterface,
                 _pid: process.pid,
@@ -160,6 +165,7 @@ queueClient.connect(err => {
                 log.error('SMTP/' + currentInterface + '/' + process.pid, 'SMTP error %s', err.message);
                 emitGelf({
                     short_message: `${gelfCode('SMTP_ERROR')} SMTP server error`,
+                    level: 3,
                     full_message: err && err.stack ? err.stack : undefined,
                     _logger: 'SMTP/' + currentInterface + '/' + process.pid,
                     _interface: currentInterface,
