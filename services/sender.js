@@ -49,10 +49,11 @@ if (!zone) {
     log.error('Sender/' + process.pid, 'Unknown Zone %s', currentZone);
     emitGelf({
         short_message: `${gelfCode('SENDER_UNKNOWN_ZONE')} Unknown sending zone`,
-        level: 3,
         _logger: 'Sender/' + process.pid,
         _zone: currentZone,
-        _pid: process.pid
+        _pid: process.pid,
+        full_message: 'Unknown sending zone',
+        _error: 'Unknown sending zone'
     });
     return process.exit(5);
 }
@@ -87,8 +88,7 @@ queueClient.connect(err => {
         log.error(logName, 'Could not connect to Queue server. %s', err.message);
         emitGelf({
             short_message: `${gelfCode('QUEUE_CONNECT_FAILED')} Could not connect to queue server`,
-            level: 4,
-            _stack: err && err.stack ? err.stack : undefined,
+            full_message: err && err.stack ? err.stack : undefined,
             _logger: logName,
             _zone: zone && zone.name,
             _pid: process.pid,
@@ -104,10 +104,11 @@ queueClient.connect(err => {
             log.error(logName, 'Connection to Queue server closed unexpectedly');
             emitGelf({
                 short_message: `${gelfCode('QUEUE_CONNECTION_CLOSED')} Queue server connection closed unexpectedly`,
-                level: 4,
                 _logger: logName,
                 _zone: zone && zone.name,
-                _pid: process.pid
+                _pid: process.pid,
+                full_message: 'Queue server connection closed unexpectedly',
+                _error: 'Queue server connection closed unexpectedly'
             });
             process.exit(1);
         }
@@ -118,8 +119,7 @@ queueClient.connect(err => {
             log.error(logName, 'Connection to Queue server ended with error %s', err.message);
             emitGelf({
                 short_message: `${gelfCode('QUEUE_CONNECTION_ERROR')} Queue server connection error`,
-                level: 4,
-                _stack: err && err.stack ? err.stack : undefined,
+                full_message: err && err.stack ? err.stack : undefined,
                 _logger: logName,
                 _zone: zone && zone.name,
                 _pid: process.pid,
@@ -152,8 +152,7 @@ queueClient.connect(err => {
             log.error(logName, 'Queue error %s', err.message);
             emitGelf({
                 short_message: `${gelfCode('QUEUE_ERROR')} Queue error`,
-                level: 4,
-                _stack: err && err.stack ? err.stack : undefined,
+                full_message: err && err.stack ? err.stack : undefined,
                 _logger: logName,
                 _zone: zone && zone.name,
                 _pid: process.pid,
