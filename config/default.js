@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 module.exports = {
     // If started as root then privileges are dropped after all ports are bound
     //user: 'nobody',
@@ -514,6 +516,9 @@ module.exports = {
         }
         */
     },
+
+    // Bounce rules file path
+    bouncesFile: path.join(__dirname, 'bounces.txt'),
 
     pluginsPath: './plugins',
     corePluginsPath: './plugins'
