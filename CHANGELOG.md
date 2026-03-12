@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.10.15](https://github.com/zone-eu/zone-mta/compare/v3.10.14...v3.10.15) (2026-03-12)
+
+
+### Bug Fixes
+
+* config: make bounce rules file path configurable ([#484](https://github.com/zone-eu/zone-mta/issues/484)) ([c7aff66](https://github.com/zone-eu/zone-mta/commit/c7aff669ac0da2603f359408928476b17e9bd56d))
+* ZMS-19: improve gelf logging exception consitency ([#483](https://github.com/zone-eu/zone-mta/issues/483)) ([e1f9569](https://github.com/zone-eu/zone-mta/commit/e1f95698f54c0364e94988a9f2aa4206b52f755a))
+
 ## [3.10.14](https://github.com/zone-eu/zone-mta/compare/v3.10.13...v3.10.14) (2026-02-23)
 
 
