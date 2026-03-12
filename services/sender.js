@@ -51,7 +51,9 @@ if (!zone) {
         short_message: `${gelfCode('SENDER_UNKNOWN_ZONE')} Unknown sending zone`,
         _logger: 'Sender/' + process.pid,
         _zone: currentZone,
-        _pid: process.pid
+        _pid: process.pid,
+        full_message: 'Unknown sending zone',
+        _error: 'Unknown sending zone'
     });
     return process.exit(5);
 }
@@ -104,7 +106,9 @@ queueClient.connect(err => {
                 short_message: `${gelfCode('QUEUE_CONNECTION_CLOSED')} Queue server connection closed unexpectedly`,
                 _logger: logName,
                 _zone: zone && zone.name,
-                _pid: process.pid
+                _pid: process.pid,
+                full_message: 'Queue server connection closed unexpectedly',
+                _error: 'Queue server connection closed unexpectedly'
             });
             process.exit(1);
         }

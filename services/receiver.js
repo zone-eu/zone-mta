@@ -60,6 +60,7 @@ let startSMTPInterface = (key, done) => {
             emitGelf({
                 short_message: `${gelfCode('SMTP_RECEIVER_START_FAILED')} Failed to start SMTP interface`,
                 full_message: err && err.stack ? err.stack : undefined,
+                _error: err.message,
                 _logger: smtp.logName,
                 _smtp_key: key,
                 _interface: currentInterface,
@@ -79,6 +80,7 @@ queueClient.connect(err => {
         emitGelf({
             short_message: `${gelfCode('QUEUE_CONNECT_FAILED')} Could not connect to queue server`,
             full_message: err && err.stack ? err.stack : undefined,
+            _error: err.message,
             _logger: 'SMTP/' + currentInterface + '/' + process.pid,
             _interface: currentInterface,
             _pid: process.pid,
@@ -96,7 +98,9 @@ queueClient.connect(err => {
                 short_message: `${gelfCode('QUEUE_CONNECTION_CLOSED')} Queue server connection closed unexpectedly`,
                 _logger: 'SMTP/' + currentInterface + '/' + process.pid,
                 _interface: currentInterface,
-                _pid: process.pid
+                _pid: process.pid,
+                full_message: 'Queue server connection closed unexpectedly',
+                _error: 'Queue server connection closed unexpectedly'
             });
             process.exit(1);
         }

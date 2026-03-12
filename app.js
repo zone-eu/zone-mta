@@ -87,6 +87,7 @@ let startSMTPInterfaces = done => {
                 log.loggelf({
                     short_message: `${gelfCode('SMTP_START_FAILED')} Could not start SMTP interface`,
                     full_message: err && err.stack ? err.stack : undefined,
+                    _error: err.message,
                     _logger: 'SMTP/' + smtpProxy.interface,
                     _smtp_interface: smtpProxy.interface,
                     _smtp_key: key,
@@ -114,6 +115,7 @@ startSMTPInterfaces(err => {
             log.loggelf({
                 short_message: `${gelfCode('QUEUE_SERVER_START_FAILED')} Could not start queue server`,
                 full_message: err && err.stack ? err.stack : undefined,
+                _error: err.message,
                 _logger: 'QS',
                 _port: config.queueServer && config.queueServer.port,
                 _host: config.queueServer && (config.queueServer.host || config.queueServer.hostname)
@@ -130,6 +132,7 @@ startSMTPInterfaces(err => {
                 log.loggelf({
                     short_message: `${gelfCode('API_START_FAILED')} Could not start API server`,
                     full_message: err && err.stack ? err.stack : undefined,
+                    _error: err.message,
                     _logger: 'API',
                     _port: config.api && config.api.port,
                     _host: config.api && (config.api.host || config.api.hostname)
@@ -149,6 +152,7 @@ startSMTPInterfaces(err => {
                     log.loggelf({
                         short_message: `${gelfCode('SETGID_FAILED')} Failed to change group`,
                         full_message: E && E.stack ? E.stack : undefined,
+                        _error: E.message,
                         _logger: 'Service',
                         _group: config.group
                     });
@@ -164,6 +168,7 @@ startSMTPInterfaces(err => {
                     log.loggelf({
                         short_message: `${gelfCode('SETUID_FAILED')} Failed to change user`,
                         full_message: E && E.stack ? E.stack : undefined,
+                        _error: E.message,
                         _logger: 'Service',
                         _user: config.user
                     });
@@ -177,6 +182,7 @@ startSMTPInterfaces(err => {
                     log.loggelf({
                         short_message: `${gelfCode('QUEUE_INIT_FAILED')} Could not initialize sending queue`,
                         full_message: err && err.stack ? err.stack : undefined,
+                        _error: err.message,
                         _logger: 'Queue'
                     });
                     log.error('Queue', err);
@@ -268,6 +274,7 @@ process.on('uncaughtException', err => {
     log.loggelf({
         short_message: `${gelfCode('UNCAUGHT_EXCEPTION')} Uncaught exception`,
         full_message: err && err.stack ? err.stack : undefined,
+        _error: err.message,
         _logger: 'Process'
     });
     log.error('Process', err);
