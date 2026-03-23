@@ -3,6 +3,25 @@
 const os = require('os');
 const MimeNode = require('nodemailer/lib/mime-node');
 
+function getSingleRecipient(value) {
+    return (
+        []
+            .concat(value || [])
+            .map(entry => ((entry && entry.address) || entry || '').toString().trim())
+            .find(entry => entry) || ''
+    );
+}
+
+function getFailedRecipient(bounce) {
+    return getSingleRecipient(bounce.recipient || bounce.envelope?.to);
+}
+
+function getBounceSubject(bounce, isDelayed) {
+    const failedRecipient = getFailedRecipient(bounce);
+    const status = isDelayed ? 'Delay' : 'Failure';
+    return failedRecipient ? `Delivery Status Notification (${status}: ${failedRecipient})` : `Delivery Status Notification (${status})`;
+}
+
 module.exports.title = 'Email Bounce Notification';
 module.exports.init = function (app, done) {
     // generate a multipart/report DSN failure response
@@ -21,6 +40,8 @@ module.exports.init = function (app, done) {
         let from = cfg.mailerDaemon || app.config.mailerDaemon;
         let to = bounce.from;
         let sendingZone = cfg.sendingZone || app.config.sendingZone;
+        let failedRecipient = getFailedRecipient(bounce);
+        let originalRecipientsText = `\nOriginal message recipients:\n    ${bounce.to}\n`;
 
         let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
 
@@ -32,7 +53,7 @@ module.exports.init = function (app, done) {
         rootNode.setHeader('X-Sending-Zone', sendingZone);
         rootNode.setHeader('X-Failed-Recipients', bounce.to);
         rootNode.setHeader('Auto-Submitted', 'auto-replied');
-        rootNode.setHeader('Subject', `Delivery Status Notification (${isDelayed ? 'Delay' : 'Failure'})`);
+        rootNode.setHeader('Subject', getBounceSubject(bounce, isDelayed));
 
         if (messageId) {
             rootNode.setHeader('In-Reply-To', messageId);
@@ -40,7 +61,7 @@ module.exports.init = function (app, done) {
         }
 
         let bounceContent = `Delivery to the following recipient failed permanently:
-    ${bounce.to}
+    ${failedRecipient}${originalRecipientsText}
 
 Technical details of permanent failure:
 
@@ -51,7 +72,8 @@ ${bounce.response}
         if (isDelayed) {
             bounceContent = `Delivery incomplete
 
-There was a temporary problem delivering your message to ${bounce.to}.
+There was a temporary problem delivering your message to:
+    ${failedRecipient}${originalRecipientsText}
 
 Delivery will be retried. You'll be notified if the delivery fails permanently.
 
@@ -73,7 +95,7 @@ X-ZoneMTA-Queue-ID: ${bounce.id}
 X-ZoneMTA-Sender: rfc822; ${bounce.from}
 Arrival-Date: ${new Date(bounce.arrivalDate).toUTCString().replace(/GMT/, '+0000')}
 
-Final-Recipient: rfc822; ${bounce.to}
+Final-Recipient: rfc822; ${failedRecipient}
 Action: ${isDelayed ? 'delayed' : 'failed'}
 Status: ${isDelayed ? '4.0.0' : '5.0.0'}
 ` +
