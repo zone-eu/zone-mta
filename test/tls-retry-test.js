@@ -31,9 +31,26 @@ module.exports['Retry reduced ClientHello only once for TLS handshake errors'] =
     let timeoutErr = new Error('Timeout');
     timeoutErr.code = 'ETIMEDOUT';
 
+    test.ok(tlsRetry.isNetworkTimeout(timeoutErr));
     test.ok(tlsRetry.shouldRetryWithReducedClientHello(true, false, timeoutErr));
     test.ok(!tlsRetry.shouldRetryWithReducedClientHello(true, true, timeoutErr));
     test.ok(!tlsRetry.shouldRetryWithReducedClientHello(false, false, timeoutErr));
+
+    test.done();
+};
+
+module.exports['Recognize mxConnect-generated network timeouts'] = test => {
+    let timeoutErr = new Error('Network error when connecting to MX server mx.example[192.0.2.1] for example.com: Connection timed out when connecting to MX server');
+    timeoutErr.category = 'network';
+    timeoutErr.temporary = true;
+    timeoutErr.response = 'Network error: Connection timed out when connecting to MX server';
+
+    let connectionErr = new Error('Network error when connecting to MX server mx.example[192.0.2.1] for example.com: Connection refused');
+    connectionErr.category = 'network';
+    connectionErr.temporary = true;
+
+    test.ok(tlsRetry.isNetworkTimeout(timeoutErr));
+    test.ok(!tlsRetry.isNetworkTimeout(connectionErr));
 
     test.done();
 };
