@@ -3,17 +3,19 @@
 const os = require('os');
 const MimeNode = require('nodemailer/lib/mime-node');
 
+function formatRecipients(value) {
+    return []
+        .concat(value || [])
+        .map(entry => ((entry && entry.address) || entry || '').toString().trim())
+        .filter(entry => entry);
+}
+
 function getSingleRecipient(value) {
-    return (
-        []
-            .concat(value || [])
-            .map(entry => ((entry && entry.address) || entry || '').toString().trim())
-            .find(entry => entry) || ''
-    );
+    return formatRecipients(value).find(entry => entry) || '';
 }
 
 function getFailedRecipient(bounce) {
-    return getSingleRecipient(bounce.recipient || bounce.envelope?.to);
+    return getSingleRecipient(bounce.recipient || bounce.envelope?.to || bounce.to);
 }
 
 function getBounceSubject(bounce, isDelayed) {
@@ -41,7 +43,8 @@ module.exports.init = function (app, done) {
         let to = bounce.from;
         let sendingZone = cfg.sendingZone || app.config.sendingZone;
         let failedRecipient = getFailedRecipient(bounce);
-        let originalRecipientsText = `\nOriginal message recipients:\n    ${bounce.to}\n`;
+        let originalRecipients = formatRecipients(bounce.to);
+        let originalRecipientsText = originalRecipients.length ? `\nOriginal message recipients:\n    ${originalRecipients.join('\n    ')}\n` : '';
 
         let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
 
@@ -51,7 +54,9 @@ module.exports.init = function (app, done) {
         rootNode.setHeader('From', fromAddress);
         rootNode.setHeader('To', to);
         rootNode.setHeader('X-Sending-Zone', sendingZone);
-        rootNode.setHeader('X-Failed-Recipients', bounce.to);
+        if (originalRecipients.length) {
+            rootNode.setHeader('X-Failed-Recipients', originalRecipients.join(', '));
+        }
         rootNode.setHeader('Auto-Submitted', 'auto-replied');
         rootNode.setHeader('Subject', getBounceSubject(bounce, isDelayed));
 
