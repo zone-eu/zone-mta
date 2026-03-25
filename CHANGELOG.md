@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.16](https://github.com/zone-eu/zone-mta/compare/v3.10.15...v3.10.16) (2026-03-25)
+
+
+### Bug Fixes
+
+* Bumped dependencies ([ebe1a8f](https://github.com/zone-eu/zone-mta/commit/ebe1a8fe7c74b7f8b0267f2da73eee9f86a750f1))
+
 ## [3.10.15](https://github.com/zone-eu/zone-mta/compare/v3.10.14...v3.10.15) (2026-03-12)
 
 
