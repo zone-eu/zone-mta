@@ -44,7 +44,10 @@ module.exports.init = function (app, done) {
         let sendingZone = cfg.sendingZone || app.config.sendingZone;
         let failedRecipient = getFailedRecipient(bounce);
         let originalRecipients = formatRecipients(bounce.to);
-        let originalRecipientsText = originalRecipients.length ? `\nOriginal message recipients:\n    ${originalRecipients.join('\n    ')}\n` : '';
+        let originalRecipientsText =
+            originalRecipients.length && !(originalRecipients.length === 1 && originalRecipients[0] === failedRecipient)
+                ? `\nOriginal message recipients:\n    ${originalRecipients.join('\n    ')}\n`
+                : '';
 
         let rootNode = new MimeNode('multipart/report; report-type=delivery-status');
 
