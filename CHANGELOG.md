@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.10.16](https://github.com/zone-eu/zone-mta/compare/v3.10.15...v3.10.16) (2026-04-02)
+
+
+### Bug Fixes
+
+* Bumped dependencies ([ebe1a8f](https://github.com/zone-eu/zone-mta/commit/ebe1a8fe7c74b7f8b0267f2da73eee9f86a750f1))
+* ZMS-4: PAN-279746 fix ([#486](https://github.com/zone-eu/zone-mta/issues/486)) ([675c273](https://github.com/zone-eu/zone-mta/commit/675c27380112af0e41aaa57497aa410f66fd6294))
+* ZMS-42: Fix bounce message, add recipient in subject ([#487](https://github.com/zone-eu/zone-mta/issues/487)) ([ceb39f2](https://github.com/zone-eu/zone-mta/commit/ceb39f27b9fea69dba30957e9ff2e7b52731bc36))
+
 ## [3.10.15](https://github.com/zone-eu/zone-mta/compare/v3.10.14...v3.10.15) (2026-03-12)
 
 
