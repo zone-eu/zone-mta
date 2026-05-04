@@ -195,6 +195,16 @@ module.exports['#validateAddress, multiple'] = test => {
     test.done();
 };
 
+module.exports['#normalizeAddress'] = test => {
+    test.equal(addressTools.normalizeAddress('safe@jõgeva.ee'), 'safe@xn--jgeva-dua.ee');
+    test.equal(addressTools.normalizeAddress('jõgeva@jõgeva.ee'), 'jõgeva@jõgeva.ee');
+    test.equal(addressTools.normalizeAddress('jõgeva@xn--jgeva-dua.ee'), 'jõgeva@jõgeva.ee');
+    test.equal(addressTools.normalizeAddress('first last@jõgeva.ee'), '"first last"@xn--jgeva-dua.ee');
+    test.equal(addressTools.normalizeAddress('bare-user'), 'bare-user');
+
+    test.done();
+};
+
 module.exports['#divideLoad equal'] = test => {
     let allEqual = [
         {
