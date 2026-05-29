@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.17](https://github.com/zone-eu/zone-mta/compare/v3.10.16...v3.10.17) (2026-05-29)
+
+
+### Bug Fixes
+
+* ZMS-69: Make logger compatible with nodemailer v8 ([#491](https://github.com/zone-eu/zone-mta/issues/491)) ([c7afcb9](https://github.com/zone-eu/zone-mta/commit/c7afcb9cbb39680a86298c1096c8c6ce0306fe28))
+
 ## [3.10.16](https://github.com/zone-eu/zone-mta/compare/v3.10.15...v3.10.16) (2026-05-04)
 
 
