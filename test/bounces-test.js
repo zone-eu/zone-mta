@@ -32,3 +32,18 @@ module.exports['Keep the caller category when there is no response to classify']
     test.equal(bounce.category, 'network');
     test.done();
 };
+
+module.exports['Strip a leading CRLF or space ahead of the status code'] = test => {
+    // handleResponseError's has-a-code guard relies on this: a permanent 5xx that arrives
+    // with leading whitespace must still expose its code, or it defers forever.
+    test.equal(bounces.formatSMTPResponse('\r\n550 5.1.1 no such user'), '550 5.1.1 no such user');
+    test.equal(bounces.formatSMTPResponse('  550 5.1.1 no such user'), '550 5.1.1 no such user');
+    test.done();
+};
+
+module.exports['Classify a rejection that arrives with a leading newline'] = test => {
+    let bounce = bounces.check('\r\n554 5.7.1 You are not allowed to connect.');
+    test.equal(bounce.action, 'defer');
+    test.equal(bounce.category, 'blacklist');
+    test.done();
+};
