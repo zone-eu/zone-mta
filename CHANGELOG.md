@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.10.18](https://github.com/zone-eu/zone-mta/compare/v3.10.17...v3.10.18) (2026-07-20)
+
+
+### Bug Fixes
+
+* bump deps ([#499](https://github.com/zone-eu/zone-mta/issues/499)) ([3ed1bef](https://github.com/zone-eu/zone-mta/commit/3ed1bef7ea54259ed7b02702306f11fdc3af794a))
+* classify connect-stage SMTP errors with bounce rules ([#497](https://github.com/zone-eu/zone-mta/issues/497)) ([6710141](https://github.com/zone-eu/zone-mta/commit/6710141c1b479e948f6613eba10f7f20a22b911f))
+* honor per-zone blockLocalAddresses in delivery dnsOptions ([#495](https://github.com/zone-eu/zone-mta/issues/495)) ([de4ce0c](https://github.com/zone-eu/zone-mta/commit/de4ce0c7ddad2a30a92039451259e6438095b1ec))
+* honour 5xx errors on greeting as reject ([#496](https://github.com/zone-eu/zone-mta/issues/496)) ([ba3af01](https://github.com/zone-eu/zone-mta/commit/ba3af01a536d3fb35792d1bbc17cd4d7f793ff3f))
+* repair two broken error paths in the sender ([#498](https://github.com/zone-eu/zone-mta/issues/498)) ([1d9c933](https://github.com/zone-eu/zone-mta/commit/1d9c93384db958f60c43340c17a356328570fa43))
+* ZMS-82: Add tls data to outbound remotelog ([#493](https://github.com/zone-eu/zone-mta/issues/493)) ([8602b24](https://github.com/zone-eu/zone-mta/commit/8602b244c483fd961d8aae637ee617553a66453e))
+
 ## [3.10.17](https://github.com/zone-eu/zone-mta/compare/v3.10.16...v3.10.17) (2026-05-29)
 
 
