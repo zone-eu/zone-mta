@@ -64,6 +64,50 @@ log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;
 
+// The master (lib/sending-zone.js close()) sends { shutdown: true } over the fork IPC channel
+// when the whole server is stopping, since only the master receives SIGTERM/SIGINT directly.
+// Setting `closing` here makes the queue-connection 'close' handler above treat the impending
+// socket close as expected instead of logging it as an error.
+process.on('message', m => {
+    if (!m || !m.shutdown || closing) {
+        return;
+    }
+    closing = true;
+
+    let finished = false;
+    let finish = () => {
+        if (finished) {
+            return;
+        }
+        finished = true;
+        log.info(logName, 'Graceful shutdown, draining complete, exiting');
+        process.exit(0);
+    };
+
+    if (!senders.size) {
+        return finish();
+    }
+
+    log.info(logName, 'Received shutdown from master, draining %s sender(s)', senders.size);
+
+    // Capture the drain target now: a sender spawned by the staggered setTimeout in
+    // spawnConnections (up to 1500ms after startup) could otherwise be added to `senders`
+    // after this loop but before every 'closed' fires, growing senders.size past the drained
+    // count so finish() would never run.
+    let totalToDrain = senders.size;
+    let drained = new Set();
+    senders.forEach(sender => {
+        sender.removeAllListeners('error');
+        sender.once('closed', () => {
+            drained.add(sender);
+            if (drained.size >= totalToDrain) {
+                finish();
+            }
+        });
+        sender.close();
+    });
+});
+
 let sendCommand = (cmd, callback) => {
     let id = ++cmdId;
     let data = {

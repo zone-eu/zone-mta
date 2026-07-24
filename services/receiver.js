@@ -179,6 +179,27 @@ queueClient.connect(err => {
 
 // start accepting sockets
 process.on('message', (m, socket) => {
+    if (m && m.shutdown) {
+        // The master (lib/receiver/smtp-proxy.js closeChildren()) sends this over the fork IPC
+        // channel when the whole server is stopping, since only the master receives SIGTERM/
+        // SIGINT directly. Setting `closing` here makes the queue-connection 'close' handler
+        // above treat the impending socket close as expected instead of logging it as an error.
+        if (closing) {
+            return;
+        }
+        closing = true;
+
+        if (!smtpServer || !smtpServer.server) {
+            return process.exit(0);
+        }
+
+        log.info('SMTP/' + currentInterface + '/' + process.pid, 'Received shutdown from master, draining SMTP sessions');
+        return smtpServer.close(() => {
+            log.info('SMTP/' + currentInterface + '/' + process.pid, 'Graceful shutdown, draining complete, exiting');
+            process.exit(0);
+        });
+    }
+
     if (m === 'socket') {
         if (!socket) {
             log.verbose('SMTP/' + currentInterface + '/' + process.pid, 'Null Socket');
