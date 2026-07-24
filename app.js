@@ -228,6 +228,12 @@ let stop = code => {
     log.info('Process', 'Server closing down...');
     queue.closing = true;
 
+    // Notify sender and receiver children over the fork IPC channel before the queue server
+    // is torn down, so they drain in-flight work and exit quietly instead of each logging an
+    // unexpected queue-connection-closed error when their socket to it drops.
+    sendingZone.closeSenders();
+    smtpInterfaces.forEach(smtpInterface => smtpInterface.closeChildren());
+
     let closed = 0;
     let checkClosed = () => {
         if (++closed === 2 + smtpInterfaces.length) {
@@ -254,12 +260,35 @@ let stop = code => {
         checkClosed();
     });
 
-    queueServer.close(() => {
-        // wait until all connections to the API HTTP are closed
-        log.info('QS', 'Service closed');
-        checkClosed();
+    // Server.close() (lib/transport/server.js) does not just stop listening -- it immediately
+    // force-closes every currently connected child socket. Closing the queue server (and the
+    // Mongo connection behind it via queue.stop()) before a notified child has actually exited
+    // would cut off its only channel back to the queue mid-delivery, so it can never report the
+    // outcome and hangs forever instead of exiting. Wait for every child to close on its own
+    // first; the forceExitTimer below is still the hard ceiling if one never does.
+    let waitForChildrenDrain = onDrained => {
+        let remaining = () => {
+            let total = 0;
+            sendingZone.sendingZonelist.forEach(zone => (total += zone.children.size));
+            smtpInterfaces.forEach(smtpInterface => (total += smtpInterface.children.size));
+            return total;
+        };
+        let check = () => {
+            if (!remaining()) {
+                return onDrained();
+            }
+            setTimeout(check, 100).unref();
+        };
+        check();
+    };
+
+    waitForChildrenDrain(() => {
+        queueServer.close(() => {
+            log.info('QS', 'Service closed');
+            checkClosed();
+        });
+        queue.stop();
     });
-    queue.stop();
 
     // If we were not able to stop other stuff by 10 sec. force close
     let forceExitTimer = setTimeout(() => forceStop(code), 10 * 1000);
