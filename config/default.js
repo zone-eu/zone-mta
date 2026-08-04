@@ -283,7 +283,11 @@ module.exports = {
         nameservers: false,
 
         // If true, then do not allow sending to MX servers in localhost or private IP range
-        blockLocalAddresses: false
+        blockLocalAddresses: false,
+
+        // If true, then do not allow sending to MX servers in multicast, future-use or
+        // documentation ranges
+        blockReservedNetworks: false
     },
 
     mtaSts: {
