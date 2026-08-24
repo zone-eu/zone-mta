@@ -29,6 +29,7 @@ let cmdId = 0;
 let responseHandlers = new Map();
 
 let closing = false;
+let shuttingDown = false;
 let zone;
 
 // Read command line arguments
@@ -69,9 +70,10 @@ process.title = config.ident + ': sender/' + currentZone;
 // Setting `closing` here makes the queue-connection 'close' handler above treat the impending
 // socket close as expected instead of logging it as an error.
 process.on('message', m => {
-    if (!m || !m.shutdown || closing) {
+    if (!m || !m.shutdown || shuttingDown) {
         return;
     }
+    shuttingDown = true;
     closing = true;
 
     let finished = false;
@@ -90,20 +92,23 @@ process.on('message', m => {
 
     log.info(logName, 'Received shutdown from master, draining %s sender(s)', senders.size);
 
-    // Capture the drain target now: a sender spawned by the staggered setTimeout in
-    // spawnConnections (up to 1500ms after startup) could otherwise be added to `senders`
-    // after this loop but before every 'closed' fires, growing senders.size past the drained
-    // count so finish() would never run.
-    let totalToDrain = senders.size;
-    let drained = new Set();
+    let remaining = senders.size;
+    let senderClosed = () => {
+        remaining -= 1;
+        if (remaining === 0) {
+            finish();
+        }
+    };
     senders.forEach(sender => {
+        if (sender.closed) {
+            return senderClosed();
+        }
         sender.removeAllListeners('error');
-        sender.once('closed', () => {
-            drained.add(sender);
-            if (drained.size >= totalToDrain) {
-                finish();
-            }
-        });
+        // Sender logs queue-command failures itself and then completes its tracked send
+        // operation. Keep EventEmitter's special 'error' event consumed while waiting for
+        // the corresponding 'closed' event.
+        sender.on('error', () => false);
+        sender.once('closed', senderClosed);
         sender.close();
     });
 });
@@ -219,6 +224,9 @@ queueClient.connect(err => {
             for (let i = 0; i < count; i++) {
                 // use artificial delay to lower the chance of races
                 setTimeout(() => {
+                    if (closing) {
+                        return;
+                    }
                     let sender = new Sender(clientId, ++zoneCounter, zone, sendCommand, queue, connectionPool);
                     senders.add(sender);
                     sender.once('error', err => {
@@ -228,7 +236,6 @@ queueClient.connect(err => {
                             sender.removeAllListeners('error');
                             sender.close();
                         });
-                        senders.clear();
                     });
                 }, Math.random() * 1500);
             }

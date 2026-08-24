@@ -3,29 +3,36 @@
 // Covers the notify + drain primitives the graceful-shutdown wiring relies on:
 //   - SendingZone.close() / closeSenders()  -> IPC { shutdown: true } to sender children
 //   - SMTPProxy.closeChildren()             -> IPC { shutdown: true } to receiver children
+//   - SMTPInterface.drain()                 -> wait for proxy-worker SMTP sessions
 //   - Sender.close() + sendNext()           -> the 'closed' drain handshake
 // The actual process.on('message', ...) handlers in services/sender.js and
 // services/receiver.js run as forked child processes and can't be required in-process,
 // so this only exercises the building blocks they call.
 
 const EventEmitter = require('events');
+const childProcess = require('child_process');
 const sendingZoneModule = require('../lib/sending-zone');
 const { SendingZone } = sendingZoneModule;
 const SMTPProxy = require('../lib/receiver/smtp-proxy');
+const SMTPInterface = require('../lib/smtp-interface');
 const Sender = require('../lib/sender');
+const Headers = require('@zone-eu/mailsplit').Headers;
 
-// A fake forked child: records what was sent over the IPC channel. throwOnSend simulates
-// a channel that is already gone (child exited), so we can assert the notify loop keeps
-// going instead of stopping at the first dead child.
-function makeChild(throwOnSend) {
+// A fake forked child: records what was sent over the IPC channel. throwOnSend and
+// callbackError cover the synchronous and asynchronous failure modes of ChildProcess.send().
+function makeChild(throwOnSend, callbackError) {
     let sent = [];
     return {
+        connected: true,
         sent,
-        send(msg) {
+        send(msg, callback) {
             if (throwOnSend) {
                 throw new Error('channel closed');
             }
             sent.push(msg);
+            if (callbackError) {
+                return callback(new Error('channel closed asynchronously'));
+            }
         }
     };
 }
@@ -49,6 +56,17 @@ module.exports['SendingZone.close() swallows a dead IPC channel and still notifi
     let alive = makeChild();
     // Insertion order is iteration order: the dead child goes first, so if the throw were
     // not caught the alive child would never be notified.
+    zone.children = new Set([dead, alive]);
+
+    test.doesNotThrow(() => zone.close());
+    test.deepEqual(alive.sent, [{ shutdown: true }]);
+    test.done();
+};
+
+module.exports['SendingZone.close() handles an asynchronous IPC send failure'] = test => {
+    let zone = Object.create(SendingZone.prototype);
+    let dead = makeChild(false, true);
+    let alive = makeChild();
     zone.children = new Set([dead, alive]);
 
     test.doesNotThrow(() => zone.close());
@@ -87,15 +105,83 @@ module.exports['SMTPProxy.closeChildren() sets closing and notifies every receiv
     test.done();
 };
 
-module.exports['SMTPProxy.closeChildren() swallows a dead IPC channel and still notifies the rest'] = test => {
-    let proxy = Object.create(SMTPProxy.prototype);
-    proxy.closing = false;
-    let dead = makeChild(true);
-    let alive = makeChild();
-    proxy.children = new Set([dead, alive]);
+module.exports['SMTPInterface.drain() waits for proxy-worker SMTP sessions'] = test => {
+    let smtpInterface = Object.create(SMTPInterface.prototype);
+    let connection = {};
+    let connections = new Set([connection]);
+    let nativeCloseCalled = false;
+    smtpInterface.closing = false;
+    smtpInterface.server = {
+        server: { listening: false },
+        connections,
+        close() {
+            nativeCloseCalled = true;
+        }
+    };
 
-    test.doesNotThrow(() => proxy.closeChildren());
-    test.deepEqual(alive.sent, [{ shutdown: true }]);
+    let callbackCalled = false;
+    smtpInterface.drain(() => {
+        callbackCalled = true;
+        test.equal(nativeCloseCalled, false);
+        test.done();
+    });
+
+    test.equal(smtpInterface.closing, false);
+    test.equal(callbackCalled, false);
+    setTimeout(() => connections.delete(connection), 10);
+};
+
+module.exports['SendingZone.spawnSender() does not fork after shutdown starts'] = test => {
+    let zone = Object.create(SendingZone.prototype);
+    zone.queue = { closing: true };
+    zone.children = new Set();
+    let originalFork = childProcess.fork;
+    let forkCalled = false;
+    childProcess.fork = () => {
+        forkCalled = true;
+    };
+
+    zone.spawnSender(() => {
+        childProcess.fork = originalFork;
+        test.equal(forkCalled, false);
+        test.equal(zone.children.size, 0);
+        test.done();
+    });
+};
+
+module.exports['SMTPProxy.spawnReceiver() does not fork after shutdown starts'] = test => {
+    let proxy = Object.create(SMTPProxy.prototype);
+    proxy.closing = true;
+    proxy.children = new Set();
+    proxy.processes = 1;
+    let originalFork = childProcess.fork;
+    let forkCalled = false;
+    childProcess.fork = () => {
+        forkCalled = true;
+    };
+
+    test.equal(proxy.spawnReceiver(), false);
+    childProcess.fork = originalFork;
+    test.equal(forkCalled, false);
+    test.equal(proxy.children.size, 0);
+    test.done();
+};
+
+module.exports['SMTPProxy.connection() rejects sockets after shutdown starts'] = test => {
+    let proxy = Object.create(SMTPProxy.prototype);
+    let socket = {};
+    let response;
+    proxy.closing = true;
+    proxy.children = new Set([makeChild()]);
+    proxy.socketEnd = (receivedSocket, message) => {
+        test.strictEqual(receivedSocket, socket);
+        response = message;
+    };
+
+    proxy.connection(socket);
+
+    test.equal(response, '421 Server shutting down');
+    test.deepEqual([...proxy.children][0].sent, []);
     test.done();
 };
 
@@ -103,22 +189,39 @@ function makeSender() {
     let sender = Object.create(Sender.prototype);
     EventEmitter.call(sender);
     sender.closing = false;
+    sender.closed = false;
+    sender.activeSendOperations = 0;
     sender.zone = { name: 'good' };
     sender.logName = 'Sender/good/test';
     return sender;
 }
 
-module.exports['Sender.close() flips closing and the next sendNext() emits "closed"'] = test => {
+module.exports['Sender.close() immediately closes an idle sender'] = test => {
     let sender = makeSender();
     let closedCount = 0;
     sender.on('closed', () => closedCount++);
 
     sender.close();
     test.equal(sender.closing, true);
+    test.equal(closedCount, 1);
+    test.done();
+};
 
-    // The next loop cycle hits the drain gate and signals it has stopped, letting
-    // services/sender.js know this sender is done.
-    sender.sendNext();
+module.exports['Sender.close() waits for every active send operation'] = test => {
+    let sender = makeSender();
+    let closedCount = 0;
+    sender.activeSendOperations = 2;
+    sender.on('closed', () => closedCount++);
+
+    sender.close();
+    test.equal(closedCount, 0);
+
+    sender.activeSendOperations--;
+    sender._checkClosed();
+    test.equal(closedCount, 0);
+
+    sender.activeSendOperations--;
+    sender._checkClosed();
     test.equal(closedCount, 1);
     test.done();
 };
@@ -140,8 +243,40 @@ module.exports['Sender.sendNext() while draining does not fetch more work'] = te
 
 module.exports['Sender.close() is idempotent'] = test => {
     let sender = makeSender();
+    let closedCount = 0;
+    sender.on('closed', () => closedCount++);
     sender.close();
     test.doesNotThrow(() => sender.close());
     test.equal(sender.closing, true);
+    test.equal(closedCount, 1);
+    test.done();
+};
+
+module.exports['Sender.sendBounceMessage() waits for the queue acknowledgement'] = test => {
+    let sender = makeSender();
+    let commandCallback;
+    sender.sendCommand = (command, callback) => {
+        test.equal(command.cmd, 'BOUNCE');
+        commandCallback = callback;
+    };
+
+    let delivery = {
+        id: 'message-id',
+        sessionId: 'session-id',
+        seq: '001',
+        from: 'sender@example.com',
+        recipient: 'recipient@example.com',
+        headers: new Headers([]),
+        account: {}
+    };
+    let callbackCalled = false;
+    sender.sendBounceMessage(delivery, { category: 'recipient' }, '550 rejected', () => {
+        callbackCalled = true;
+    });
+
+    test.equal(callbackCalled, false);
+    test.equal(typeof commandCallback, 'function');
+    commandCallback(null, true);
+    test.equal(callbackCalled, true);
     test.done();
 };

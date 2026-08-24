@@ -24,6 +24,7 @@ const RemoteQueue = require('../lib/remote-queue');
 let currentInterface = argv.interfaceName;
 let clientId = argv.interfaceId || crypto.randomBytes(10).toString('hex');
 let smtpServer = false;
+let pendingSockets = new Set();
 
 let cmdId = 0;
 let responseHandlers = new Map();
@@ -189,25 +190,47 @@ process.on('message', (m, socket) => {
         }
         closing = true;
 
+        // Sockets already handed to this process but not yet promoted to an SMTP session
+        // are not in smtp-server's connections Set. They cannot be drained reliably, so
+        // close them before deciding whether the worker is idle.
+        pendingSockets.forEach(socket => socket.destroy());
+        pendingSockets.clear();
+
         if (!smtpServer || !smtpServer.server) {
             return process.exit(0);
         }
 
         log.info('SMTP/' + currentInterface + '/' + process.pid, 'Received shutdown from master, draining SMTP sessions');
-        return smtpServer.close(() => {
+        return smtpServer.drain(() => {
             log.info('SMTP/' + currentInterface + '/' + process.pid, 'Graceful shutdown, draining complete, exiting');
             process.exit(0);
         });
     }
 
     if (m === 'socket') {
+        // The parent closes its listening socket before sending the shutdown message, but
+        // reject any handle that was already queued behind that message instead of starting
+        // a new SMTP session while the existing ones are draining.
+        if (closing) {
+            if (socket) {
+                socket.destroy();
+            }
+            return;
+        }
+
         if (!socket) {
             log.verbose('SMTP/' + currentInterface + '/' + process.pid, 'Null Socket');
             return;
         }
 
+        pendingSockets.add(socket);
+
         let passSocket = () =>
             smtpServer.server._handleProxy(socket, (proxyErr, socketOptions) => {
+                pendingSockets.delete(socket);
+                if (proxyErr || closing) {
+                    return socket.destroy();
+                }
                 smtpServer.server.connect(socket, socketOptions);
             });
 
@@ -218,6 +241,7 @@ process.on('message', (m, socket) => {
                     return passSocket();
                 }
                 if (tryCount++ > 5) {
+                    pendingSockets.delete(socket);
                     try {
                         return socket.end('421 Process not yet initialized\r\n');
                     } catch (E) {

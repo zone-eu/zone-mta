@@ -228,12 +228,6 @@ let stop = code => {
     log.info('Process', 'Server closing down...');
     queue.closing = true;
 
-    // Notify sender and receiver children over the fork IPC channel before the queue server
-    // is torn down, so they drain in-flight work and exit quietly instead of each logging an
-    // unexpected queue-connection-closed error when their socket to it drops.
-    sendingZone.closeSenders();
-    smtpInterfaces.forEach(smtpInterface => smtpInterface.closeChildren());
-
     let closed = 0;
     let checkClosed = () => {
         if (++closed === 2 + smtpInterfaces.length) {
@@ -253,6 +247,12 @@ let stop = code => {
             checkClosed();
         })
     );
+
+    // The close() calls above synchronously stop the master from accepting new SMTP
+    // connections. Now notify sender and receiver children over the fork IPC channel so
+    // they drain in-flight work before the queue server is torn down.
+    sendingZone.closeSenders();
+    smtpInterfaces.forEach(smtpInterface => smtpInterface.closeChildren());
 
     apiServer.close(() => {
         // wait until all connections to the API HTTP are closed
