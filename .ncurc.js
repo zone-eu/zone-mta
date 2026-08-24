@@ -6,6 +6,7 @@ module.exports = {
 
         // fix later
         'eslint',
-        'grunt-eslint'
+        'grunt-eslint',
+        'ioredis'
     ]
 };
