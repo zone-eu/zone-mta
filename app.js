@@ -266,32 +266,21 @@ let stop = code => {
     // would cut off its only channel back to the queue mid-delivery, so it can never report the
     // outcome and hangs forever instead of exiting. Wait for every child to close on its own
     // first; the forceExitTimer below is still the hard ceiling if one never does.
-    let waitForChildrenDrain = onDrained => {
-        let remaining = () => {
-            let total = 0;
-            sendingZone.sendingZonelist.forEach(zone => (total += zone.children.size));
-            smtpInterfaces.forEach(smtpInterface => (total += smtpInterface.children.size));
-            return total;
-        };
-        let check = () => {
-            if (!remaining()) {
-                return onDrained();
-            }
-            setTimeout(check, 100).unref();
-        };
-        check();
-    };
-
-    waitForChildrenDrain(() => {
+    let closeQueueServer = () => {
+        if (sendingZone.countChildren() || smtpInterfaces.some(smtpInterface => smtpInterface.children.size)) {
+            return setTimeout(closeQueueServer, 100).unref();
+        }
         queueServer.close(() => {
             log.info('QS', 'Service closed');
             checkClosed();
         });
         queue.stop();
-    });
+    };
+    closeQueueServer();
 
-    // If we were not able to stop other stuff by 10 sec. force close
-    let forceExitTimer = setTimeout(() => forceStop(code), 10 * 1000);
+    // If we were not able to stop other stuff in time, force close. This is the ceiling for
+    // the entire shutdown, including waiting for the sender and receiver children to drain.
+    let forceExitTimer = setTimeout(() => forceStop(code), config.shutdownTimeout || 10 * 1000);
     forceExitTimer.unref();
 };
 

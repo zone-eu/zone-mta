@@ -65,10 +65,18 @@ log.info(logName, '[%s] Starting sending for %s', clientId, zone.name);
 
 process.title = config.ident + ': sender/' + currentZone;
 
-// The master (lib/sending-zone.js close()) sends { shutdown: true } over the fork IPC channel
-// when the whole server is stopping, since only the master receives SIGTERM/SIGINT directly.
-// Setting `closing` here makes the queue-connection 'close' handler above treat the impending
-// socket close as expected instead of logging it as an error.
+// Sender logs queue-command failures itself and then completes its tracked send operation,
+// so 'error' is not fatal for the process. Keep EventEmitter's special 'error' event consumed,
+// an instance without a listener would throw instead of closing down.
+let closeSender = sender => {
+    sender.removeAllListeners('error');
+    sender.on('error', () => false);
+    sender.close();
+};
+
+// The master sends { shutdown: true } when the whole server is stopping, see
+// lib/child-shutdown.js. Setting `closing` also makes the queue-connection handlers below
+// treat the impending socket close as expected instead of logging it as an error.
 process.on('message', m => {
     if (!m || !m.shutdown || shuttingDown) {
         return;
@@ -76,12 +84,7 @@ process.on('message', m => {
     shuttingDown = true;
     closing = true;
 
-    let finished = false;
     let finish = () => {
-        if (finished) {
-            return;
-        }
-        finished = true;
         log.info(logName, 'Graceful shutdown, draining complete, exiting');
         process.exit(0);
     };
@@ -103,13 +106,8 @@ process.on('message', m => {
         if (sender.closed) {
             return senderClosed();
         }
-        sender.removeAllListeners('error');
-        // Sender logs queue-command failures itself and then completes its tracked send
-        // operation. Keep EventEmitter's special 'error' event consumed while waiting for
-        // the corresponding 'closed' event.
-        sender.on('error', () => false);
         sender.once('closed', senderClosed);
-        sender.close();
+        closeSender(sender);
     });
 });
 
@@ -161,6 +159,12 @@ queueClient.connect(err => {
             });
             process.exit(1);
         }
+
+        // Shutting down already. The master only closes the queue server once this process
+        // has exited, so it gave up waiting and force closed. Nothing can be reported back to
+        // the queue any more, exit instead of lingering on as an orphan.
+        log.info(logName, 'Connection to Queue server closed, exiting');
+        process.exit(0);
     });
 
     queueClient.on('error', err => {
@@ -232,10 +236,7 @@ queueClient.connect(err => {
                     sender.once('error', err => {
                         log.info(logName, 'Sender error. %s', err.message);
                         closing = true;
-                        senders.forEach(sender => {
-                            sender.removeAllListeners('error');
-                            sender.close();
-                        });
+                        senders.forEach(sender => closeSender(sender));
                     });
                 }, Math.random() * 1500);
             }
@@ -260,8 +261,7 @@ queueClient.connect(err => {
                         }
                     });
                     deletedSenders.forEach(sender => {
-                        sender.removeAllListeners('error');
-                        sender.close();
+                        closeSender(sender);
                         senders.delete(sender);
                     });
                     deletedSenders = false;

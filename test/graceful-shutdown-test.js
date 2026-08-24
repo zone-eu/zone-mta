@@ -3,7 +3,7 @@
 // Covers the notify + drain primitives the graceful-shutdown wiring relies on:
 //   - SendingZone.close() / closeSenders()  -> IPC { shutdown: true } to sender children
 //   - SMTPProxy.closeChildren()             -> IPC { shutdown: true } to receiver children
-//   - SMTPInterface.drain()                 -> wait for proxy-worker SMTP sessions
+//   - SMTPInterface.close()                 -> wait for proxy-worker SMTP sessions
 //   - Sender.close() + sendNext()           -> the 'closed' drain handshake
 // The actual process.on('message', ...) handlers in services/sender.js and
 // services/receiver.js run as forked child processes and can't be required in-process,
@@ -50,27 +50,18 @@ module.exports['SendingZone.close() sends shutdown to every sender child'] = tes
     test.done();
 };
 
-module.exports['SendingZone.close() swallows a dead IPC channel and still notifies the rest'] = test => {
-    let zone = Object.create(SendingZone.prototype);
-    let dead = makeChild(true);
-    let alive = makeChild();
-    // Insertion order is iteration order: the dead child goes first, so if the throw were
-    // not caught the alive child would never be notified.
-    zone.children = new Set([dead, alive]);
+module.exports['SendingZone.close() survives a dead IPC channel and still notifies the rest'] = test => {
+    // send() can fail synchronously or through its callback, neither may abort the loop.
+    // Insertion order is iteration order: the dead child goes first, so if the failure were
+    // not handled the alive child would never be notified.
+    [makeChild(true), makeChild(false, true)].forEach(dead => {
+        let zone = Object.create(SendingZone.prototype);
+        let alive = makeChild();
+        zone.children = new Set([dead, alive]);
 
-    test.doesNotThrow(() => zone.close());
-    test.deepEqual(alive.sent, [{ shutdown: true }]);
-    test.done();
-};
-
-module.exports['SendingZone.close() handles an asynchronous IPC send failure'] = test => {
-    let zone = Object.create(SendingZone.prototype);
-    let dead = makeChild(false, true);
-    let alive = makeChild();
-    zone.children = new Set([dead, alive]);
-
-    test.doesNotThrow(() => zone.close());
-    test.deepEqual(alive.sent, [{ shutdown: true }]);
+        test.doesNotThrow(() => zone.close());
+        test.deepEqual(alive.sent, [{ shutdown: true }]);
+    });
     test.done();
 };
 
@@ -80,11 +71,16 @@ module.exports['closeSenders() calls close() on every registered zone'] = test =
     sendingZoneModule.sendingZonelist.set('good', { close: () => goodClosed++ });
     sendingZoneModule.sendingZonelist.set('bad', { close: () => badClosed++ });
 
-    sendingZoneModule.closeSenders();
+    try {
+        sendingZoneModule.closeSenders();
 
-    test.equal(goodClosed, 1);
-    test.equal(badClosed, 1);
-    sendingZoneModule.sendingZonelist.clear();
+        test.equal(goodClosed, 1);
+        test.equal(badClosed, 1);
+    } finally {
+        // shared module level state, a failing assertion must not leave the fakes behind
+        sendingZoneModule.sendingZonelist.delete('good');
+        sendingZoneModule.sendingZonelist.delete('bad');
+    }
     test.done();
 };
 
@@ -105,7 +101,7 @@ module.exports['SMTPProxy.closeChildren() sets closing and notifies every receiv
     test.done();
 };
 
-module.exports['SMTPInterface.drain() waits for proxy-worker SMTP sessions'] = test => {
+module.exports['SMTPInterface.close() waits for proxy-worker SMTP sessions'] = test => {
     let smtpInterface = Object.create(SMTPInterface.prototype);
     let connection = {};
     let connections = new Set([connection]);
@@ -120,13 +116,16 @@ module.exports['SMTPInterface.drain() waits for proxy-worker SMTP sessions'] = t
     };
 
     let callbackCalled = false;
-    smtpInterface.drain(() => {
+    smtpInterface.close(() => {
         callbackCalled = true;
+        // the native close() reports success while sessions are still open, see close()
         test.equal(nativeCloseCalled, false);
         test.done();
     });
 
-    test.equal(smtpInterface.closing, false);
+    // `closing` must be set right away so that the sessions that are still open start
+    // rejecting new mail transactions while the rest of them finishes up.
+    test.equal(smtpInterface.closing, true);
     test.equal(callbackCalled, false);
     setTimeout(() => connections.delete(connection), 10);
 };
@@ -141,12 +140,16 @@ module.exports['SendingZone.spawnSender() does not fork after shutdown starts'] 
         forkCalled = true;
     };
 
-    zone.spawnSender(() => {
+    try {
+        // the guard returns before forking, so the callback runs after fork is restored
+        zone.spawnSender(() => {
+            test.equal(forkCalled, false);
+            test.equal(zone.children.size, 0);
+            test.done();
+        });
+    } finally {
         childProcess.fork = originalFork;
-        test.equal(forkCalled, false);
-        test.equal(zone.children.size, 0);
-        test.done();
-    });
+    }
 };
 
 module.exports['SMTPProxy.spawnReceiver() does not fork after shutdown starts'] = test => {

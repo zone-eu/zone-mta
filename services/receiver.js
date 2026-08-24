@@ -26,6 +26,25 @@ let clientId = argv.interfaceId || crypto.randomBytes(10).toString('hex');
 let smtpServer = false;
 let pendingSockets = new Set();
 
+// Sockets that were handed over by the master but can not be served. Answer with a temporary
+// error like the master does for its own sockets instead of resetting the connection, so the
+// remote side knows it can retry later.
+let closeSocket = (socket, message) => {
+    if (!socket) {
+        return;
+    }
+    if (config.smtpInterfaces[currentInterface] && config.smtpInterfaces[currentInterface].secure) {
+        // the client is waiting for a TLS handshake and would not understand a plaintext
+        // response, and upgrading just to say goodbye is not worth it
+        return socket.destroy();
+    }
+    try {
+        socket.end(message + '\r\n');
+    } catch (E) {
+        socket.destroy();
+    }
+};
+
 let cmdId = 0;
 let responseHandlers = new Map();
 let closing = false;
@@ -105,6 +124,12 @@ queueClient.connect(err => {
             });
             process.exit(1);
         }
+
+        // Shutting down already. The master only closes the queue server once this process
+        // has exited, so it gave up waiting and force closed. Nothing can be reported back to
+        // the queue any more, exit instead of lingering on as an orphan.
+        log.info('SMTP/' + currentInterface + '/' + process.pid, 'Connection to Queue server closed, exiting');
+        process.exit(0);
     });
 
     queueClient.on('error', err => {
@@ -193,15 +218,17 @@ process.on('message', (m, socket) => {
         // Sockets already handed to this process but not yet promoted to an SMTP session
         // are not in smtp-server's connections Set. They cannot be drained reliably, so
         // close them before deciding whether the worker is idle.
-        pendingSockets.forEach(socket => socket.destroy());
+        pendingSockets.forEach(pending => closeSocket(pending, '421 Server shutting down'));
         pendingSockets.clear();
 
-        if (!smtpServer || !smtpServer.server) {
+        if (!smtpServer) {
             return process.exit(0);
         }
 
         log.info('SMTP/' + currentInterface + '/' + process.pid, 'Received shutdown from master, draining SMTP sessions');
-        return smtpServer.drain(() => {
+        // close() sets `closing` on the interface before draining, which makes it reject
+        // new connections and new mail transactions on the sessions that are still open.
+        return smtpServer.close(() => {
             log.info('SMTP/' + currentInterface + '/' + process.pid, 'Graceful shutdown, draining complete, exiting');
             process.exit(0);
         });
@@ -212,10 +239,7 @@ process.on('message', (m, socket) => {
         // reject any handle that was already queued behind that message instead of starting
         // a new SMTP session while the existing ones are draining.
         if (closing) {
-            if (socket) {
-                socket.destroy();
-            }
-            return;
+            return closeSocket(socket, '421 Server shutting down');
         }
 
         if (!socket) {
@@ -224,12 +248,19 @@ process.on('message', (m, socket) => {
         }
 
         pendingSockets.add(socket);
+        // _handleProxy() does not always run its callback, eg. when the PROXY header is
+        // invalid or the peer disconnects before sending a complete one, so release the
+        // reference when the socket itself goes away.
+        socket.once('close', () => pendingSockets.delete(socket));
 
         let passSocket = () =>
             smtpServer.server._handleProxy(socket, (proxyErr, socketOptions) => {
                 pendingSockets.delete(socket);
-                if (proxyErr || closing) {
+                if (proxyErr) {
                     return socket.destroy();
+                }
+                if (closing) {
+                    return closeSocket(socket, '421 Server shutting down');
                 }
                 smtpServer.server.connect(socket, socketOptions);
             });
@@ -242,11 +273,7 @@ process.on('message', (m, socket) => {
                 }
                 if (tryCount++ > 5) {
                     pendingSockets.delete(socket);
-                    try {
-                        return socket.end('421 Process not yet initialized\r\n');
-                    } catch (E) {
-                        // ignore
-                    }
+                    return closeSocket(socket, '421 Process not yet initialized');
                 } else {
                     return setTimeout(nextTry, 100 * tryCount).unref();
                 }

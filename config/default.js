@@ -13,6 +13,10 @@ module.exports = {
     // App key for process name
     ident: 'zone-mta',
 
+    // How long to wait (in ms) for child processes to finish the work they already have in
+    // hand when shutting down. Once this passes the remaining processes are closed forcefully.
+    shutdownTimeout: 10 * 1000,
+
     dbs: {
         // database connection string
         mongo: 'mongodb://127.0.0.1:27017/zone-mta',
