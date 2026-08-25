@@ -251,7 +251,8 @@ module.exports = {
             // (you do need to increase the allowed memory for the v8 when using huge recipient lists)
             maxRecipients: 1000,
 
-            // set to true to see incoming SMTP transaction log
+            // set to true to see the full SMTP transaction log (including AUTH payloads)
+            // 4xx/5xx responses sent by the SMTP server are logged at info regardless of this setting
             logger: false,
 
             starttls: false, // set to true to enable STARTTLS (port 587)

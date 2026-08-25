@@ -7,6 +7,7 @@ const config = require('@zone-eu/wild-config');
 const log = require('npmlog');
 const crypto = require('crypto');
 const { gelfCode, emitGelf } = require('../lib/log-gelf');
+const { logSmtpReject } = require('../lib/log-smtp');
 require('../lib/log-setup')(config);
 
 log.level = config.log.level;
@@ -22,6 +23,7 @@ const queueClient = new QueueClient(config.queueServer);
 const RemoteQueue = require('../lib/remote-queue');
 
 let currentInterface = argv.interfaceName;
+let logName = 'SMTP/' + currentInterface + '/' + process.pid;
 let clientId = argv.interfaceId || crypto.randomBytes(10).toString('hex');
 let smtpServer = false;
 let pendingSockets = new Set();
@@ -33,6 +35,11 @@ let closeSocket = (socket, message) => {
     if (!socket) {
         return;
     }
+
+    // The socket never reaches the SMTP server, so nothing else records the refusal. A secure
+    // interface can not answer in plaintext and resets below, the refusal is logged either way.
+    logSmtpReject(logName, socket, message);
+
     if (config.smtpInterfaces[currentInterface] && config.smtpInterfaces[currentInterface].secure) {
         // the client is waiting for a TLS handshake and would not understand a plaintext
         // response, and upgrading just to say goodbye is not worth it
