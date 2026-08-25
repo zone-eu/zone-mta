@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.11.0](https://github.com/zone-eu/zone-mta/compare/v3.10.18...v3.11.0) (2026-08-25)
+
+
+### Features
+
+* bump deps, raise min required nodejs version ([#505](https://github.com/zone-eu/zone-mta/issues/505)) ([3b382c2](https://github.com/zone-eu/zone-mta/commit/3b382c217e996e235bb1b80344f1fdf4e98546b3))
+
+
+### Bug Fixes
+
+* avoid TypeError in SNICallback when interface logger is disabled ([#504](https://github.com/zone-eu/zone-mta/issues/504)) ([464c0b9](https://github.com/zone-eu/zone-mta/commit/464c0b99327be4304b22f6bc76107c71383cb091))
+* bump mx-connect to 1.7.0, add new blockReservedNetworks zone option ([#507](https://github.com/zone-eu/zone-mta/issues/507)) ([66fe8bb](https://github.com/zone-eu/zone-mta/commit/66fe8bb3266bfaee1f4680ea1a75f6bc572c2e8d))
+* drain sender and receiver children before shutdown  ([#508](https://github.com/zone-eu/zone-mta/issues/508)) ([bc8f1f9](https://github.com/zone-eu/zone-mta/commit/bc8f1f94d911f42b5aa41a5c6e25dc5e3fbc6e77))
+* fix logging when logger is false and 4xx or 5xx smtp errors occur ([#509](https://github.com/zone-eu/zone-mta/issues/509)) ([ba89ec9](https://github.com/zone-eu/zone-mta/commit/ba89ec97803f53c52ad7c88f22466e381ed44f27))
+
 ## [3.10.18](https://github.com/zone-eu/zone-mta/compare/v3.10.17...v3.10.18) (2026-07-20)
 
 
