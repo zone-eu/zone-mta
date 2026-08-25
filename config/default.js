@@ -252,7 +252,7 @@ module.exports = {
             maxRecipients: 1000,
 
             // set to true to see the full SMTP transaction log (including AUTH payloads)
-            // 4xx/5xx responses are always logged at info without raw client commands
+            // 4xx/5xx responses sent by the SMTP server are logged at info regardless of this setting
             logger: false,
 
             starttls: false, // set to true to enable STARTTLS (port 587)
