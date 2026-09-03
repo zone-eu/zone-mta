@@ -172,7 +172,9 @@ module.exports['SMTPProxy.spawnReceiver() does not fork after shutdown starts'] 
 
 module.exports['SMTPProxy.connection() rejects sockets after shutdown starts'] = test => {
     let proxy = Object.create(SMTPProxy.prototype);
-    let socket = {};
+    // an EventEmitter: connection() guards the socket with an 'error' listener the instant it
+    // is accepted (real sockets are EventEmitters), before the refusal below
+    let socket = new EventEmitter();
     let response;
     proxy.closing = true;
     proxy.children = new Set([makeChild()]);

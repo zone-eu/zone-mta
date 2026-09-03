@@ -36,6 +36,13 @@ let closeSocket = (socket, message) => {
         return;
     }
 
+    // A reset peer surfaces as an asynchronous 'error' on the socket, not a synchronous
+    // throw, so neither the try/catch below nor socket.destroy() stops it from becoming an
+    // unhandled 'error' that crashes the worker process. Attach a no-op handler up front.
+    socket.on('error', () => {
+        // ignore, the connection is being refused anyway
+    });
+
     // The socket never reaches the SMTP server, so nothing else records the refusal. A secure
     // interface can not answer in plaintext and resets below, the refusal is logged either way.
     logSmtpReject(logName, socket, message);
@@ -259,6 +266,12 @@ process.on('message', (m, socket) => {
         // invalid or the peer disconnects before sending a complete one, so release the
         // reference when the socket itself goes away.
         socket.once('close', () => pendingSockets.delete(socket));
+        // Guard the socket until smtp-server takes it over. If the peer resets while the
+        // worker is still initializing (the retry loop below) the socket has no 'error'
+        // listener yet, and an unhandled 'error' would crash the worker.
+        socket.on('error', () => {
+            // ignore — smtp-server attaches its own handlers once it owns the socket
+        });
 
         let passSocket = () =>
             smtpServer.server._handleProxy(socket, (proxyErr, socketOptions) => {
