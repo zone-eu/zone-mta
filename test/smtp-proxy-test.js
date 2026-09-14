@@ -90,8 +90,28 @@ module.exports['SMTP proxy survives a socket error during handoff'] = test => {
     captureLogs(() => {
         let proxy = new SMTPProxy('feeder', { name: 'feeder' });
         let socket = fakeSocket();
+        let readStopped = false;
+        let sentMessage;
+        let sentSocket;
 
-        proxy.connection(socket);
+        socket._handle = {
+            readStop() {
+                readStopped = true;
+            }
+        };
+        proxy.children.add({
+            send(message, passedSocket) {
+                sentMessage = message;
+                sentSocket = passedSocket;
+                return true;
+            }
+        });
+
+        test.equal(proxy.connection(socket), true);
+        test.equal(readStopped, true);
+        test.equal(sentMessage, 'socket');
+        test.strictEqual(sentSocket, socket);
+        test.equal(socket.written, false);
 
         test.doesNotThrow(() => socket.emit('error', new Error('write ECONNRESET')));
     });
