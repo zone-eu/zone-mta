@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.1](https://github.com/zone-eu/zone-mta/compare/v3.11.0...v3.11.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* queue-ing message through API errors should not expose internal errors ([#520](https://github.com/zone-eu/zone-mta/issues/520)) ([1e6a32b](https://github.com/zone-eu/zone-mta/commit/1e6a32b2f9453e949bce2f45260532bac9a9ee1b))
+
 ## [3.11.0](https://github.com/zone-eu/zone-mta/compare/v3.10.18...v3.11.0) (2026-09-14)
 
 
