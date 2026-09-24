@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.11.1](https://github.com/zone-eu/zone-mta/compare/v3.11.0...v3.11.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* bump deps ([#524](https://github.com/zone-eu/zone-mta/issues/524)) ([f0a7e44](https://github.com/zone-eu/zone-mta/commit/f0a7e44f3c1a8c9c0e918103a21fbc84a2c767ef))
+* let an api:mail hook choose its own HTTP status ([#522](https://github.com/zone-eu/zone-mta/issues/522)) ([5a7fa70](https://github.com/zone-eu/zone-mta/commit/5a7fa70d1afd3f13bdc55abd02ab2a6abf0dbd6c))
+* pass dbs.mongoOptions through to the MongoClient ([#523](https://github.com/zone-eu/zone-mta/issues/523)) ([5d76baa](https://github.com/zone-eu/zone-mta/commit/5d76baa8c6b16cfab8e2e0e96c6cefe7196cc9df))
+* queue-ing message through API errors should not expose internal errors ([#520](https://github.com/zone-eu/zone-mta/issues/520)) ([1e6a32b](https://github.com/zone-eu/zone-mta/commit/1e6a32b2f9453e949bce2f45260532bac9a9ee1b))
+
 ## [3.11.0](https://github.com/zone-eu/zone-mta/compare/v3.10.18...v3.11.0) (2026-09-14)
 
 
