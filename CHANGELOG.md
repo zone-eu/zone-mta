@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.3](https://github.com/zone-eu/zone-mta/compare/v3.11.2...v3.11.3) (2026-09-27)
+
+
+### Bug Fixes
+
+* bump deps ([#528](https://github.com/zone-eu/zone-mta/issues/528)) ([0d99161](https://github.com/zone-eu/zone-mta/commit/0d9916186a0e3a250edad383761234799a135792))
+
 ## [3.11.2](https://github.com/zone-eu/zone-mta/compare/v3.11.1...v3.11.2) (2026-09-27)
 
 
