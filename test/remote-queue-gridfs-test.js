@@ -32,7 +32,7 @@ function fakeDb(state, calls) {
                     opts = {};
                 }
                 calls.push({ op: 'updateOne', name });
-                let found = state[key].find(doc => String(doc._id) === String(query._id));
+                let found = state[key].find(doc => String(doc._id) === String(query._id) && (!query.collecting || doc.collecting === undefined));
                 if (found) {
                     Object.assign(found, update.$set);
                 } else if (opts && opts.upsert) {
@@ -43,7 +43,7 @@ function fakeDb(state, calls) {
             },
             deleteOne(query, cb) {
                 calls.push({ op: 'deleteOne', name });
-                let index = state[key].findIndex(doc => String(doc._id) === String(query._id));
+                let index = state[key].findIndex(doc => String(doc._id) === String(query._id) && (!query.collecting || doc.collecting === undefined));
                 if (index >= 0) {
                     state[key].splice(index, 1);
                 }
@@ -305,5 +305,22 @@ module.exports['a source that dies while the marker is being written leaves no h
                 test.done();
             });
         });
+    });
+};
+
+module.exports['a claimed SMTP upload cannot report storage success'] = test => {
+    let state = { pending: [] };
+    let calls = [];
+    let upload = fakeUpload(calls);
+    let { queue } = makeQueue(state, upload, calls);
+    let source = new PassThrough();
+    queue.store('lost', source, err => {
+        test.ok(err);
+        test.equal(state.pending[0].collecting, 'collector');
+        test.done();
+    });
+    setImmediate(() => {
+        state.pending[0].collecting = 'collector';
+        source.end('body');
     });
 };

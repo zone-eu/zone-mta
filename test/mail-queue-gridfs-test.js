@@ -11,6 +11,7 @@ config.dbs = config.dbs || {};
 const { Writable, PassThrough } = require('stream');
 
 const MailQueue = require('../lib/mail-queue');
+const plugins = require('../lib/plugins');
 const gridfsPending = require('../lib/gridfs-pending');
 
 const GFS = 'mail';
@@ -23,7 +24,11 @@ function fakeDb(state) {
     let match = (doc, query) => {
         for (let key of Object.keys(query)) {
             let want = query[key];
-            if (want && typeof want === 'object' && !(want instanceof Date) && '$lte' in want) {
+            if (want && typeof want === 'object' && '$exists' in want) {
+                if ((doc[key] !== undefined) !== want.$exists) {
+                    return false;
+                }
+            } else if (want && typeof want === 'object' && !(want instanceof Date) && '$lte' in want) {
                 if (!(doc[key] <= want.$lte)) {
                     return false;
                 }
@@ -49,7 +54,7 @@ function fakeDb(state) {
 
         return {
             find(query) {
-                let found = rows().filter(doc => match(doc, query));
+                let found = rows().filter(doc => match(doc, query)).map(doc => Object.assign({}, doc));
                 let i = 0;
                 return {
                     hasNext: async () => i < found.length,
@@ -577,5 +582,157 @@ module.exports['a failed upload keeps its marker, and the GC clears what it left
                 test.equal(state.pending.length, 0);
                 test.done();
             });
+    });
+};
+
+module.exports['collector skips a marker renewed after the cursor read'] = test => {
+    let state = { files: [], chunks: [{ files_id: 'a' }], pending: [{ _id: 'a', state: 'writing', expires: dead() }] };
+    let { queue, calls } = makeQueue(state);
+    let collection = queue.mongodb.collection;
+    queue.mongodb.collection = name => {
+        let result = collection(name);
+        if (name === GFS + '.pending') {
+            let find = result.find;
+            result.find = query => {
+                let cursor = find(query);
+                let next = cursor.next;
+                cursor.next = async () => {
+                    let marker = await next();
+                    state.pending[0].expires = beating();
+                    return marker;
+                };
+                return cursor;
+            };
+        }
+        return result;
+    };
+    queue.collectPendingGridfs().then(() => {
+        test.equal(state.chunks.length, 1);
+        test.equal(state.pending.length, 1);
+        test.equal(calls.filter(call => /^delete/.test(call.op)).length, 0);
+        test.done();
+    }).catch(test.done);
+};
+
+module.exports['a collection claim fences renewals and marker removal'] = test => {
+    let state = { files: [], chunks: [], pending: [] };
+    let { db } = fakeDb(state);
+    let timers = captureTimers();
+    let lost = 0;
+    gridfsPending.markPending(db, GFS, 'a', 'writing', () => {
+        state.pending[0].collecting = 'collector';
+        let expires = state.pending[0].expires;
+        gridfsPending.renewPending(db, GFS, 'a', err => {
+            test.ok(err);
+            gridfsPending.clearPending(db, GFS, 'a', err => {
+                test.ok(err);
+                test.equal(state.pending.length, 1);
+                test.equal(state.pending[0].expires, expires);
+                timers.restore();
+                test.done();
+            });
+        });
+        timers.tick();
+        setImmediate(() => test.equal(lost, 1));
+    }, () => lost++);
+};
+
+for (let operation of ['chunks', 'files']) {
+    module.exports['a failed ' + operation + ' delete stops beating and is retried'] = test => {
+        let state = { files: [{ _id: 'a', filename: 'message a' }], chunks: [{ files_id: 'a' }], pending: [] };
+        let { queue, calls } = makeQueue(state);
+        let collection = queue.mongodb.collection;
+        let failure = new Error('delete failed');
+        queue.mongodb.collection = name => {
+            let result = collection(name);
+            if (name === GFS + '.' + operation) {
+                result[operation === 'chunks' ? 'deleteMany' : 'deleteOne'] = (query, cb) => setImmediate(() => cb(failure));
+            }
+            return result;
+        };
+        let timers = captureTimers();
+        queue.removeGridfsFile('a', err => {
+            test.equal(err, failure);
+            let updates = calls.filter(call => call.op === 'updateOne').length;
+            timers.tick();
+            timers.restore();
+            test.equal(calls.filter(call => call.op === 'updateOne').length, updates);
+            test.equal(state.pending.length, 1);
+            test.equal(state.pending[0].state, 'deleting');
+            state.pending[0].expires = dead();
+            queue.mongodb.collection = collection;
+            queue.collectPendingGridfs().then(() => {
+                test.equal(state.files.length, 0);
+                test.equal(state.chunks.length, 0);
+                test.equal(state.pending.length, 0);
+                test.done();
+            }).catch(test.done);
+        });
+    };
+}
+
+module.exports['an upload claimed before finishing cannot report storage success'] = test => {
+    let state = { files: [], chunks: [], pending: [] };
+    let { queue, calls } = makeQueue(state);
+    let upload = fakeUpload(calls);
+    queue.gridstore = { openUploadStream: () => upload };
+    let source = new PassThrough();
+    queue.store('lost', source, err => {
+        test.ok(err);
+        test.equal(state.pending[0].collecting, 'collector');
+        test.done();
+    });
+    setImmediate(() => {
+        state.pending[0].collecting = 'collector';
+        source.end('body');
+    });
+};
+
+module.exports['competing collectors only delete once'] = test => {
+    let state = { files: [], chunks: [{ files_id: 'a' }], pending: [{ _id: 'a', state: 'writing', expires: dead() }] };
+    let { queue, calls } = makeQueue(state);
+    Promise.all([queue.collectPendingGridfs(), queue.collectPendingGridfs()]).then(() => {
+        test.equal(calls.filter(call => call.op === 'deleteMany').length, 1);
+        test.equal(state.pending.length, 0);
+        test.done();
+    }).catch(test.done);
+};
+
+module.exports['an upload claimed during scanning cannot enqueue deliveries'] = test => {
+    let originalHandler = plugins.handler;
+    plugins.handler = { runHooks: (name, args, cb) => cb() };
+    let state = { files: [], chunks: [], pending: [{ _id: 'a', state: 'writing', expires: beating(), collecting: 'collector' }] };
+    let { queue } = makeQueue(state);
+    let collection = queue.mongodb.collection;
+    let inserted = false;
+    queue.mongodb.collection = name => {
+        let result = collection(name);
+        result.insertMany = () => { inserted = true; };
+        return result;
+    };
+    queue.push('message', { to: ['recipient@example.com'], headers: {} }, err => {
+        plugins.handler = originalHandler;
+        test.ok(err);
+        test.equal(inserted, false);
+        test.done();
+    }, 'a');
+};
+
+module.exports['a heartbeat aborts an open upload when collection claims it'] = test => {
+    let state = { files: [], chunks: [], pending: [] };
+    let { queue, calls } = makeQueue(state);
+    let upload = fakeUpload(calls);
+    queue.gridstore = { openUploadStream: () => upload };
+    let source = new PassThrough();
+    let timers = captureTimers();
+    queue.store('lost', source, err => {
+        test.ok(err);
+        test.ok(upload.destroyed);
+        timers.restore();
+        test.done();
+    });
+    setImmediate(() => {
+        state.pending[0].collecting = 'collector';
+        timers.tick();
     });
 };
