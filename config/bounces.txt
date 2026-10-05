@@ -201,6 +201,9 @@
 # 451 Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4
 ^451[ \-]+Currently Sending Spam See,defer,blacklist,Sender IP blacklisted
 
+# 451 too many errors from your ip (1.2.3.4), please visit http://postmaster.free.fr/
+^451[ \-].*too many errors from your ip,defer,blacklist,Sender IP temporarily blocked
+
 # 501 5.7.1 <sender@example.com>... Sender refused by the DNSBL dnsbl.sorbs.net
 ^501[ \-]+5\.7\.1\s+.*Sender refused by the DNSBL,defer,blacklist,Sender IP blacklisted
 
@@ -229,6 +232,12 @@
 # Hotmail error messages
 # https://mail.live.com/mail/troubleshooting.aspx
 ^421[ \-]+RP\-00\d,slowdown,rate,Rate limit exceeded
+
+# Microsoft throttling family 4.7.65x :
+# 451 4.7.650/651 ... has been temporarily rate limited due to IP reputation. (S775/S844)
+# 451 4.7.652 ... has exceeded the maximum number of connections. (S3115)
+# 451 4.7.653 ... has exceeded maximum number of messages per connection. (S3116)
+^451[ \-]4\.7\.65\d\b,slowdown,rate,Sender IP rate or connection limited
 ^550[ \-]+DY\-001,reject,block,Using dynamic IP range
 ^550[ \-]+DY\-002,reject,virus,Virus found
 ^550[ \-]+OU\-001,defer,blacklist,Sender IP blocked
@@ -295,6 +304,11 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 ^550[ \-]+5\.7\.1\s+.*unsolicited mail originating,reject,spam,Sender IP blocked for Spam
 ^550[ \-]+5\.7\.1\s+.*unsolicited mail,reject,spam,Spam detected
 ^550[ \-]+5\.7\.1\s+.*not authorized,reject,block,Sender IP blocked
+
+# 550 The mail server detected your message as spam and has prevented delivery.
+# 550 spam detected
+^550[ \-].*detected your message as spam,reject,spam,Spam detected
+^550[ \-]+spam detected,reject,spam,Spam detected
 ^550[ \-]+5\.7\.1\s+.*policy that prohibited,reject,policy,Blocked by recipient
 ^550[ \-]+5\.7\.1\s+.*IPv6 sending guidelines,reject,config,Invalid PTR or missing DKIM
 ^452[ \-]+4\.2\.2\s+.*over quota,reject,capacity,Gmail Mailbox is full
