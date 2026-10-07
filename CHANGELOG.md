@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.11.4](https://github.com/zone-eu/zone-mta/compare/v3.11.3...v3.11.4) (2026-10-05)
+
+
+### Bug Fixes
+
+* **bounces:** add rules for Free IP block, Microsoft 4.7.65x throttling and spam rejections ([#530](https://github.com/zone-eu/zone-mta/issues/530)) ([9e67ae9](https://github.com/zone-eu/zone-mta/commit/9e67ae970365a25c56fdbdc246645779d6d61fe8))
+* **deps:** update libmime to 5.4.7, mailsplit to 5.4.20, mailauth to 7.1.1 and mx-connect to 2.0.2 ([83cbd5c](https://github.com/zone-eu/zone-mta/commit/83cbd5cd210664abce2cb6df15a7a76b26ca52ff))
+
 ## [3.11.3](https://github.com/zone-eu/zone-mta/compare/v3.11.2...v3.11.3) (2026-09-27)
 
 
