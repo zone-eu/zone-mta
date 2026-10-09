@@ -204,6 +204,12 @@
 # 451 too many errors from your ip (1.2.3.4), please visit http://postmaster.free.fr/
 ^451[ \-].*too many errors from your ip,defer,blacklist,Sender IP temporarily blocked
 
+# 451 4.1.8 Domain of sender address does not resolve
+# 451 #4.1.8 Domain of sender address <sender@example.com> does not resolve
+# The receiving server failed to resolve the sender domain : this says nothing about the
+# recipient, and a retry usually succeeds. Must stay above the generic 4.1.8 rule.
+^45\d[ \-]+#?4\.1\.8\b.*[Dd]omain of sender address.*does not resolve,defer,config,Sender domain temporarily unresolved
+
 # 501 5.7.1 <sender@example.com>... Sender refused by the DNSBL dnsbl.sorbs.net
 ^501[ \-]+5\.7\.1\s+.*Sender refused by the DNSBL,defer,blacklist,Sender IP blacklisted
 
