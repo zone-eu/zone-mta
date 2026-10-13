@@ -202,7 +202,8 @@
 ^451[ \-]+Currently Sending Spam See,defer,blacklist,Sender IP blacklisted
 
 # 451 too many errors from your ip (1.2.3.4), please visit http://postmaster.free.fr/
-^451[ \-].*too many errors from your ip,defer,blacklist,Sender IP temporarily blocked
+# 451 too many errors detected from your IP (1.2.3.4), please visit http://postmaster.free.fr/
+^451[ \-].*too many errors.*from your ip,defer,blacklist,Sender IP temporarily blocked
 
 # 501 5.7.1 <sender@example.com>... Sender refused by the DNSBL dnsbl.sorbs.net
 ^501[ \-]+5\.7\.1\s+.*Sender refused by the DNSBL,defer,blacklist,Sender IP blacklisted
