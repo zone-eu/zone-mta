@@ -202,7 +202,8 @@
 ^451[ \-]+Currently Sending Spam See,defer,blacklist,Sender IP blacklisted
 
 # 451 too many errors from your ip (1.2.3.4), please visit http://postmaster.free.fr/
-^451[ \-].*too many errors from your ip,defer,blacklist,Sender IP temporarily blocked
+# 451 too many errors detected from your IP (1.2.3.4), please visit http://postmaster.free.fr/
+^451[ \-].*too many errors.*from your ip,defer,blacklist,Sender IP temporarily blocked
 
 # 451 4.1.8 Domain of sender address does not resolve
 # 451 #4.1.8 Domain of sender address <sender@example.com> does not resolve
