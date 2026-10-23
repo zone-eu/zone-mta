@@ -15,6 +15,13 @@ indexes:
     key:
       filename: 1
 
+- collection: pending
+  key: gfs # actual collection name is options[gfs].pending
+  index:
+    name: mailpendingexpires
+    key:
+      expires: 1
+
 - collection: suppressionlist
   index:
     name: suppressed_address

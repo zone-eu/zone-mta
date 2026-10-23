@@ -3,6 +3,7 @@
 const SMTPInterface = require('../lib/smtp-interface');
 const plugins = require('../lib/plugins');
 const captureLogs = require('./fixtures/capture-logs');
+const { PassThrough } = require('stream');
 
 function createLogger(loggerEnabled) {
     let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: loggerEnabled }, false);
@@ -250,4 +251,76 @@ module.exports['SMTP setup installs the rejection logger when the transcript is 
 
         smtpInterface.close(() => done());
     });
+};
+
+module.exports['aborted message errors the size limiter so the pipeline unwinds'] = test => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    let stream = new PassThrough();
+    let sizeLimiter = new PassThrough();
+    let session = { incomingMessage: { stream, sizeLimiter } };
+
+    let seen = false;
+    sizeLimiter.once('error', err => {
+        seen = true;
+        // The name, not a code: mail-drop logs a storage failure for anything whose name ends
+        // in "Error", and a client that hung up must not look like one.
+        test.equal(err.name, 'ClientDisconnect');
+        test.equal(/Error$/.test(err.name), false);
+    });
+
+    smtpInterface.abortMessage(session);
+
+    test.ok(seen);
+    test.equal(session.incomingMessage, false);
+    test.done();
+};
+
+module.exports['a message that finished DATA is left alone'] = test => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    let stream = new PassThrough();
+    let sizeLimiter = new PassThrough();
+    let session = { incomingMessage: { stream, sizeLimiter } };
+
+    // The terminating dot ends the DATA stream, so the message is whole even though the
+    // connection is closing.
+    stream.end();
+
+    let seen = false;
+    sizeLimiter.once('error', () => {
+        seen = true;
+    });
+
+    smtpInterface.abortMessage(session);
+
+    test.ok(!seen);
+    test.done();
+};
+
+module.exports['closing a connection with no message in flight does nothing'] = test => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    test.doesNotThrow(() => smtpInterface.abortMessage({}));
+    test.doesNotThrow(() => smtpInterface.abortMessage({ incomingMessage: false }));
+    test.done();
+};
+
+module.exports['an aborted message is torn down once, not on every close'] = test => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    let stream = new PassThrough();
+    let sizeLimiter = new PassThrough();
+    let session = { incomingMessage: { stream, sizeLimiter } };
+
+    let errors = 0;
+    sizeLimiter.on('error', () => {
+        errors++;
+    });
+
+    smtpInterface.abortMessage(session);
+    smtpInterface.abortMessage(session);
+
+    test.equal(errors, 1);
+    test.done();
 };
