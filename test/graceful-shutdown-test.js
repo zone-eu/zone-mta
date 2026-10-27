@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 // Covers the notify + drain primitives the graceful-shutdown wiring relies on:
 //   - SendingZone.close() / closeSenders()  -> IPC { shutdown: true } to sender children
 //   - SMTPProxy.closeChildren()             -> IPC { shutdown: true } to receiver children
@@ -37,7 +40,7 @@ function makeChild(throwOnSend, callbackError) {
     };
 }
 
-module.exports['SendingZone.close() sends shutdown to every sender child'] = test => {
+test('SendingZone.close() sends shutdown to every sender child', () => {
     let zone = Object.create(SendingZone.prototype);
     let c1 = makeChild();
     let c2 = makeChild();
@@ -45,12 +48,11 @@ module.exports['SendingZone.close() sends shutdown to every sender child'] = tes
 
     zone.close();
 
-    test.deepEqual(c1.sent, [{ shutdown: true }]);
-    test.deepEqual(c2.sent, [{ shutdown: true }]);
-    test.done();
-};
+    assert.deepEqual(c1.sent, [{ shutdown: true }]);
+    assert.deepEqual(c2.sent, [{ shutdown: true }]);
+});
 
-module.exports['SendingZone.close() survives a dead IPC channel and still notifies the rest'] = test => {
+test('SendingZone.close() survives a dead IPC channel and still notifies the rest', () => {
     // send() can fail synchronously or through its callback, neither may abort the loop.
     // Insertion order is iteration order: the dead child goes first, so if the failure were
     // not handled the alive child would never be notified.
@@ -59,13 +61,12 @@ module.exports['SendingZone.close() survives a dead IPC channel and still notifi
         let alive = makeChild();
         zone.children = new Set([dead, alive]);
 
-        test.doesNotThrow(() => zone.close());
-        test.deepEqual(alive.sent, [{ shutdown: true }]);
+        assert.doesNotThrow(() => zone.close());
+        assert.deepEqual(alive.sent, [{ shutdown: true }]);
     });
-    test.done();
-};
+});
 
-module.exports['closeSenders() calls close() on every registered zone'] = test => {
+test('closeSenders() calls close() on every registered zone', () => {
     let goodClosed = 0;
     let badClosed = 0;
     sendingZoneModule.sendingZonelist.set('good', { close: () => goodClosed++ });
@@ -74,17 +75,16 @@ module.exports['closeSenders() calls close() on every registered zone'] = test =
     try {
         sendingZoneModule.closeSenders();
 
-        test.equal(goodClosed, 1);
-        test.equal(badClosed, 1);
+        assert.equal(goodClosed, 1);
+        assert.equal(badClosed, 1);
     } finally {
         // shared module level state, a failing assertion must not leave the fakes behind
         sendingZoneModule.sendingZonelist.delete('good');
         sendingZoneModule.sendingZonelist.delete('bad');
     }
-    test.done();
-};
+});
 
-module.exports['SMTPProxy.closeChildren() sets closing and notifies every receiver child'] = test => {
+test('SMTPProxy.closeChildren() sets closing and notifies every receiver child', () => {
     let proxy = Object.create(SMTPProxy.prototype);
     proxy.closing = false;
     let c1 = makeChild();
@@ -95,13 +95,12 @@ module.exports['SMTPProxy.closeChildren() sets closing and notifies every receiv
 
     // `closing` must be set so the 'close' handler treats the exit as expected (no error log,
     // no respawn).
-    test.equal(proxy.closing, true);
-    test.deepEqual(c1.sent, [{ shutdown: true }]);
-    test.deepEqual(c2.sent, [{ shutdown: true }]);
-    test.done();
-};
+    assert.equal(proxy.closing, true);
+    assert.deepEqual(c1.sent, [{ shutdown: true }]);
+    assert.deepEqual(c2.sent, [{ shutdown: true }]);
+});
 
-module.exports['SMTPInterface.close() waits for proxy-worker SMTP sessions'] = test => {
+test('SMTPInterface.close() waits for proxy-worker SMTP sessions', (_t, finishTest) => {
     let smtpInterface = Object.create(SMTPInterface.prototype);
     let connection = {};
     let connections = new Set([connection]);
@@ -119,18 +118,18 @@ module.exports['SMTPInterface.close() waits for proxy-worker SMTP sessions'] = t
     smtpInterface.close(() => {
         callbackCalled = true;
         // the native close() reports success while sessions are still open, see close()
-        test.equal(nativeCloseCalled, false);
-        test.done();
+        assert.equal(nativeCloseCalled, false);
+        finishTest();
     });
 
     // `closing` must be set right away so that the sessions that are still open start
     // rejecting new mail transactions while the rest of them finishes up.
-    test.equal(smtpInterface.closing, true);
-    test.equal(callbackCalled, false);
+    assert.equal(smtpInterface.closing, true);
+    assert.equal(callbackCalled, false);
     setTimeout(() => connections.delete(connection), 10);
-};
+});
 
-module.exports['SendingZone.spawnSender() does not fork after shutdown starts'] = test => {
+test('SendingZone.spawnSender() does not fork after shutdown starts', (_t, finishTest) => {
     let zone = Object.create(SendingZone.prototype);
     zone.queue = { closing: true };
     zone.children = new Set();
@@ -143,16 +142,16 @@ module.exports['SendingZone.spawnSender() does not fork after shutdown starts'] 
     try {
         // the guard returns before forking, so the callback runs after fork is restored
         zone.spawnSender(() => {
-            test.equal(forkCalled, false);
-            test.equal(zone.children.size, 0);
-            test.done();
+            assert.equal(forkCalled, false);
+            assert.equal(zone.children.size, 0);
+            finishTest();
         });
     } finally {
         childProcess.fork = originalFork;
     }
-};
+});
 
-module.exports['SMTPProxy.spawnReceiver() does not fork after shutdown starts'] = test => {
+test('SMTPProxy.spawnReceiver() does not fork after shutdown starts', () => {
     let proxy = Object.create(SMTPProxy.prototype);
     proxy.closing = true;
     proxy.children = new Set();
@@ -163,14 +162,13 @@ module.exports['SMTPProxy.spawnReceiver() does not fork after shutdown starts'] 
         forkCalled = true;
     };
 
-    test.equal(proxy.spawnReceiver(), false);
+    assert.equal(proxy.spawnReceiver(), false);
     childProcess.fork = originalFork;
-    test.equal(forkCalled, false);
-    test.equal(proxy.children.size, 0);
-    test.done();
-};
+    assert.equal(forkCalled, false);
+    assert.equal(proxy.children.size, 0);
+});
 
-module.exports['SMTPProxy.connection() rejects sockets after shutdown starts'] = test => {
+test('SMTPProxy.connection() rejects sockets after shutdown starts', () => {
     let proxy = Object.create(SMTPProxy.prototype);
     // an EventEmitter: connection() guards the socket with an 'error' listener the instant it
     // is accepted (real sockets are EventEmitters), before the refusal below
@@ -179,16 +177,15 @@ module.exports['SMTPProxy.connection() rejects sockets after shutdown starts'] =
     proxy.closing = true;
     proxy.children = new Set([makeChild()]);
     proxy.socketEnd = (receivedSocket, message) => {
-        test.strictEqual(receivedSocket, socket);
+        assert.strictEqual(receivedSocket, socket);
         response = message;
     };
 
     proxy.connection(socket);
 
-    test.equal(response, '421 Server shutting down');
-    test.deepEqual([...proxy.children][0].sent, []);
-    test.done();
-};
+    assert.equal(response, '421 Server shutting down');
+    assert.deepEqual([...proxy.children][0].sent, []);
+});
 
 function makeSender() {
     let sender = Object.create(Sender.prototype);
@@ -201,37 +198,35 @@ function makeSender() {
     return sender;
 }
 
-module.exports['Sender.close() immediately closes an idle sender'] = test => {
+test('Sender.close() immediately closes an idle sender', () => {
     let sender = makeSender();
     let closedCount = 0;
     sender.on('closed', () => closedCount++);
 
     sender.close();
-    test.equal(sender.closing, true);
-    test.equal(closedCount, 1);
-    test.done();
-};
+    assert.equal(sender.closing, true);
+    assert.equal(closedCount, 1);
+});
 
-module.exports['Sender.close() waits for every active send operation'] = test => {
+test('Sender.close() waits for every active send operation', () => {
     let sender = makeSender();
     let closedCount = 0;
     sender.activeSendOperations = 2;
     sender.on('closed', () => closedCount++);
 
     sender.close();
-    test.equal(closedCount, 0);
+    assert.equal(closedCount, 0);
 
     sender.activeSendOperations--;
     sender._checkClosed();
-    test.equal(closedCount, 0);
+    assert.equal(closedCount, 0);
 
     sender.activeSendOperations--;
     sender._checkClosed();
-    test.equal(closedCount, 1);
-    test.done();
-};
+    assert.equal(closedCount, 1);
+});
 
-module.exports['Sender.sendNext() while draining does not fetch more work'] = test => {
+test('Sender.sendNext() while draining does not fetch more work', () => {
     let sender = makeSender();
     sender.closing = true;
     let sendCommandCalled = false;
@@ -242,26 +237,24 @@ module.exports['Sender.sendNext() while draining does not fetch more work'] = te
 
     sender.sendNext();
 
-    test.equal(sendCommandCalled, false);
-    test.done();
-};
+    assert.equal(sendCommandCalled, false);
+});
 
-module.exports['Sender.close() is idempotent'] = test => {
+test('Sender.close() is idempotent', () => {
     let sender = makeSender();
     let closedCount = 0;
     sender.on('closed', () => closedCount++);
     sender.close();
-    test.doesNotThrow(() => sender.close());
-    test.equal(sender.closing, true);
-    test.equal(closedCount, 1);
-    test.done();
-};
+    assert.doesNotThrow(() => sender.close());
+    assert.equal(sender.closing, true);
+    assert.equal(closedCount, 1);
+});
 
-module.exports['Sender.sendBounceMessage() waits for the queue acknowledgement'] = test => {
+test('Sender.sendBounceMessage() waits for the queue acknowledgement', () => {
     let sender = makeSender();
     let commandCallback;
     sender.sendCommand = (command, callback) => {
-        test.equal(command.cmd, 'BOUNCE');
+        assert.equal(command.cmd, 'BOUNCE');
         commandCallback = callback;
     };
 
@@ -279,9 +272,8 @@ module.exports['Sender.sendBounceMessage() waits for the queue acknowledgement']
         callbackCalled = true;
     });
 
-    test.equal(callbackCalled, false);
-    test.equal(typeof commandCallback, 'function');
+    assert.equal(callbackCalled, false);
+    assert.equal(typeof commandCallback, 'function');
     commandCallback(null, true);
-    test.equal(callbackCalled, true);
-    test.done();
-};
+    assert.equal(callbackCalled, true);
+});

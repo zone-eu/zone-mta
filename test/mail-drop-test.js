@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const log = require('npmlog');
 const PluginHandler = require('@zone-eu/wild-plugins');
 const plugins = require('../lib/plugins');
@@ -126,39 +129,39 @@ function runDrop(analyzers, maxSize, failLater, done) {
     });
 }
 
-module.exports['Message over the MIME node limit is drained without analyzers'] = test => {
+test('Message over the MIME node limit is drained without analyzers', (_t, finishTest) => {
     runDrop([], 30 * 1024 * 1024, false, result => {
-        test.ok(!result.stalled, 'message stream was not consumed to the end');
-        test.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
-        test.equal(result.err && result.err.code, 'EMAXLEN');
-        test.done();
+        assert.ok(!result.stalled, 'message stream was not consumed to the end');
+        assert.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
+        assert.equal(result.err && result.err.code, 'EMAXLEN');
+        finishTest();
     });
-};
+});
 
-module.exports['Message over the MIME node limit is drained with a readable analyzer'] = test => {
+test('Message over the MIME node limit is drained with a readable analyzer', (_t, finishTest) => {
     runDrop(['analyzer-readable'], 30 * 1024 * 1024, false, result => {
-        test.ok(!result.stalled, 'message stream was not consumed to the end');
-        test.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
-        test.equal(result.err && result.err.code, 'EMAXLEN');
-        test.done();
+        assert.ok(!result.stalled, 'message stream was not consumed to the end');
+        assert.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
+        assert.equal(result.err && result.err.code, 'EMAXLEN');
+        finishTest();
     });
-};
+});
 
-module.exports['Message over the MIME node limit and the size limit does not throw'] = test => {
+test('Message over the MIME node limit and the size limit does not throw', (_t, finishTest) => {
     // the size limiter fails as well, so the splitter gets a second error
     runDrop([], 1024 * 1024, false, result => {
-        test.ok(!result.stalled, 'message stream was not consumed to the end');
-        test.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
-        test.ok(result.err);
-        test.done();
+        assert.ok(!result.stalled, 'message stream was not consumed to the end');
+        assert.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
+        assert.ok(result.err);
+        finishTest();
     });
-};
+});
 
-module.exports['Error emitted after the MIME node limit does not throw'] = test => {
+test('Error emitted after the MIME node limit does not throw', (_t, finishTest) => {
     runDrop(['analyzer-readable'], 30 * 1024 * 1024, true, result => {
-        test.ok(!result.stalled, 'message stream was not consumed to the end');
-        test.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
-        test.equal(result.err && result.err.code, 'EMAXLEN');
-        test.done();
+        assert.ok(!result.stalled, 'message stream was not consumed to the end');
+        assert.ok(!result.thrown, 'uncaught exception: ' + result.thrown);
+        assert.equal(result.err && result.err.code, 'EMAXLEN');
+        finishTest();
     });
-};
+});

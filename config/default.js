@@ -315,6 +315,9 @@ module.exports = {
         // if true, allow posting message data in Nodemailer format to /send
         maildrop: true,
 
+        // Maximum HTTP request body size in bytes. Set to 0 for no limit.
+        maxBodySize: 50 * 1024 * 1024, // 50 MiB
+
         // hardcoded user credentials for the example authentication URL 'http://localhost:12080/test-auth'
         user: 'zone', // username for the static example auth url
         pass: 'test' // password for the static example auth url
