@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.11.5](https://github.com/zone-eu/zone-mta/compare/v3.11.4...v3.11.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* **bounces:** defer when the receiving server fails to resolve the sender domain ([#532](https://github.com/zone-eu/zone-mta/issues/532)) ([c948879](https://github.com/zone-eu/zone-mta/commit/c9488795fbb919bb37f4af0c6fcbaaeba178dd15))
+* **bounces:** match both Free wordings for the IP block ([#535](https://github.com/zone-eu/zone-mta/issues/535)) ([f59c6e8](https://github.com/zone-eu/zone-mta/commit/f59c6e81f35114ed28ba22b62979b475d9019edf))
+* Bump deps, remove grunt-contrib-nodeunit, update tests ([#542](https://github.com/zone-eu/zone-mta/issues/542)) ([22a656c](https://github.com/zone-eu/zone-mta/commit/22a656ce362e60fe05751454211d52ffb81a980f))
+* do not discard the whole pooled connection list on reuse ([#533](https://github.com/zone-eu/zone-mta/issues/533)) ([2237ef7](https://github.com/zone-eu/zone-mta/commit/2237ef734d65810fd46c58da26d5a5768a1a442b))
+* do not mark a zone empty when a capped domain was filtered out ([#534](https://github.com/zone-eu/zone-mta/issues/534)) ([24b297e](https://github.com/zone-eu/zone-mta/commit/24b297ed5e2cbadd1a8b6e0de291165f9a8d1c81))
+* fix @zone-eu/types to 0.1.6 ([#541](https://github.com/zone-eu/zone-mta/issues/541)) ([03452d5](https://github.com/zone-eu/zone-mta/commit/03452d5e9e3c40e59d38c7aed38333272d208d58))
+* **mail-drop:** drain the message when the splitter fails ([#537](https://github.com/zone-eu/zone-mta/issues/537)) ([b3f42f8](https://github.com/zone-eu/zone-mta/commit/b3f42f859ab85236ea341e24df9fb9c1dc8429bd))
+
 ## [3.11.4](https://github.com/zone-eu/zone-mta/compare/v3.11.3...v3.11.4) (2026-10-05)
 
 
