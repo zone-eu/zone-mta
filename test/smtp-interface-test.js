@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const SMTPInterface = require('../lib/smtp-interface');
 const plugins = require('../lib/plugins');
 const captureLogs = require('./fixtures/capture-logs');
@@ -9,14 +12,14 @@ function createLogger(loggerEnabled) {
     return { smtpInterface, logger: smtpInterface._createSMTPLogger() };
 }
 
-module.exports['SMTP logger records rejected responses when the transcript is disabled'] = test => {
+test('SMTP logger records rejected responses when the transcript is disabled', () => {
     captureLogs(entries => {
         let { smtpInterface, logger } = createLogger(false);
 
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'BDAT' }, 'C:', 'BDAT 100');
         logger.debug({ tnx: 'send', cid: 'test-connection', user: 'sender@example.com' }, 'S:', '500 Error: command not recognized');
 
-        test.deepEqual(entries, [
+        assert.deepEqual(entries, [
             {
                 level: 'info',
                 prefix: smtpInterface.logName,
@@ -24,22 +27,20 @@ module.exports['SMTP logger records rejected responses when the transcript is di
             }
         ]);
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger ignores successful responses when the transcript is disabled'] = test => {
+test('SMTP logger ignores successful responses when the transcript is disabled', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'NOOP' }, 'C:', 'NOOP');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '250 OK');
 
-        test.deepEqual(entries, []);
+        assert.deepEqual(entries, []);
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger records temporary failures without attributing a completed command'] = test => {
+test('SMTP logger records temporary failures without attributing a completed command', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -47,14 +48,13 @@ module.exports['SMTP logger records temporary failures without attributing a com
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '250 OK');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '421 Timeout - closing connection');
 
-        test.equal(entries.length, 1);
-        test.ok(/command=""/.test(entries[0].message));
-        test.ok(/response="421 Timeout - closing connection"/.test(entries[0].message));
+        assert.equal(entries.length, 1);
+        assert.ok(/command=""/.test(entries[0].message));
+        assert.ok(/response="421 Timeout - closing connection"/.test(entries[0].message));
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger never records AUTH continuation payloads in rejection logs'] = test => {
+test('SMTP logger never records AUTH continuation payloads in rejection logs', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -65,18 +65,17 @@ module.exports['SMTP logger never records AUTH continuation payloads in rejectio
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'C2VJCMV0' }, 'C:', 'c2VjcmV0');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '535 Error: Authentication credentials invalid');
 
-        test.equal(entries.length, 1);
-        test.ok(/command="AUTH"/.test(entries[0].message));
-        test.ok(!/DXNLCKBLEGFTCGXLLMNVBQ/.test(entries[0].message));
-        test.ok(!/C2VJCMV0/.test(entries[0].message));
+        assert.equal(entries.length, 1);
+        assert.ok(/command="AUTH"/.test(entries[0].message));
+        assert.ok(!/DXNLCKBLEGFTCGXLLMNVBQ/.test(entries[0].message));
+        assert.ok(!/C2VJCMV0/.test(entries[0].message));
     });
-    test.done();
-};
+});
 
 // smtp-server only emits a 334 when AUTH is supported. With authentication disabled AUTH is in
 // disabledCommands, so a client that pipelines the whole exchange gets a 500 per continuation line
 // and the base64 credentials must still stay out of the log
-module.exports['SMTP logger never records AUTH payloads pipelined without a challenge'] = test => {
+test('SMTP logger never records AUTH payloads pipelined without a challenge', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -87,18 +86,17 @@ module.exports['SMTP logger never records AUTH payloads pipelined without a chal
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'C2VJCMV0' }, 'C:', 'c2VjcmV0');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '500 Error: command not recognized');
 
-        test.equal(entries.length, 3);
-        test.ok(/command="AUTH"/.test(entries[0].message));
+        assert.equal(entries.length, 3);
+        assert.ok(/command="AUTH"/.test(entries[0].message));
         entries.forEach(entry => {
-            test.ok(!/DXNLCKBLEGFTCGXLLMNVBQ/.test(entry.message));
-            test.ok(!/C2VJCMV0/.test(entry.message));
+            assert.ok(!/DXNLCKBLEGFTCGXLLMNVBQ/.test(entry.message));
+            assert.ok(!/C2VJCMV0/.test(entry.message));
         });
     });
-    test.done();
-};
+});
 
 // meta.command is the uppercased first token of the raw client input, not a validated verb
-module.exports['SMTP logger never echoes unknown client commands'] = test => {
+test('SMTP logger never echoes unknown client commands', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -106,15 +104,14 @@ module.exports['SMTP logger never echoes unknown client commands'] = test => {
         logger.debug({ tnx: 'command', cid: 'test-connection', command: junk }, 'C:', junk);
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '500 Error: command not recognized');
 
-        test.equal(entries.length, 1);
-        test.ok(/command=""/.test(entries[0].message));
-        test.ok(!/AAAA/.test(entries[0].message));
+        assert.equal(entries.length, 1);
+        assert.ok(/command=""/.test(entries[0].message));
+        assert.ok(!/AAAA/.test(entries[0].message));
     });
-    test.done();
-};
+});
 
 // An unknown token must not inherit the attribution of the command that came before it
-module.exports['SMTP logger does not attribute an unknown command to the previous one'] = test => {
+test('SMTP logger does not attribute an unknown command to the previous one', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -123,26 +120,24 @@ module.exports['SMTP logger does not attribute an unknown command to the previou
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'NOTACOMMAND' }, 'C:', 'NOTACOMMAND');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '500 Error: command not recognized');
 
-        test.equal(entries.length, 1);
-        test.ok(/command=""/.test(entries[0].message));
+        assert.equal(entries.length, 1);
+        assert.ok(/command=""/.test(entries[0].message));
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger quotes response text that contains quotes'] = test => {
+test('SMTP logger quotes response text that contains quotes', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'RCPT' }, 'C:', 'RCPT TO:<user@example.com>');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '550 Unknown "recipient"');
 
-        test.equal(entries.length, 1);
-        test.ok(/response="550 Unknown \\"recipient\\""/.test(entries[0].message));
+        assert.equal(entries.length, 1);
+        assert.ok(/response="550 Unknown \\"recipient\\""/.test(entries[0].message));
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger forgets the command state of a closed connection'] = test => {
+test('SMTP logger forgets the command state of a closed connection', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -152,13 +147,12 @@ module.exports['SMTP logger forgets the command state of a closed connection'] =
         // reusing the id proves the entry is gone instead of being carried over
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '421 Server shutting down');
 
-        test.equal(entries.length, 1);
-        test.ok(/command=""/.test(entries[0].message));
+        assert.equal(entries.length, 1);
+        assert.ok(/command=""/.test(entries[0].message));
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger tracks connections independently'] = test => {
+test('SMTP logger tracks connections independently', () => {
     captureLogs(entries => {
         let { logger } = createLogger(false);
 
@@ -167,33 +161,31 @@ module.exports['SMTP logger tracks connections independently'] = test => {
         logger.debug({ tnx: 'send', cid: 'connection-b' }, 'S:', '550 No such user');
         logger.debug({ tnx: 'send', cid: 'connection-a' }, 'S:', '451 Try again later');
 
-        test.equal(entries.length, 2);
-        test.ok(/id=connection-b .* command="RCPT"/.test(entries[0].message));
-        test.ok(/id=connection-a .* command="MAIL"/.test(entries[1].message));
+        assert.equal(entries.length, 2);
+        assert.ok(/id=connection-b .* command="RCPT"/.test(entries[0].message));
+        assert.ok(/id=connection-a .* command="MAIL"/.test(entries[1].message));
     });
-    test.done();
-};
+});
 
-module.exports['SMTP logger preserves the optional full transcript'] = test => {
+test('SMTP logger preserves the optional full transcript', () => {
     captureLogs(entries => {
         let { smtpInterface, logger } = createLogger(true);
 
         logger.debug({ tnx: 'command', cid: 'test-connection', command: 'BDAT' }, 'C:', 'BDAT 100');
         logger.debug({ tnx: 'send', cid: 'test-connection' }, 'S:', '500 Error: command not recognized');
 
-        test.equal(entries.length, 3);
-        test.deepEqual(entries[0], { level: 'silly', prefix: smtpInterface.options.name, message: 'C: BDAT 100' });
-        test.equal(entries[1].level, 'info');
-        test.deepEqual(entries[2], {
+        assert.equal(entries.length, 3);
+        assert.deepEqual(entries[0], { level: 'silly', prefix: smtpInterface.options.name, message: 'C: BDAT 100' });
+        assert.equal(entries[1].level, 'info');
+        assert.deepEqual(entries[2], {
             level: 'silly',
             prefix: smtpInterface.options.name,
             message: 'S: 500 Error: command not recognized'
         });
     });
-    test.done();
-};
+});
 
-module.exports['SMTP setup installs the rejection logger when the transcript is disabled'] = test => {
+test('SMTP setup installs the rejection logger when the transcript is disabled', (_t, finishTest) => {
     let originalHandler = plugins.handler;
     let entries = [];
 
@@ -222,8 +214,8 @@ module.exports['SMTP setup installs the rejection logger when the transcript is 
 
     let done = err => {
         restore();
-        test.ifError(err);
-        test.done();
+        assert.ifError(err);
+        finishTest();
     };
 
     // setup() reaches its callback asynchronously, so plugins.handler is restored from there
@@ -240,14 +232,14 @@ module.exports['SMTP setup installs the rejection logger when the transcript is 
                 smtpInterface.server.logger.debug({ tnx: 'send', cid: 'setup-connection' }, 'S:', '500 Error: command not recognized');
             });
 
-            test.equal(entries.length, 1);
-            test.equal(entries[0].level, 'info');
-            test.equal(entries[0].prefix, smtpInterface.logName);
-            test.ok(/command="BDAT"/.test(entries[0].message));
+            assert.equal(entries.length, 1);
+            assert.equal(entries[0].level, 'info');
+            assert.equal(entries[0].prefix, smtpInterface.logName);
+            assert.ok(/command="BDAT"/.test(entries[0].message));
         } catch (E) {
             return done(E);
         }
 
         smtpInterface.close(() => done());
     });
-};
+});

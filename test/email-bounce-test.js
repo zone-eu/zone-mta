@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const emailBounce = require('../plugins/core/email-bounce');
 
 function createHeaders() {
@@ -49,7 +52,7 @@ function createApp() {
     };
 }
 
-module.exports['Email bounce hides original recipients when it matches the failed recipient'] = test => {
+test('Email bounce hides original recipients when it matches the failed recipient', (_t, finishTest) => {
     const app = createApp();
     emailBounce.init(app, () => {});
 
@@ -76,11 +79,11 @@ module.exports['Email bounce hides original recipients when it matches the faile
             stream.on('end', () => {
                 const message = Buffer.concat(chunks).toString();
 
-                test.equal(envelope.to, 'sender@example.com');
-                test.ok(/Subject: Delivery Status Notification \(Failure: failed@example\.com\)/.test(message));
-                test.ok(/Final-Recipient: rfc822; failed@example\.com/.test(message));
-                test.ok(/X-Failed-Recipients: failed@example\.com/.test(message));
-                test.ok(!/Original message recipients:\s+failed@example\.com/.test(message));
+                assert.equal(envelope.to, 'sender@example.com');
+                assert.ok(/Subject: Delivery Status Notification \(Failure: failed@example\.com\)/.test(message));
+                assert.ok(/Final-Recipient: rfc822; failed@example\.com/.test(message));
+                assert.ok(/X-Failed-Recipients: failed@example\.com/.test(message));
+                assert.ok(!/Original message recipients:\s+failed@example\.com/.test(message));
 
                 callback();
             });
@@ -88,12 +91,12 @@ module.exports['Email bounce hides original recipients when it matches the faile
     };
 
     queueBounce(bounce, maildrop, err => {
-        test.ifError(err);
-        test.done();
+        assert.ifError(err);
+        finishTest();
     });
-};
+});
 
-module.exports['Email bounce includes original recipients when it differs from the failed recipient'] = test => {
+test('Email bounce includes original recipients when it differs from the failed recipient', (_t, finishTest) => {
     const app = createApp();
     emailBounce.init(app, () => {});
 
@@ -121,11 +124,11 @@ module.exports['Email bounce includes original recipients when it differs from t
             stream.on('end', () => {
                 const message = Buffer.concat(chunks).toString();
 
-                test.equal(envelope.to, 'sender@example.com');
-                test.ok(/Subject: Delivery Status Notification \(Failure: failed@example\.com\)/.test(message));
-                test.ok(/Final-Recipient: rfc822; failed@example\.com/.test(message));
-                test.ok(/X-Failed-Recipients: first@example\.com, failed@example\.com/.test(message));
-                test.ok(/Original message recipients:\s+first@example\.com\s+failed@example\.com/.test(message));
+                assert.equal(envelope.to, 'sender@example.com');
+                assert.ok(/Subject: Delivery Status Notification \(Failure: failed@example\.com\)/.test(message));
+                assert.ok(/Final-Recipient: rfc822; failed@example\.com/.test(message));
+                assert.ok(/X-Failed-Recipients: first@example\.com, failed@example\.com/.test(message));
+                assert.ok(/Original message recipients:\s+first@example\.com\s+failed@example\.com/.test(message));
 
                 callback();
             });
@@ -133,7 +136,7 @@ module.exports['Email bounce includes original recipients when it differs from t
     };
 
     queueBounce(bounce, maildrop, err => {
-        test.ifError(err);
-        test.done();
+        assert.ifError(err);
+        finishTest();
     });
-};
+});

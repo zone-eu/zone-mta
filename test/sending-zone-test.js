@@ -1,8 +1,11 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const { SendingZone } = require('../lib/sending-zone');
 
-module.exports['#speedometer spaces sequential deliveries evenly'] = test => {
+test('#speedometer spaces sequential deliveries evenly', () => {
     let zone = new SendingZone('test', { throttling: '10 messages/second' }, false);
     let ref = {};
     let releases = [];
@@ -42,6 +45,5 @@ module.exports['#speedometer spaces sequential deliveries evenly'] = test => {
     }
 
     let gaps = releases.slice(1).map((release, i) => release - releases[i]);
-    test.deepEqual(gaps, [101, 101, 101, 101, 101, 101]);
-    test.done();
-};
+    assert.deepEqual(gaps, [101, 101, 101, 101, 101, 101]);
+});

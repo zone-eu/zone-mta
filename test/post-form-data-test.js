@@ -1,9 +1,12 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const http = require('http');
 const postFormData = require('../lib/post-form-data');
 
-module.exports['Posts multipart form data'] = test => {
+test('Posts multipart form data', (_t, finishTest) => {
     const server = http.createServer((request, response) => {
         let body = Buffer.alloc(0);
         request.on('data', chunk => {
@@ -11,14 +14,14 @@ module.exports['Posts multipart form data'] = test => {
         });
         request.on('end', () => {
             const value = body.toString();
-            test.equal(request.method, 'POST');
-            test.ok(request.headers['content-type'].startsWith('multipart/form-data; boundary='));
-            test.equal(request.headers['user-agent'], 'ZoneMTA test');
-            test.ok(value.includes('name="id"'));
-            test.ok(value.includes('delivery.1'));
-            test.ok(value.includes('name="message"; filename="delivery.eml"'));
-            test.ok(value.includes('Content-Type: message/rfc822'));
-            test.ok(value.includes('Subject: test'));
+            assert.equal(request.method, 'POST');
+            assert.ok(request.headers['content-type'].startsWith('multipart/form-data; boundary='));
+            assert.equal(request.headers['user-agent'], 'ZoneMTA test');
+            assert.ok(value.includes('name="id"'));
+            assert.ok(value.includes('delivery.1'));
+            assert.ok(value.includes('name="message"; filename="delivery.eml"'));
+            assert.ok(value.includes('Content-Type: message/rfc822'));
+            assert.ok(value.includes('Subject: test'));
             response.writeHead(201);
             response.end('accepted');
         });
@@ -41,12 +44,12 @@ module.exports['Posts multipart form data'] = test => {
                 },
                 { 'User-Agent': 'ZoneMTA test' }
             );
-            test.equal(result.statusCode, 201);
-            test.equal(result.body.toString(), 'accepted');
+            assert.equal(result.statusCode, 201);
+            assert.equal(result.body.toString(), 'accepted');
         } catch (err) {
-            test.ifError(err);
+            assert.ifError(err);
         } finally {
-            server.close(() => test.done());
+            server.close(() => finishTest());
         }
     });
-};
+});
