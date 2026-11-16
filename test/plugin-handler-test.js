@@ -1,10 +1,13 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const PluginHandler = require('@zone-eu/wild-plugins');
 const mailsplit = require('@zone-eu/mailsplit');
 const PassThrough = require('stream').PassThrough;
 
-module.exports['Loading empty plugin with no init method should fail'] = test => {
+test('Loading empty plugin with no init method should fail', (_t, finishTest) => {
     let plugins = new PluginHandler({
         pluginsPath: __dirname + '/plugins',
         plugins: {
@@ -12,12 +15,12 @@ module.exports['Loading empty plugin with no init method should fail'] = test =>
         }
     });
     plugins.load(() => {
-        test.equal(plugins.loaded.length, 0);
-        test.done();
+        assert.equal(plugins.loaded.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['Load plugins by order'] = test => {
+test('Load plugins by order', (_t, finishTest) => {
     let plugins = new PluginHandler({
         pluginsPath: __dirname + '/plugins',
         plugins: {
@@ -34,14 +37,14 @@ module.exports['Load plugins by order'] = test => {
         log: {}
     });
     plugins.load(() => {
-        test.equal(plugins.loaded.length, 2);
-        test.equal(plugins.loaded[0].title, 'Order-2');
-        test.equal(plugins.loaded[1].title, 'Order-1');
-        test.done();
+        assert.equal(plugins.loaded.length, 2);
+        assert.equal(plugins.loaded[0].title, 'Order-2');
+        assert.equal(plugins.loaded[1].title, 'Order-1');
+        finishTest();
     });
-};
+});
 
-module.exports['Load plugins with a hook'] = test => {
+test('Load plugins with a hook', (_t, finishTest) => {
     let plugins = new PluginHandler({
         pluginsPath: __dirname + '/plugins',
         plugins: {
@@ -59,15 +62,15 @@ module.exports['Load plugins with a hook'] = test => {
             incr: 15
         };
         plugins.runHooks('testhook', [a, b], err => {
-            test.ifError(err);
-            test.equal(a.incr, 2);
-            test.equal(b.incr, 17);
-            test.done();
+            assert.ifError(err);
+            assert.equal(a.incr, 2);
+            assert.equal(b.incr, 17);
+            finishTest();
         });
     });
-};
+});
 
-module.exports['Load plugins with a rewriter hook'] = test => {
+test('Load plugins with a rewriter hook', (_t, finishTest) => {
     let plugins = new PluginHandler({
         pluginsPath: __dirname + '/plugins',
         plugins: {
@@ -94,14 +97,14 @@ module.exports['Load plugins with a rewriter hook'] = test => {
             output += chunk.toString();
         });
         joiner.on('end', () => {
-            test.ok(/HELL0 W0RLD/.test(output));
-            test.done();
+            assert.ok(/HELL0 W0RLD/.test(output));
+            finishTest();
         });
         splitter.end('Subject: text\nContent-Type: text/plain\n\nHello world!');
     });
-};
+});
 
-module.exports['Load plugin with an analyzer hook'] = test => {
+test('Load plugin with an analyzer hook', (_t, finishTest) => {
     let plugins = new PluginHandler({
         pluginsPath: __dirname + '/plugins',
         plugins: {
@@ -128,10 +131,10 @@ module.exports['Load plugin with an analyzer hook'] = test => {
             output += chunk.toString();
         });
         destination.on('end', () => {
-            test.ok(/X-Step-1/.test(output));
-            test.ok(/X-Step-2/.test(output));
-            test.done();
+            assert.ok(/X-Step-1/.test(output));
+            assert.ok(/X-Step-2/.test(output));
+            finishTest();
         });
         source.end('Subject: text\nContent-Type: text/plain\n\nHello world!');
     });
-};
+});

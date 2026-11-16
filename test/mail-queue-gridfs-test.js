@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 // GridFS uploads and deletes are two non-atomic sequences, and an interruption in either used to
 // leave chunks that nothing names: files_id is their only link and it is recorded nowhere else.
 // A marker document written before each sequence and removed after it is what makes the state
@@ -130,7 +133,7 @@ function makeQueue(state, options) {
 let dead = () => new Date(Date.now() - 60 * MINUTE);
 let beating = () => new Date(Date.now() + 3 * MINUTE);
 
-module.exports['collector removes the chunks of an upload that never produced a files document'] = test => {
+test('collector removes the chunks of an upload that never produced a files document', (_t, finishTest) => {
     let state = {
         files: [],
         chunks: [{ files_id: 'a', n: 0 }, { files_id: 'a', n: 1 }, { files_id: 'b', n: 0 }],
@@ -141,17 +144,17 @@ module.exports['collector removes the chunks of an upload that never produced a 
     queue
         .collectPendingGridfs()
         .then(() => {
-            test.deepEqual(state.chunks, [{ files_id: 'b', n: 0 }]);
-            test.equal(state.pending.length, 0);
-            test.done();
+            assert.deepEqual(state.chunks, [{ files_id: 'b', n: 0 }]);
+            assert.equal(state.pending.length, 0);
+            finishTest();
         })
         .catch(err => {
-            test.ifError(err);
-            test.done();
+            assert.ifError(err);
+            finishTest();
         });
-};
+});
 
-module.exports['collector keeps a message that reached the queue and only lost its marker'] = test => {
+test('collector keeps a message that reached the queue and only lost its marker', (_t, finishTest) => {
     // Deleting on sight here would destroy a message that was queued successfully, so the
     // delivery is what says the file belongs to something.
     let state = {
@@ -163,14 +166,14 @@ module.exports['collector keeps a message that reached the queue and only lost i
     let { queue } = makeQueue(state);
 
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.files.length, 1);
-        test.equal(state.chunks.length, 1);
-        test.equal(state.pending.length, 0);
-        test.done();
+        assert.equal(state.files.length, 1);
+        assert.equal(state.chunks.length, 1);
+        assert.equal(state.pending.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['collector removes a message that was stored but never queued'] = test => {
+test('collector removes a message that was stored but never queued', (_t, finishTest) => {
     // The upload finished, so the chunks are reachable and nothing here looks broken - but no
     // delivery references the file, and the marker outlives the upload precisely so this case is
     // visible. A process that dies between storing and queueing leaves exactly this.
@@ -183,14 +186,14 @@ module.exports['collector removes a message that was stored but never queued'] =
     let { queue } = makeQueue(state);
 
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.files.length, 0);
-        test.equal(state.chunks.length, 0);
-        test.equal(state.pending.length, 0);
-        test.done();
+        assert.equal(state.files.length, 0);
+        assert.equal(state.chunks.length, 0);
+        assert.equal(state.pending.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['collector leaves a file it cannot name alone'] = test => {
+test('collector leaves a file it cannot name alone', (_t, finishTest) => {
     // A filename the collector cannot map back to a message id is not evidence of anything, and
     // guessing costs a message.
     let state = {
@@ -202,14 +205,14 @@ module.exports['collector leaves a file it cannot name alone'] = test => {
     let { queue } = makeQueue(state);
 
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.files.length, 1);
-        test.equal(state.chunks.length, 1);
-        test.equal(state.pending.length, 0);
-        test.done();
+        assert.equal(state.files.length, 1);
+        assert.equal(state.chunks.length, 1);
+        assert.equal(state.pending.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['collector finishes a delete that stopped partway'] = test => {
+test('collector finishes a delete that stopped partway', (_t, finishTest) => {
     let state = {
         files: [{ _id: 'a', filename: 'message 1' }],
         chunks: [{ files_id: 'a', n: 0 }],
@@ -218,14 +221,14 @@ module.exports['collector finishes a delete that stopped partway'] = test => {
     let { queue } = makeQueue(state);
 
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.files.length, 0);
-        test.equal(state.chunks.length, 0);
-        test.equal(state.pending.length, 0);
-        test.done();
+        assert.equal(state.files.length, 0);
+        assert.equal(state.chunks.length, 0);
+        assert.equal(state.pending.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['collector drops the marker of a delete that all but finished'] = test => {
+test('collector drops the marker of a delete that all but finished', (_t, finishTest) => {
     let state = {
         files: [],
         chunks: [{ files_id: 'b', n: 0 }],
@@ -234,13 +237,13 @@ module.exports['collector drops the marker of a delete that all but finished'] =
     let { queue } = makeQueue(state);
 
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.pending.length, 0);
-        test.equal(state.chunks.length, 1);
-        test.done();
+        assert.equal(state.pending.length, 0);
+        assert.equal(state.chunks.length, 1);
+        finishTest();
     });
-};
+});
 
-module.exports['collector leaves an upload that is still arriving alone'] = test => {
+test('collector leaves an upload that is still arriving alone', (_t, finishTest) => {
     let state = {
         files: [],
         chunks: [{ files_id: 'a', n: 0 }],
@@ -249,11 +252,11 @@ module.exports['collector leaves an upload that is still arriving alone'] = test
     let { queue } = makeQueue(state);
 
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.pending.length, 1);
-        test.equal(state.chunks.length, 1);
-        test.done();
+        assert.equal(state.pending.length, 1);
+        assert.equal(state.chunks.length, 1);
+        finishTest();
     });
-};
+});
 
 // The deadline on a marker is pushed forward by a heartbeat in the very process doing the
 // writing, so it cannot outlive it: a child killed, out of memory, or thrown out of its event
@@ -282,7 +285,7 @@ function captureTimers() {
     };
 }
 
-module.exports['a marker is born already carrying the moment it stops being anybody\'s'] = test => {
+test('a marker is born already carrying the moment it stops being anybody\'s', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { db } = fakeDb(state);
     let timers = captureTimers();
@@ -292,15 +295,15 @@ module.exports['a marker is born already carrying the moment it stops being anyb
         let marker = state.pending[0];
         let ahead = marker.expires.getTime() - Date.now();
 
-        test.equal(marker.state, 'writing');
-        test.ok(ahead > gridfsPending.MARKER_TTL - gridfsPending.HEARTBEAT_INTERVAL);
-        test.ok(ahead <= gridfsPending.MARKER_TTL);
+        assert.equal(marker.state, 'writing');
+        assert.ok(ahead > gridfsPending.MARKER_TTL - gridfsPending.HEARTBEAT_INTERVAL);
+        assert.ok(ahead <= gridfsPending.MARKER_TTL);
         gridfsPending.stopPending('files-1');
-        test.done();
+        finishTest();
     });
-};
+});
 
-module.exports['each beat moves the deadline, whether or not any bytes were written'] = test => {
+test('each beat moves the deadline, whether or not any bytes were written', (_t, finishTest) => {
     // Which is the point: headers are parsed before the body reaches the upload stream, and the
     // scan and the queue push come after it. None of that writes a chunk, and all of it belongs
     // to an operation that is still alive.
@@ -314,14 +317,14 @@ module.exports['each beat moves the deadline, whether or not any bytes were writ
         timers.restore();
 
         setImmediate(() => {
-            test.ok(state.pending[0].expires.getTime() >= first);
+            assert.ok(state.pending[0].expires.getTime() >= first);
             gridfsPending.stopPending('files-1');
-            test.done();
+            finishTest();
         });
     });
-};
+});
 
-module.exports['a beat never raises a marker somebody else took away'] = test => {
+test('a beat never raises a marker somebody else took away', (_t, finishTest) => {
     // The operation an id belongs to can be ended by a different process than the one beating for
     // it: an SMTP child hands its cleanup to the master over IPC. A beat that could create would
     // bring the marker back there and then beat for it forever.
@@ -336,14 +339,14 @@ module.exports['a beat never raises a marker somebody else took away'] = test =>
         timers.restore();
 
         setImmediate(() => {
-            test.equal(state.pending.length, 0);
+            assert.equal(state.pending.length, 0);
             gridfsPending.stopPending('files-1');
-            test.done();
+            finishTest();
         });
     });
-};
+});
 
-module.exports['stopping leaves the marker behind to go stale, which is what the collector is for'] = test => {
+test('stopping leaves the marker behind to go stale, which is what the collector is for', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { db } = fakeDb(state);
     let timers = captureTimers();
@@ -357,13 +360,13 @@ module.exports['stopping leaves the marker behind to go stale, which is what the
         setImmediate(() => {
             // Still there, and no longer moving: the chunks it wrote are exactly what the
             // collector is looking for, so taking the marker back would hide them.
-            test.equal(state.pending[0].expires.getTime(), frozen);
-            test.done();
+            assert.equal(state.pending[0].expires.getTime(), frozen);
+            finishTest();
         });
     });
-};
+});
 
-module.exports['clearing takes the marker away and the heartbeat with it'] = test => {
+test('clearing takes the marker away and the heartbeat with it', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { db } = fakeDb(state);
     let timers = captureTimers();
@@ -374,14 +377,14 @@ module.exports['clearing takes the marker away and the heartbeat with it'] = tes
             timers.restore();
 
             setImmediate(() => {
-                test.equal(state.pending.length, 0);
-                test.done();
+                assert.equal(state.pending.length, 0);
+                finishTest();
             });
         });
     });
-};
+});
 
-module.exports['delete removes the chunks before the files document'] = test => {
+test('delete removes the chunks before the files document', (_t, finishTest) => {
     let state = {
         files: [{ _id: 'a', filename: 'message 1' }],
         chunks: [{ files_id: 'a', n: 0 }],
@@ -390,19 +393,19 @@ module.exports['delete removes the chunks before the files document'] = test => 
     let { queue, calls } = makeQueue(state);
 
     queue.removeGridfsFile('a', err => {
-        test.ifError(err);
+        assert.ifError(err);
 
         let order = calls.map(entry => `${entry.op} ${entry.name}`);
-        test.deepEqual(order, ['updateOne mail.pending', 'deleteMany mail.chunks', 'deleteOne mail.files', 'deleteOne mail.pending']);
+        assert.deepEqual(order, ['updateOne mail.pending', 'deleteMany mail.chunks', 'deleteOne mail.files', 'deleteOne mail.pending']);
 
-        test.equal(state.files.length, 0);
-        test.equal(state.chunks.length, 0);
-        test.equal(state.pending.length, 0);
-        test.done();
+        assert.equal(state.files.length, 0);
+        assert.equal(state.chunks.length, 0);
+        assert.equal(state.pending.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['delete takes over an upload marker instead of colliding with it'] = test => {
+test('delete takes over an upload marker instead of colliding with it', (_t, finishTest) => {
     let state = {
         files: [{ _id: 'a', filename: 'message 1' }],
         chunks: [{ files_id: 'a', n: 0 }],
@@ -411,13 +414,13 @@ module.exports['delete takes over an upload marker instead of colliding with it'
     let { queue } = makeQueue(state);
 
     queue.removeGridfsFile('a', err => {
-        test.ifError(err);
-        test.equal(state.pending.length, 0);
-        test.done();
+        assert.ifError(err);
+        assert.equal(state.pending.length, 0);
+        finishTest();
     });
-};
+});
 
-module.exports['collection runs even when the age-based GC is disabled'] = test => {
+test('collection runs even when the age-based GC is disabled', (_t, finishTest) => {
     // disableGC means "do not remove old data". An interrupted operation is not old data, and
     // leaving it gated would let the marker collection grow with nothing to drain it.
     let state = {
@@ -430,15 +433,15 @@ module.exports['collection runs even when the age-based GC is disabled'] = test 
     queue
         .clearGarbage()
         .then(() => {
-            test.equal(state.chunks.length, 0);
-            test.equal(state.pending.length, 0);
-            test.done();
+            assert.equal(state.chunks.length, 0);
+            assert.equal(state.pending.length, 0);
+            finishTest();
         })
         .catch(err => {
-            test.ifError(err);
-            test.done();
+            assert.ifError(err);
+            finishTest();
         });
-};
+});
 
 // A GridFS upload stream stands in for the real one: it carries the id openUploadStream assigns
 // in its constructor, and records every chunk that reaches it so the marker can be placed
@@ -459,7 +462,7 @@ function fakeUpload(calls, id) {
     return store;
 }
 
-module.exports['upload marks before the first chunk and hands the upload id back'] = test => {
+test('upload marks before the first chunk and hands the upload id back', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { queue, calls } = makeQueue(state);
     queue.gridstore = { openUploadStream: () => fakeUpload(calls) };
@@ -468,26 +471,26 @@ module.exports['upload marks before the first chunk and hands the upload id back
     source.end('a message body');
 
     queue.store('msg-1', source, (err, id, filesId) => {
-        test.ifError(err);
-        test.equal(id, 'msg-1');
+        assert.ifError(err);
+        assert.equal(id, 'msg-1');
 
         let order = calls.map(entry => `${entry.op} ${entry.name}`);
 
         // The marker has to exist before anything is written, because a chunk that lands
         // without one is exactly the state nothing can find afterwards.
-        test.equal(order.indexOf('updateOne mail.pending'), 0);
-        test.ok(order.indexOf('write upload') > 0);
+        assert.equal(order.indexOf('updateOne mail.pending'), 0);
+        assert.ok(order.indexOf('write upload') > 0);
 
         // And it stays: a stored message that never reaches the queue belongs to nobody, and only
         // the caller knows when it does. The upload id comes back so it can say so.
-        test.equal(order.indexOf('deleteOne mail.pending'), -1);
-        test.deepEqual(state.pending.map(row => row._id), ['files-1']);
-        test.equal(filesId, 'files-1');
-        test.done();
+        assert.equal(order.indexOf('deleteOne mail.pending'), -1);
+        assert.deepEqual(state.pending.map(row => row._id), ['files-1']);
+        assert.equal(filesId, 'files-1');
+        finishTest();
     });
-};
+});
 
-module.exports['upload fails and releases the handle when the marker cannot be written'] = test => {
+test('upload fails and releases the handle when the marker cannot be written', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { queue, calls } = makeQueue(state);
     queue.gridstore = { openUploadStream: () => fakeUpload(calls) };
@@ -497,19 +500,19 @@ module.exports['upload fails and releases the handle when the marker cannot be w
     source.end('body');
 
     queue.store('msg-2', source, err => {
-        test.ok(err);
-        test.equal(err.message, 'mongo down');
+        assert.ok(err);
+        assert.equal(err.message, 'mongo down');
 
         // Nothing may be written without a marker, and the handle nobody will end now is
         // released rather than left open.
         let order = calls.map(entry => `${entry.op} ${entry.name}`);
-        test.equal(order.indexOf('write upload'), -1);
-        test.ok(order.indexOf('destroy upload') >= 0);
-        test.done();
+        assert.equal(order.indexOf('write upload'), -1);
+        assert.ok(order.indexOf('destroy upload') >= 0);
+        finishTest();
     });
-};
+});
 
-module.exports['one failing marker does not cost the rest of the pass'] = test => {
+test('one failing marker does not cost the rest of the pass', (_t, finishTest) => {
     // A transient Mongo error used to abort the whole loop, and checkGarbage backs off to five
     // minutes after a throw, so everything behind the failure waited with it.
     let state = {
@@ -536,13 +539,13 @@ module.exports['one failing marker does not cost the rest of the pass'] = test =
 
     queue.collectPendingGridfs().then(() => {
         // The failing one keeps its marker, so the next pass tries again rather than losing it.
-        test.deepEqual(state.pending.map(row => row._id), ['bad']);
-        test.deepEqual(state.chunks.map(row => row.files_id), ['bad']);
-        test.done();
+        assert.deepEqual(state.pending.map(row => row._id), ['bad']);
+        assert.deepEqual(state.chunks.map(row => row.files_id), ['bad']);
+        finishTest();
     });
-};
+});
 
-module.exports['a failed upload keeps its marker, and the GC clears what it left behind'] = test => {
+test('a failed upload keeps its marker, and the GC clears what it left behind', (_t, finishTest) => {
     // The upload stream erroring is not the same as the source ending early: chunks may already
     // be written and no files document will ever name them, so the marker has to survive for the
     // collector to act on.
@@ -561,31 +564,31 @@ module.exports['a failed upload keeps its marker, and the GC clears what it left
     source.end('body');
 
     queue.store('msg-err', source, err => {
-        test.ok(err);
-        test.equal(err.message, 'disk full');
+        assert.ok(err);
+        assert.equal(err.message, 'disk full');
 
         // Still there, deliberately: clearing it would hide the chunks from the collector.
-        test.deepEqual(state.pending.map(row => row._id), ['files-err']);
+        assert.deepEqual(state.pending.map(row => row._id), ['files-err']);
 
         // Its deadline is still ahead, so the next pass leaves it alone: an upload that just
         // failed is indistinguishable from one still arriving until the beats stop.
         queue
             .collectPendingGridfs()
             .then(() => {
-                test.equal(state.pending.length, 1);
+                assert.equal(state.pending.length, 1);
                 // Nothing is beating for it any more, so the deadline arrives.
                 state.pending[0].expires = dead();
                 return queue.collectPendingGridfs();
             })
             .then(() => {
-                test.equal(state.chunks.length, 0);
-                test.equal(state.pending.length, 0);
-                test.done();
+                assert.equal(state.chunks.length, 0);
+                assert.equal(state.pending.length, 0);
+                finishTest();
             });
     });
-};
+});
 
-module.exports['collector skips a marker renewed after the cursor read'] = test => {
+test('collector skips a marker renewed after the cursor read', (_t, finishTest) => {
     let state = { files: [], chunks: [{ files_id: 'a' }], pending: [{ _id: 'a', state: 'writing', expires: dead() }] };
     let { queue, calls } = makeQueue(state);
     let collection = queue.mongodb.collection;
@@ -607,14 +610,14 @@ module.exports['collector skips a marker renewed after the cursor read'] = test 
         return result;
     };
     queue.collectPendingGridfs().then(() => {
-        test.equal(state.chunks.length, 1);
-        test.equal(state.pending.length, 1);
-        test.equal(calls.filter(call => /^delete/.test(call.op)).length, 0);
-        test.done();
-    }).catch(test.done);
-};
+        assert.equal(state.chunks.length, 1);
+        assert.equal(state.pending.length, 1);
+        assert.equal(calls.filter(call => /^delete/.test(call.op)).length, 0);
+        finishTest();
+    }).catch(finishTest);
+});
 
-module.exports['a collection claim fences renewals and marker removal'] = test => {
+test('a collection claim fences renewals and marker removal', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { db } = fakeDb(state);
     let timers = captureTimers();
@@ -623,22 +626,22 @@ module.exports['a collection claim fences renewals and marker removal'] = test =
         state.pending[0].collecting = 'collector';
         let expires = state.pending[0].expires;
         gridfsPending.renewPending(db, GFS, 'a', err => {
-            test.ok(err);
+            assert.ok(err);
             gridfsPending.clearPending(db, GFS, 'a', err => {
-                test.ok(err);
-                test.equal(state.pending.length, 1);
-                test.equal(state.pending[0].expires, expires);
+                assert.ok(err);
+                assert.equal(state.pending.length, 1);
+                assert.equal(state.pending[0].expires, expires);
                 timers.restore();
-                test.done();
+                finishTest();
             });
         });
         timers.tick();
-        setImmediate(() => test.equal(lost, 1));
+        setImmediate(() => assert.equal(lost, 1));
     }, () => lost++);
-};
+});
 
 for (let operation of ['chunks', 'files']) {
-    module.exports['a failed ' + operation + ' delete stops beating and is retried'] = test => {
+    test('a failed ' + operation + ' delete stops beating and is retried', (_t, finishTest) => {
         let state = { files: [{ _id: 'a', filename: 'message a' }], chunks: [{ files_id: 'a' }], pending: [] };
         let { queue, calls } = makeQueue(state);
         let collection = queue.mongodb.collection;
@@ -652,53 +655,53 @@ for (let operation of ['chunks', 'files']) {
         };
         let timers = captureTimers();
         queue.removeGridfsFile('a', err => {
-            test.equal(err, failure);
+            assert.equal(err, failure);
             let updates = calls.filter(call => call.op === 'updateOne').length;
             timers.tick();
             timers.restore();
-            test.equal(calls.filter(call => call.op === 'updateOne').length, updates);
-            test.equal(state.pending.length, 1);
-            test.equal(state.pending[0].state, 'deleting');
+            assert.equal(calls.filter(call => call.op === 'updateOne').length, updates);
+            assert.equal(state.pending.length, 1);
+            assert.equal(state.pending[0].state, 'deleting');
             state.pending[0].expires = dead();
             queue.mongodb.collection = collection;
             queue.collectPendingGridfs().then(() => {
-                test.equal(state.files.length, 0);
-                test.equal(state.chunks.length, 0);
-                test.equal(state.pending.length, 0);
-                test.done();
-            }).catch(test.done);
+                assert.equal(state.files.length, 0);
+                assert.equal(state.chunks.length, 0);
+                assert.equal(state.pending.length, 0);
+                finishTest();
+            }).catch(finishTest);
         });
-    };
+    });
 }
 
-module.exports['an upload claimed before finishing cannot report storage success'] = test => {
+test('an upload claimed before finishing cannot report storage success', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { queue, calls } = makeQueue(state);
     let upload = fakeUpload(calls);
     queue.gridstore = { openUploadStream: () => upload };
     let source = new PassThrough();
     queue.store('lost', source, err => {
-        test.ok(err);
-        test.equal(state.pending[0].collecting, 'collector');
-        test.done();
+        assert.ok(err);
+        assert.equal(state.pending[0].collecting, 'collector');
+        finishTest();
     });
     setImmediate(() => {
         state.pending[0].collecting = 'collector';
         source.end('body');
     });
-};
+});
 
-module.exports['competing collectors only delete once'] = test => {
+test('competing collectors only delete once', (_t, finishTest) => {
     let state = { files: [], chunks: [{ files_id: 'a' }], pending: [{ _id: 'a', state: 'writing', expires: dead() }] };
     let { queue, calls } = makeQueue(state);
     Promise.all([queue.collectPendingGridfs(), queue.collectPendingGridfs()]).then(() => {
-        test.equal(calls.filter(call => call.op === 'deleteMany').length, 1);
-        test.equal(state.pending.length, 0);
-        test.done();
-    }).catch(test.done);
-};
+        assert.equal(calls.filter(call => call.op === 'deleteMany').length, 1);
+        assert.equal(state.pending.length, 0);
+        finishTest();
+    }).catch(finishTest);
+});
 
-module.exports['an upload claimed during scanning cannot enqueue deliveries'] = test => {
+test('an upload claimed during scanning cannot enqueue deliveries', (_t, finishTest) => {
     let originalHandler = plugins.handler;
     plugins.handler = { runHooks: (name, args, cb) => cb() };
     let state = { files: [], chunks: [], pending: [{ _id: 'a', state: 'writing', expires: beating(), collecting: 'collector' }] };
@@ -712,13 +715,13 @@ module.exports['an upload claimed during scanning cannot enqueue deliveries'] = 
     };
     queue.push('message', { to: ['recipient@example.com'], headers: {} }, err => {
         plugins.handler = originalHandler;
-        test.ok(err);
-        test.equal(inserted, false);
-        test.done();
+        assert.ok(err);
+        assert.equal(inserted, false);
+        finishTest();
     }, 'a');
-};
+});
 
-module.exports['a heartbeat aborts an open upload when collection claims it'] = test => {
+test('a heartbeat aborts an open upload when collection claims it', (_t, finishTest) => {
     let state = { files: [], chunks: [], pending: [] };
     let { queue, calls } = makeQueue(state);
     let upload = fakeUpload(calls);
@@ -726,13 +729,13 @@ module.exports['a heartbeat aborts an open upload when collection claims it'] = 
     let source = new PassThrough();
     let timers = captureTimers();
     queue.store('lost', source, err => {
-        test.ok(err);
-        test.ok(upload.destroyed);
+        assert.ok(err);
+        assert.ok(upload.destroyed);
         timers.restore();
-        test.done();
+        finishTest();
     });
     setImmediate(() => {
         state.pending[0].collecting = 'collector';
         timers.tick();
     });
-};
+});

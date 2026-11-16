@@ -29,6 +29,11 @@ module.exports = {
             db: 3,
             connectTimeout: 10000
         },
+        // options passed to the MongoClient, e.g. maxPoolSize, minPoolSize, maxIdleTimeMS.
+        // Empty by default, so the driver's own defaults apply unless something is set here.
+        // The key is declared even though it is empty because wild-config only merges overrides
+        // onto keys that already exist.
+        mongoOptions: {},
         // optional database name if you want to use a different database than the connection string
         sender: 'zone-mta'
     },
@@ -309,6 +314,9 @@ module.exports = {
 
         // if true, allow posting message data in Nodemailer format to /send
         maildrop: true,
+
+        // Maximum HTTP request body size in bytes. Set to 0 for no limit.
+        maxBodySize: 50 * 1024 * 1024, // 50 MiB
 
         // hardcoded user credentials for the example authentication URL 'http://localhost:12080/test-auth'
         user: 'zone', // username for the static example auth url

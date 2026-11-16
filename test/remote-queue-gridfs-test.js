@@ -1,5 +1,8 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 // RemoteQueue is the queue a forked SMTP child stores through, so these cover the store path
 // every submission arriving over the wire takes: the upload marker around the window where
 // chunks exist and the files document does not, and which stream errors count as a storage
@@ -100,7 +103,7 @@ function captureLog() {
     };
 }
 
-module.exports['upload marks before the first chunk and hands the upload id back'] = test => {
+test('upload marks before the first chunk and hands the upload id back', (_t, finishTest) => {
     let state = { pending: [] };
     let calls = [];
     let upload = fakeUpload(calls);
@@ -110,25 +113,25 @@ module.exports['upload marks before the first chunk and hands the upload id back
     source.end('a message body');
 
     queue.store('msg-1', source, (err, id, filesId) => {
-        test.ifError(err);
-        test.equal(id, 'msg-1');
+        assert.ifError(err);
+        assert.equal(id, 'msg-1');
 
         let order = calls.map(entry => `${entry.op} ${entry.name}`);
 
         // The marker has to exist before anything is written, because a chunk that lands
         // without one is exactly the state nothing can find afterwards.
-        test.equal(order.indexOf('updateOne mail.pending'), 0);
-        test.ok(order.indexOf('write upload') > 0);
+        assert.equal(order.indexOf('updateOne mail.pending'), 0);
+        assert.ok(order.indexOf('write upload') > 0);
 
         // And it stays until the message is queued, which only the caller can tell it.
-        test.equal(order.indexOf('deleteOne mail.pending'), -1);
-        test.deepEqual(state.pending.map(row => row._id), ['files-1']);
-        test.equal(filesId, 'files-1');
-        test.done();
+        assert.equal(order.indexOf('deleteOne mail.pending'), -1);
+        assert.deepEqual(state.pending.map(row => row._id), ['files-1']);
+        assert.equal(filesId, 'files-1');
+        finishTest();
     });
-};
+});
 
-module.exports['upload records the marker as writing, against the upload id'] = test => {
+test('upload records the marker as writing, against the upload id', (_t, finishTest) => {
     let state = { pending: [] };
     let seen = [];
 
@@ -149,12 +152,12 @@ module.exports['upload records the marker as writing, against the upload id'] = 
     queue.store('msg-2', source, () => {
         // The marker names the upload, not the message: files_id is the only thing the stranded
         // chunks carry.
-        test.deepEqual(seen[0], [['files-42', 'writing']]);
-        test.done();
+        assert.deepEqual(seen[0], [['files-42', 'writing']]);
+        finishTest();
     });
-};
+});
 
-module.exports['upload fails and releases the handle when the marker cannot be written'] = test => {
+test('upload fails and releases the handle when the marker cannot be written', (_t, finishTest) => {
     let state = { pending: [] };
     let calls = [];
     let upload = fakeUpload(calls);
@@ -169,18 +172,18 @@ module.exports['upload fails and releases the handle when the marker cannot be w
     source.end('body');
 
     queue.store('msg-3', source, err => {
-        test.equal(err.message, 'mongo down');
+        assert.equal(err.message, 'mongo down');
 
         // Nothing may be written without a marker, and the handle nobody will end now is
         // released rather than left open.
         let order = calls.map(entry => `${entry.op} ${entry.name}`);
-        test.equal(order.indexOf('write upload'), -1);
-        test.ok(order.indexOf('destroy upload') >= 0);
-        test.done();
+        assert.equal(order.indexOf('write upload'), -1);
+        assert.ok(order.indexOf('destroy upload') >= 0);
+        finishTest();
     });
-};
+});
 
-module.exports['a failed upload keeps its marker for the collector to find'] = test => {
+test('a failed upload keeps its marker for the collector to find', (_t, finishTest) => {
     // Chunks may already be written and no files document will ever name them, so clearing the
     // marker here would hide exactly what the collector is looking for.
     let state = { pending: [] };
@@ -191,13 +194,13 @@ module.exports['a failed upload keeps its marker for the collector to find'] = t
     source.end('body');
 
     queue.store('msg-err', source, err => {
-        test.equal(err.message, 'disk full');
-        test.deepEqual(state.pending.map(row => row._id), ['files-1']);
-        test.done();
+        assert.equal(err.message, 'disk full');
+        assert.deepEqual(state.pending.map(row => row._id), ['files-1']);
+        finishTest();
     });
-};
+});
 
-module.exports['a client that hangs up is an outcome, not a storage failure'] = test => {
+test('a client that hangs up is an outcome, not a storage failure', (_t, finishTest) => {
     let state = { pending: [] };
     let upload = fakeUpload([]);
     let { queue } = makeQueue(state, upload);
@@ -206,25 +209,25 @@ module.exports['a client that hangs up is an outcome, not a storage failure'] = 
     let source = new PassThrough();
     queue.store('msg-4', source, err => {
         logged.restore();
-        test.equal(err.name, 'ClientDisconnect');
+        assert.equal(err.name, 'ClientDisconnect');
 
         // No error level, and so no failure code either: on a busy receiver this is routine, and
         // that is the channel real storage faults are alerted on.
-        test.equal(logged.entries.filter(entry => entry.level === 'error').length, 0);
-        test.ok(logged.entries.some(entry => entry.args.indexOf('%s ABORTED %s') >= 0));
+        assert.equal(logged.entries.filter(entry => entry.level === 'error').length, 0);
+        assert.ok(logged.entries.some(entry => entry.args.indexOf('%s ABORTED %s') >= 0));
 
         // The message is still handed to the master to remove, marker and chunks with it.
-        test.deepEqual(queue.removed, [{ cmd: 'REMOVE', id: 'msg-4' }]);
-        test.done();
+        assert.deepEqual(queue.removed, [{ cmd: 'REMOVE', id: 'msg-4' }]);
+        finishTest();
     });
 
     source.write('partial body');
     let abort = new Error('Client disconnected before the message was complete');
     abort.name = 'ClientDisconnect';
     source.emit('error', abort);
-};
+});
 
-module.exports['a real stream failure still reports itself'] = test => {
+test('a real stream failure still reports itself', (_t, finishTest) => {
     let state = { pending: [] };
     let upload = fakeUpload([]);
     let { queue } = makeQueue(state, upload);
@@ -233,14 +236,14 @@ module.exports['a real stream failure still reports itself'] = test => {
     let source = new PassThrough();
     queue.store('msg-5', source, err => {
         logged.restore();
-        test.equal(err.message, 'socket hang up');
-        test.ok(logged.entries.some(entry => entry.level === 'error' && entry.args.indexOf('%s STREAMERR %s') >= 0));
-        test.done();
+        assert.equal(err.message, 'socket hang up');
+        assert.ok(logged.entries.some(entry => entry.level === 'error' && entry.args.indexOf('%s STREAMERR %s') >= 0));
+        finishTest();
     });
 
     source.write('partial body');
     source.emit('error', new Error('socket hang up'));
-};
+});
 
 // The heartbeat runs on an interval, so the interval is what the test drives: replacing
 // setInterval keeps it instant and needs no timer library.
@@ -265,7 +268,7 @@ function captureTimers() {
     };
 }
 
-module.exports['a source that dies while the marker is being written leaves no heartbeat behind'] = test => {
+test('a source that dies while the marker is being written leaves no heartbeat behind', (_t, finishTest) => {
     // The two race: the error handler stops a heartbeat that the marker write has not started yet,
     // and the write then starts one with nobody left to claim it. A timer nobody owns goes on
     // renewing a marker for an upload that ended, which is the one state the collector cannot see
@@ -300,27 +303,27 @@ module.exports['a source that dies while the marker is being written leaves no h
             timers.restore();
 
             setImmediate(() => {
-                test.equal(calls.filter(entry => entry.op === 'updateOne').length, written);
-                test.equal(gridfsPending.HEARTBEAT_INTERVAL > 0, true);
-                test.done();
+                assert.equal(calls.filter(entry => entry.op === 'updateOne').length, written);
+                assert.equal(gridfsPending.HEARTBEAT_INTERVAL > 0, true);
+                finishTest();
             });
         });
     });
-};
+});
 
-module.exports['a claimed SMTP upload cannot report storage success'] = test => {
+test('a claimed SMTP upload cannot report storage success', (_t, finishTest) => {
     let state = { pending: [] };
     let calls = [];
     let upload = fakeUpload(calls);
     let { queue } = makeQueue(state, upload, calls);
     let source = new PassThrough();
     queue.store('lost', source, err => {
-        test.ok(err);
-        test.equal(state.pending[0].collecting, 'collector');
-        test.done();
+        assert.ok(err);
+        assert.equal(state.pending[0].collecting, 'collector');
+        finishTest();
     });
     setImmediate(() => {
         state.pending[0].collecting = 'collector';
         source.end('body');
     });
-};
+});

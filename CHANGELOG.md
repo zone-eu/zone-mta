@@ -1,5 +1,68 @@
 # Changelog
 
+## [3.11.5](https://github.com/zone-eu/zone-mta/compare/v3.11.4...v3.11.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* **bounces:** defer when the receiving server fails to resolve the sender domain ([#532](https://github.com/zone-eu/zone-mta/issues/532)) ([c948879](https://github.com/zone-eu/zone-mta/commit/c9488795fbb919bb37f4af0c6fcbaaeba178dd15))
+* **bounces:** match both Free wordings for the IP block ([#535](https://github.com/zone-eu/zone-mta/issues/535)) ([f59c6e8](https://github.com/zone-eu/zone-mta/commit/f59c6e81f35114ed28ba22b62979b475d9019edf))
+* Bump deps, remove grunt-contrib-nodeunit, update tests ([#542](https://github.com/zone-eu/zone-mta/issues/542)) ([22a656c](https://github.com/zone-eu/zone-mta/commit/22a656ce362e60fe05751454211d52ffb81a980f))
+* do not discard the whole pooled connection list on reuse ([#533](https://github.com/zone-eu/zone-mta/issues/533)) ([2237ef7](https://github.com/zone-eu/zone-mta/commit/2237ef734d65810fd46c58da26d5a5768a1a442b))
+* do not mark a zone empty when a capped domain was filtered out ([#534](https://github.com/zone-eu/zone-mta/issues/534)) ([24b297e](https://github.com/zone-eu/zone-mta/commit/24b297ed5e2cbadd1a8b6e0de291165f9a8d1c81))
+* fix @zone-eu/types to 0.1.6 ([#541](https://github.com/zone-eu/zone-mta/issues/541)) ([03452d5](https://github.com/zone-eu/zone-mta/commit/03452d5e9e3c40e59d38c7aed38333272d208d58))
+* **mail-drop:** drain the message when the splitter fails ([#537](https://github.com/zone-eu/zone-mta/issues/537)) ([b3f42f8](https://github.com/zone-eu/zone-mta/commit/b3f42f859ab85236ea341e24df9fb9c1dc8429bd))
+
+## [3.11.4](https://github.com/zone-eu/zone-mta/compare/v3.11.3...v3.11.4) (2026-10-05)
+
+
+### Bug Fixes
+
+* **bounces:** add rules for Free IP block, Microsoft 4.7.65x throttling and spam rejections ([#530](https://github.com/zone-eu/zone-mta/issues/530)) ([9e67ae9](https://github.com/zone-eu/zone-mta/commit/9e67ae970365a25c56fdbdc246645779d6d61fe8))
+* **deps:** update libmime to 5.4.7, mailsplit to 5.4.20, mailauth to 7.1.1 and mx-connect to 2.0.2 ([83cbd5c](https://github.com/zone-eu/zone-mta/commit/83cbd5cd210664abce2cb6df15a7a76b26ca52ff))
+
+## [3.11.3](https://github.com/zone-eu/zone-mta/compare/v3.11.2...v3.11.3) (2026-09-27)
+
+
+### Bug Fixes
+
+* bump deps ([#528](https://github.com/zone-eu/zone-mta/issues/528)) ([0d99161](https://github.com/zone-eu/zone-mta/commit/0d9916186a0e3a250edad383761234799a135792))
+
+## [3.11.2](https://github.com/zone-eu/zone-mta/compare/v3.11.1...v3.11.2) (2026-09-27)
+
+
+### Bug Fixes
+
+* bump deps ([#526](https://github.com/zone-eu/zone-mta/issues/526)) ([a84aebb](https://github.com/zone-eu/zone-mta/commit/a84aebb9d872ce3bd0b9a8cf4fb95df9a7c746b6))
+
+## [3.11.1](https://github.com/zone-eu/zone-mta/compare/v3.11.0...v3.11.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* bump deps ([#524](https://github.com/zone-eu/zone-mta/issues/524)) ([f0a7e44](https://github.com/zone-eu/zone-mta/commit/f0a7e44f3c1a8c9c0e918103a21fbc84a2c767ef))
+* let an api:mail hook choose its own HTTP status ([#522](https://github.com/zone-eu/zone-mta/issues/522)) ([5a7fa70](https://github.com/zone-eu/zone-mta/commit/5a7fa70d1afd3f13bdc55abd02ab2a6abf0dbd6c))
+* pass dbs.mongoOptions through to the MongoClient ([#523](https://github.com/zone-eu/zone-mta/issues/523)) ([5d76baa](https://github.com/zone-eu/zone-mta/commit/5d76baa8c6b16cfab8e2e0e96c6cefe7196cc9df))
+* queue-ing message through API errors should not expose internal errors ([#520](https://github.com/zone-eu/zone-mta/issues/520)) ([1e6a32b](https://github.com/zone-eu/zone-mta/commit/1e6a32b2f9453e949bce2f45260532bac9a9ee1b))
+
+## [3.11.0](https://github.com/zone-eu/zone-mta/compare/v3.10.18...v3.11.0) (2026-09-14)
+
+
+### Features
+
+* bump deps, raise min required nodejs version ([#505](https://github.com/zone-eu/zone-mta/issues/505)) ([3b382c2](https://github.com/zone-eu/zone-mta/commit/3b382c217e996e235bb1b80344f1fdf4e98546b3))
+
+
+### Bug Fixes
+
+* avoid TypeError in SNICallback when interface logger is disabled ([#504](https://github.com/zone-eu/zone-mta/issues/504)) ([464c0b9](https://github.com/zone-eu/zone-mta/commit/464c0b99327be4304b22f6bc76107c71383cb091))
+* bump mx-connect to 1.7.0, add new blockReservedNetworks zone option ([#507](https://github.com/zone-eu/zone-mta/issues/507)) ([66fe8bb](https://github.com/zone-eu/zone-mta/commit/66fe8bb3266bfaee1f4680ea1a75f6bc572c2e8d))
+* drain sender and receiver children before shutdown  ([#508](https://github.com/zone-eu/zone-mta/issues/508)) ([bc8f1f9](https://github.com/zone-eu/zone-mta/commit/bc8f1f94d911f42b5aa41a5c6e25dc5e3fbc6e77))
+* fix logging when logger is false and 4xx or 5xx smtp errors occur ([#509](https://github.com/zone-eu/zone-mta/issues/509)) ([ba89ec9](https://github.com/zone-eu/zone-mta/commit/ba89ec97803f53c52ad7c88f22466e381ed44f27))
+* fix throttling sending 2x messages per tick ([#517](https://github.com/zone-eu/zone-mta/issues/517)) ([0edebd9](https://github.com/zone-eu/zone-mta/commit/0edebd972d3f975d5ecc789e3eecb16a29ee6146))
+* guard sockets against async errors during PROXY handoff and refusal ([#514](https://github.com/zone-eu/zone-mta/issues/514)) ([f08e05e](https://github.com/zone-eu/zone-mta/commit/f08e05e5162149ab9cb95fbcadeeea6ad8762c05))
+* replace request multipart uploads ([#510](https://github.com/zone-eu/zone-mta/issues/510)) ([37ae98b](https://github.com/zone-eu/zone-mta/commit/37ae98bdb802249a854678a873ca0090bc1d0dd8))
+
 ## [3.10.18](https://github.com/zone-eu/zone-mta/compare/v3.10.17...v3.10.18) (2026-07-20)
 
 

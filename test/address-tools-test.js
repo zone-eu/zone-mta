@@ -1,20 +1,21 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 let addressTools = require('../lib/address-tools');
 let Headers = require('@zone-eu/mailsplit').Headers;
 
-module.exports['#parseAddresses, no names'] = test => {
+test('#parseAddresses, no names', () => {
     let parsed = addressTools.parseAddresses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>']);
 
-    test.deepEqual(['andris1@kreata.ee', 'andris2@kreata.ee', 'andris3@kreata.ee'], parsed);
+    assert.deepEqual(['andris1@kreata.ee', 'andris2@kreata.ee', 'andris3@kreata.ee'], parsed);
+});
 
-    test.done();
-};
-
-module.exports['#parseAddresses, with names'] = test => {
+test('#parseAddresses, with names', () => {
     let parsed = addressTools.parseAddresses(['andris1@kreata.ee, <andris2@kreata.ee>, Andris3 <andris3@kreata.ee>', 'Andris4 <andris2@kreata.ee>'], true);
 
-    test.deepEqual(
+    assert.deepEqual(
         [
             {
                 name: '',
@@ -31,17 +32,15 @@ module.exports['#parseAddresses, with names'] = test => {
         ],
         parsed
     );
+});
 
-    test.done();
-};
-
-module.exports['#parseAddresses, group with names'] = test => {
+test('#parseAddresses, group with names', () => {
     let parsed = addressTools.parseAddresses(
         ['andris1@kreata.ee, Disclosed:<andris2@kreata.ee>, Andris3 <andris3@kreata.ee>;', 'Andris4 <andris2@kreata.ee>'],
         true
     );
 
-    test.deepEqual(
+    assert.deepEqual(
         [
             {
                 name: '',
@@ -58,11 +57,9 @@ module.exports['#parseAddresses, group with names'] = test => {
         ],
         parsed
     );
+});
 
-    test.done();
-};
-
-module.exports['#validateAddress'] = test => {
+test('#validateAddress', () => {
     let headers = new Headers([
         {
             key: 'x-prev',
@@ -88,7 +85,7 @@ module.exports['#validateAddress'] = test => {
 
     let parsed = addressTools.validateAddress(headers, 'from');
 
-    test.deepEqual(parsed.addresses, [
+    assert.deepEqual(parsed.addresses, [
         {
             name: '',
             address: 'andris1@kreata.ee'
@@ -105,7 +102,7 @@ module.exports['#validateAddress'] = test => {
 
     parsed.set('Juhan Liiv <andris@kreata.ee>');
 
-    test.deepEqual(headers.getList(), [
+    assert.deepEqual(headers.getList(), [
         {
             key: 'x-prev',
             line: 'X-Prev: previous line'
@@ -123,11 +120,9 @@ module.exports['#validateAddress'] = test => {
             line: 'X-Next: next line'
         }
     ]);
+});
 
-    test.done();
-};
-
-module.exports['#validateAddress, multiple'] = test => {
+test('#validateAddress, multiple', () => {
     let headers = new Headers([
         {
             key: 'x-prev',
@@ -153,7 +148,7 @@ module.exports['#validateAddress, multiple'] = test => {
 
     let parsed = addressTools.validateAddress(headers, 'to');
 
-    test.deepEqual(parsed.addresses, [
+    assert.deepEqual(parsed.addresses, [
         {
             name: '',
             address: 'andris1@kreata.ee'
@@ -173,7 +168,7 @@ module.exports['#validateAddress, multiple'] = test => {
         address: 'andris4@kreata.ee'
     });
 
-    test.deepEqual(headers.getList(), [
+    assert.deepEqual(headers.getList(), [
         {
             key: 'x-prev',
             line: 'X-Prev: previous line'
@@ -191,21 +186,17 @@ module.exports['#validateAddress, multiple'] = test => {
             line: 'X-Next: next line'
         }
     ]);
+});
 
-    test.done();
-};
+test('#normalizeAddress', () => {
+    assert.equal(addressTools.normalizeAddress('safe@jõgeva.ee'), 'safe@xn--jgeva-dua.ee');
+    assert.equal(addressTools.normalizeAddress('jõgeva@jõgeva.ee'), 'jõgeva@jõgeva.ee');
+    assert.equal(addressTools.normalizeAddress('jõgeva@xn--jgeva-dua.ee'), 'jõgeva@jõgeva.ee');
+    assert.equal(addressTools.normalizeAddress('first last@jõgeva.ee'), '"first last"@xn--jgeva-dua.ee');
+    assert.equal(addressTools.normalizeAddress('bare-user'), 'bare-user');
+});
 
-module.exports['#normalizeAddress'] = test => {
-    test.equal(addressTools.normalizeAddress('safe@jõgeva.ee'), 'safe@xn--jgeva-dua.ee');
-    test.equal(addressTools.normalizeAddress('jõgeva@jõgeva.ee'), 'jõgeva@jõgeva.ee');
-    test.equal(addressTools.normalizeAddress('jõgeva@xn--jgeva-dua.ee'), 'jõgeva@jõgeva.ee');
-    test.equal(addressTools.normalizeAddress('first last@jõgeva.ee'), '"first last"@xn--jgeva-dua.ee');
-    test.equal(addressTools.normalizeAddress('bare-user'), 'bare-user');
-
-    test.done();
-};
-
-module.exports['#divideLoad equal'] = test => {
+test('#divideLoad equal', () => {
     let allEqual = [
         {
             id: 1
@@ -223,7 +214,7 @@ module.exports['#divideLoad equal'] = test => {
 
     let divided = addressTools.divideLoad(allEqual);
 
-    test.deepEqual(
+    assert.deepEqual(
         [
             {
                 id: 1,
@@ -244,11 +235,9 @@ module.exports['#divideLoad equal'] = test => {
         ],
         divided
     );
+});
 
-    test.done();
-};
-
-module.exports['#divideLoad single half'] = test => {
+test('#divideLoad single half', () => {
     let allEqual = [
         {
             id: 1
@@ -264,7 +253,7 @@ module.exports['#divideLoad single half'] = test => {
 
     let divided = addressTools.divideLoad(allEqual);
 
-    test.deepEqual(
+    assert.deepEqual(
         [
             {
                 id: 1,
@@ -285,11 +274,9 @@ module.exports['#divideLoad single half'] = test => {
         ],
         divided
     );
+});
 
-    test.done();
-};
-
-module.exports['#divideLoad single small'] = test => {
+test('#divideLoad single small', () => {
     let allEqual = [
         {
             id: 1
@@ -308,7 +295,7 @@ module.exports['#divideLoad single small'] = test => {
 
     let divided = addressTools.divideLoad(allEqual);
 
-    test.deepEqual(
+    assert.deepEqual(
         [
             {
                 id: 1,
@@ -353,11 +340,9 @@ module.exports['#divideLoad single small'] = test => {
         ],
         divided
     );
+});
 
-    test.done();
-};
-
-module.exports['#divideLoad single result'] = test => {
+test('#divideLoad single result', () => {
     let allEqual = [
         {
             id: 1
@@ -373,7 +358,7 @@ module.exports['#divideLoad single result'] = test => {
 
     let divided = addressTools.divideLoad(allEqual);
 
-    test.deepEqual(
+    assert.deepEqual(
         [
             {
                 id: 2,
@@ -382,6 +367,4 @@ module.exports['#divideLoad single result'] = test => {
         ],
         divided
     );
-
-    test.done();
-};
+});

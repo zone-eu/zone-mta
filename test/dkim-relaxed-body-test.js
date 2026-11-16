@@ -1,11 +1,14 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 let fs = require('fs');
 let { BodyHashStream } = require('mailauth/lib/dkim/body');
 
-module.exports['Calculate body hash byte by byte'] = test => {
+test('Calculate body hash byte by byte', (_t, finishTest) => {
     fs.readFile(__dirname + '/fixtures/message1.eml', (err, messageBuf) => {
-        test.ifError(err);
+        assert.ifError(err);
 
         let sourceMessage = messageBuf.toString('binary').replace(/\r?\n/g, '\r\n');
         let headerSep = sourceMessage.indexOf('\r\n\r\n');
@@ -16,8 +19,8 @@ module.exports['Calculate body hash byte by byte'] = test => {
         s.on('end', () => true);
 
         s.on('hash', hash => {
-            test.equal(hash, 'V42It+OeQEd8AxbXHLJW9KkYkv/+fy9B6c33emWfVI4=');
-            test.done();
+            assert.equal(hash, 'V42It+OeQEd8AxbXHLJW9KkYkv/+fy9B6c33emWfVI4=');
+            finishTest();
         });
 
         let pos = 0;
@@ -32,11 +35,11 @@ module.exports['Calculate body hash byte by byte'] = test => {
         };
         setImmediate(stream);
     });
-};
+});
 
-module.exports['Calculate body hash byte all at once'] = test => {
+test('Calculate body hash byte all at once', (_t, finishTest) => {
     fs.readFile(__dirname + '/fixtures/message1.eml', (err, messageBuf) => {
-        test.ifError(err);
+        assert.ifError(err);
 
         let sourceMessage = messageBuf.toString('binary').replace(/\r?\n/g, '\r\n');
         let headerSep = sourceMessage.indexOf('\r\n\r\n');
@@ -47,15 +50,15 @@ module.exports['Calculate body hash byte all at once'] = test => {
         s.on('end', () => true);
 
         s.on('hash', hash => {
-            test.equal(hash, 'V42It+OeQEd8AxbXHLJW9KkYkv/+fy9B6c33emWfVI4=');
-            test.done();
+            assert.equal(hash, 'V42It+OeQEd8AxbXHLJW9KkYkv/+fy9B6c33emWfVI4=');
+            finishTest();
         });
 
         setImmediate(() => s.end(message));
     });
-};
+});
 
-module.exports['Calculate body hash for empty message'] = test => {
+test('Calculate body hash for empty message', (_t, finishTest) => {
     let message = Buffer.from('\r\n');
 
     let s = new BodyHashStream('relaxed/relaxed', 'sha256');
@@ -63,8 +66,8 @@ module.exports['Calculate body hash for empty message'] = test => {
     s.on('end', () => true);
 
     s.on('hash', hash => {
-        test.equal(hash, '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
-        test.done();
+        assert.equal(hash, '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
+        finishTest();
     });
 
     let pos = 0;
@@ -77,4 +80,4 @@ module.exports['Calculate body hash for empty message'] = test => {
         setImmediate(stream);
     };
     setImmediate(stream);
-};
+});

@@ -1,8 +1,11 @@
 'use strict';
 
+const test = require('node:test');
+const assert = require('node:assert');
+
 const TtlCache = require('../lib/ttl-cache');
 
-module.exports['Set and let expire'] = test => {
+test('Set and let expire', (_t, finishTest) => {
     let cache = new TtlCache();
     let expireCbCalled = 0;
 
@@ -18,9 +21,9 @@ module.exports['Set and let expire'] = test => {
     });
 
     setTimeout(() => {
-        test.ok(!cache.get('key1'));
-        test.ok(cache.get('key2'));
-        test.ok(!cache.get('key3'));
+        assert.ok(!cache.get('key1'));
+        assert.ok(cache.get('key2'));
+        assert.ok(!cache.get('key3'));
     }, 650);
 
     let interval = setInterval(() => {
@@ -29,18 +32,18 @@ module.exports['Set and let expire'] = test => {
         let key3 = cache.get('key3');
 
         if (key3) {
-            test.equal(key1, 'val1');
-            test.equal(key2, 'val2');
-            test.equal(key3, 'val3');
+            assert.equal(key1, 'val1');
+            assert.equal(key2, 'val2');
+            assert.equal(key3, 'val3');
         } else if (key1) {
-            test.equal(key1, 'val1');
-            test.equal(key2, 'val2');
+            assert.equal(key1, 'val1');
+            assert.equal(key2, 'val2');
         } else if (key2) {
-            test.equal(key2, 'val2');
+            assert.equal(key2, 'val2');
         } else if (!key1 && !key2 && !key3) {
-            test.ok(expireCbCalled);
+            assert.ok(expireCbCalled);
             clearInterval(interval);
-            test.done();
+            finishTest();
         }
     }, 10);
-};
+});
