@@ -14,6 +14,7 @@ config.queue = config.queue || {};
 config.queue.gfs = 'mail';
 
 const { Writable, PassThrough } = require('stream');
+const { ObjectId } = require('mongodb');
 const log = require('npmlog');
 
 const RemoteQueue = require('../lib/remote-queue');
@@ -327,3 +328,47 @@ test('a claimed SMTP upload cannot report storage success', (_t, finishTest) => 
         source.end('body');
     });
 });
+
+test('source failure still returns when partial SMTP upload cleanup also fails', (_t, finishTest) => {
+    let state = { pending: [] };
+    let upload = fakeUpload([]);
+    upload.end = () => setImmediate(() => upload.emit('error', new Error('storage failed')));
+    let { queue } = makeQueue(state, upload);
+    let source = new PassThrough();
+    let failure = Object.assign(new Error('client went away'), { name: 'ClientDisconnect' });
+    let timeout = setTimeout(() => finishTest(new Error('store callback never returned')), 1000);
+    queue.store('1', source, err => {
+        clearTimeout(timeout);
+        assert.equal(err, failure);
+        assert.equal(state.pending.length, 1);
+        finishTest();
+    });
+    setImmediate(() => source.emit('error', failure));
+});
+
+for (let minutes of [1, 20]) {
+    test('queueing a ' + minutes + ' minute old SMTP upload ends its heartbeat and protects its body', (_t, finishTest) => {
+        let filesId = ObjectId.createFromTime(Math.floor((Date.now() - minutes * 60 * 1000) / 1000));
+        let state = { pending: [] };
+        let calls = [];
+        let upload = fakeUpload(calls, { id: filesId });
+        let { queue } = makeQueue(state, upload, calls);
+        let timers = captureTimers();
+        let source = new PassThrough();
+        source.end('body');
+        queue.store('queued', source, err => {
+            assert.ifError(err);
+            queue.completePending(filesId, err => {
+                assert.ifError(err);
+                // Ordinary uploads release the marker. Slow uploads retain it so the
+                // coarse GC uses the body's creation time as well as its newer delivery.
+                assert.equal(state.pending.length, minutes > 10 ? 1 : 0);
+                let updates = calls.filter(call => call.op === 'updateOne').length;
+                timers.tick();
+                assert.equal(calls.filter(call => call.op === 'updateOne').length, updates);
+                timers.restore();
+                finishTest();
+            });
+        });
+    });
+}

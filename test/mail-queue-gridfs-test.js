@@ -12,6 +12,8 @@ const config = require('@zone-eu/wild-config');
 config.dbs = config.dbs || {};
 
 const { Writable, PassThrough } = require('stream');
+const { ObjectId } = require('mongodb');
+const PluginHandler = require('@zone-eu/wild-plugins');
 
 const MailQueue = require('../lib/mail-queue');
 const plugins = require('../lib/plugins');
@@ -43,19 +45,12 @@ function fakeDb(state) {
     };
 
     let collection = name => {
-        if (typeof name !== 'string' || name.indexOf(GFS + '.') !== 0) {
-            // The queue collection: the lock release before the disableGC guard, and the
-            // collector asking whether a stored message has a delivery behind it.
-            return {
-                updateMany: async () => ({ modifiedCount: 0 }),
-                findOne: async query => (state.queue || []).find(doc => match(doc, query)) || null
-            };
-        }
-
-        let key = name.slice(GFS.length + 1);
+        let key = typeof name === 'string' && name.indexOf(GFS + '.') === 0 ? name.slice(GFS.length + 1) : 'queue';
+        state[key] = state[key] || [];
         let rows = () => state[key];
 
         return {
+            updateMany: async () => ({ modifiedCount: 0 }),
             find(query) {
                 let found = rows().filter(doc => match(doc, query)).map(doc => Object.assign({}, doc));
                 let i = 0;
@@ -107,7 +102,14 @@ function fakeDb(state) {
                 let found = rows().find(doc => match(doc, query));
                 if (found) {
                     Object.assign(found, update.$set);
+                    for (let field of Object.keys(update.$unset || {})) {
+                        delete found[field];
+                    }
                 } else if (opts && opts.upsert) {
+                    if (rows().some(doc => String(doc._id) === String(query._id))) {
+                        let err = Object.assign(new Error('duplicate key'), { code: 11000 });
+                        return cb ? setImmediate(() => cb(err)) : Promise.reject(err);
+                    }
                     rows().push(Object.assign({ _id: query._id }, update.$set));
                 }
                 let result = { matchedCount: found ? 1 : 0, upsertedCount: !found && opts && opts.upsert ? 1 : 0 };
@@ -154,7 +156,7 @@ test('collector removes the chunks of an upload that never produced a files docu
         });
 });
 
-test('collector keeps a message that reached the queue and only lost its marker', (_t, finishTest) => {
+test('collector keeps a queued message and its marker', (_t, finishTest) => {
     // Deleting on sight here would destroy a message that was queued successfully, so the
     // delivery is what says the file belongs to something.
     let state = {
@@ -168,7 +170,7 @@ test('collector keeps a message that reached the queue and only lost its marker'
     queue.collectPendingGridfs().then(() => {
         assert.equal(state.files.length, 1);
         assert.equal(state.chunks.length, 1);
-        assert.equal(state.pending.length, 0);
+        assert.equal(state.pending.length, 1);
         finishTest();
     });
 });
@@ -207,7 +209,7 @@ test('collector leaves a file it cannot name alone', (_t, finishTest) => {
     queue.collectPendingGridfs().then(() => {
         assert.equal(state.files.length, 1);
         assert.equal(state.chunks.length, 1);
-        assert.equal(state.pending.length, 0);
+        assert.equal(state.pending.length, 1);
         finishTest();
     });
 });
@@ -322,6 +324,44 @@ test('each beat moves the deadline, whether or not any bytes were written', (_t,
             finishTest();
         });
     });
+});
+
+test('a delayed upload heartbeat cannot stop the heartbeat of a delete that took over', (_t, finishTest) => {
+    let state = { pending: [] };
+    let { db } = fakeDb(state);
+    let timers = captureTimers();
+    let collection = db.collection;
+    let replies = [];
+    let lost = 0;
+    db.collection = name => {
+        let result = collection(name);
+        let updateOne = result.updateOne;
+        result.updateOne = (query, update, opts, cb) => {
+            if (typeof opts === 'function') {
+                // The server's response to an old heartbeat can arrive after this process
+                // has stopped it and started a different operation for the same files_id.
+                replies.push(opts);
+                return;
+            }
+            return updateOne(query, update, opts, cb);
+        };
+        return result;
+    };
+
+    gridfsPending.markPending(db, GFS, 'a', 'writing', err => {
+        assert.ifError(err);
+        timers.tick();
+        gridfsPending.markPending(db, GFS, 'a', 'deleting', err => {
+            assert.ifError(err);
+            replies[0](null, { matchedCount: 0 });
+            assert.equal(lost, 0);
+            timers.tick();
+            assert.equal(replies.length, 2, 'the new delete must still have a heartbeat');
+            gridfsPending.stopPending('a');
+            timers.restore();
+            finishTest();
+        });
+    }, () => lost++);
 });
 
 test('a beat never raises a marker somebody else took away', (_t, finishTest) => {
@@ -494,7 +534,9 @@ test('upload fails and releases the handle when the marker cannot be written', (
     let state = { files: [], chunks: [], pending: [] };
     let { queue, calls } = makeQueue(state);
     queue.gridstore = { openUploadStream: () => fakeUpload(calls) };
-    queue.markPending = (filesId, markerState, cb) => setImmediate(() => cb(new Error('mongo down')));
+    queue.mongodb.collection = () => ({
+        updateOne: (query, update, opts, cb) => setImmediate(() => cb(new Error('mongo down')))
+    });
 
     let source = new PassThrough();
     source.end('body');
@@ -625,18 +667,20 @@ test('a collection claim fences renewals and marker removal', (_t, finishTest) =
     gridfsPending.markPending(db, GFS, 'a', 'writing', () => {
         state.pending[0].collecting = 'collector';
         let expires = state.pending[0].expires;
-        gridfsPending.renewPending(db, GFS, 'a', err => {
-            assert.ok(err);
-            gridfsPending.clearPending(db, GFS, 'a', err => {
+        timers.tick();
+        setImmediate(() => {
+            assert.equal(lost, 1);
+            gridfsPending.renewPending(db, GFS, 'a', err => {
                 assert.ok(err);
-                assert.equal(state.pending.length, 1);
-                assert.equal(state.pending[0].expires, expires);
-                timers.restore();
-                finishTest();
+                gridfsPending.clearPending(db, GFS, 'a', err => {
+                    assert.ok(err);
+                    assert.equal(state.pending.length, 1);
+                    assert.equal(state.pending[0].expires, expires);
+                    timers.restore();
+                    finishTest();
+                });
             });
         });
-        timers.tick();
-        setImmediate(() => assert.equal(lost, 1));
     }, () => lost++);
 });
 
@@ -737,5 +781,223 @@ test('a heartbeat aborts an open upload when collection claims it', (_t, finishT
     setImmediate(() => {
         state.pending[0].collecting = 'collector';
         timers.tick();
+    });
+});
+
+test('release marks the body before removing the last delivery', (_t, finishTest) => {
+    let state = {
+        files: [{ _id: 'a', filename: 'message 1' }],
+        chunks: [{ files_id: 'a' }],
+        pending: [],
+        queue: [{ id: '1', seq: '001' }]
+    };
+    let { queue, calls } = makeQueue(state, { collection: 'deliveries' });
+    let released;
+    queue.locks.release = lock => { released = lock; };
+    queue.releaseDelivery({ id: '1', seq: '001', _lock: 'lock' }, (err, removed) => {
+        assert.ifError(err);
+        assert.equal(removed, true);
+        assert.equal(released, 'lock');
+        let order = calls.map(call => call.name);
+        assert.ok(order.indexOf('mail.pending') < order.indexOf('deliveries'));
+        assert.equal(state.queue.length, 0);
+        assert.equal(state.files.length, 0);
+        assert.equal(state.chunks.length, 0);
+        assert.equal(state.pending.length, 0);
+        finishTest();
+    });
+});
+
+test('a failed release marker keeps the delivery and releases its lock', (_t, finishTest) => {
+    let state = { files: [{ _id: 'a', filename: 'message 1' }], pending: [], queue: [{ id: '1', seq: '001' }] };
+    let { queue } = makeQueue(state);
+    let failure = new Error('marker failed');
+    let released = false;
+    queue.locks.release = () => { released = true; };
+    queue.markPending = (id, markerState, cb) => cb(failure);
+    queue.releaseDelivery({ id: '1', seq: '001' }, err => {
+        assert.equal(err, failure);
+        assert.equal(state.queue.length, 1);
+        assert.equal(released, true);
+        finishTest();
+    });
+});
+
+for (let failureAt of ['deleteOne', 'findOne']) {
+    test('release interrupted at ' + failureAt + ' leaves a collectable marker', (_t, finishTest) => {
+        let state = {
+            files: [{ _id: 'a', filename: 'message 1' }],
+            chunks: [{ files_id: 'a' }],
+            pending: [],
+            queue: [{ id: '1', seq: '001' }]
+        };
+        let { queue } = makeQueue(state, { collection: 'deliveries' });
+        let collection = queue.mongodb.collection;
+        let failure = new Error('release interrupted');
+        queue.mongodb.collection = name => {
+            let result = collection(name);
+            if (name === 'deliveries') {
+                let original = result[failureAt];
+                result[failureAt] = async (...args) => {
+                    await original(...args);
+                    throw failure;
+                };
+            }
+            return result;
+        };
+        let timers = captureTimers();
+        queue.releaseDelivery({ id: '1', seq: '001' }, err => {
+            assert.equal(err, failure);
+            assert.equal(state.pending.length, 1);
+            assert.equal(state.queue.length, 0);
+            state.pending[0].expires = dead();
+            timers.tick();
+            timers.restore();
+            queue.mongodb.collection = collection;
+            queue.collectPendingGridfs().then(() => {
+                assert.equal(state.files.length, 0);
+                assert.equal(state.chunks.length, 0);
+                assert.equal(state.pending.length, 0);
+                finishTest();
+            }).catch(finishTest);
+        });
+    });
+}
+
+test('collector preserves a releasing body until its remaining delivery is released', (_t, finishTest) => {
+    let state = {
+        files: [{ _id: 'a', filename: 'message 1' }],
+        chunks: [{ files_id: 'a' }],
+        pending: [],
+        queue: [{ id: '1', seq: '001' }, { id: '1', seq: '002' }]
+    };
+    let { queue } = makeQueue(state, { collection: 'deliveries' });
+    queue.releaseDelivery({ id: '1', seq: '001' }, (err, removed) => {
+        assert.ifError(err);
+        assert.equal(removed, false);
+        assert.equal(state.pending[0].state, 'releasing');
+        state.pending[0].expires = dead();
+        queue.collectPendingGridfs().then(() => {
+            assert.equal(state.files.length, 1);
+            assert.equal(state.chunks.length, 1);
+            assert.equal(state.pending.length, 1);
+            assert.equal(state.pending[0].collecting, undefined);
+            // Simulate a second release resuming after collection, then dying immediately
+            // after its delivery delete. It must still be described by the existing marker.
+            state.queue = [];
+            state.pending[0].expires = dead();
+            return queue.collectPendingGridfs();
+        }).then(() => {
+            assert.equal(state.files.length, 0);
+            assert.equal(state.chunks.length, 0);
+            assert.equal(state.pending.length, 0);
+            finishTest();
+        }).catch(finishTest);
+    });
+});
+
+test('upload cleanup cannot erase a marker taken over by delivery release', (_t, finishTest) => {
+    let state = { pending: [{ _id: 'a', state: 'releasing', expires: beating() }] };
+    let { queue } = makeQueue(state);
+    queue.clearPending('a', err => {
+        assert.ok(err);
+        assert.equal(state.pending.length, 1);
+        assert.equal(state.pending[0].state, 'releasing');
+        finishTest();
+    });
+});
+
+test('a collector claim prevents a new delete from taking over the marker', (_t, finishTest) => {
+    let state = { pending: [{ _id: 'a', state: 'writing', expires: beating(), collecting: 'collector' }] };
+    let { queue } = makeQueue(state);
+    queue.markPending('a', 'deleting', err => {
+        assert.equal(err.code, 11000);
+        assert.equal(state.pending.length, 1);
+        assert.equal(state.pending[0].state, 'writing');
+        finishTest();
+    });
+});
+
+test('source error still returns when finishing the partial upload fails', (_t, finishTest) => {
+    let state = { pending: [] };
+    let { queue } = makeQueue(state);
+    let upload = fakeUpload([]);
+    upload.end = () => setImmediate(() => upload.emit('error', new Error('storage failed')));
+    queue.gridstore = { openUploadStream: () => upload };
+    let source = new PassThrough();
+    let failure = new Error('source failed');
+    let timeout = setTimeout(() => finishTest(new Error('store callback never returned')), 1000);
+    queue.store('1', source, err => {
+        clearTimeout(timeout);
+        assert.equal(err, failure);
+        assert.equal(state.pending.length, 1);
+        finishTest();
+    });
+    setImmediate(() => source.emit('error', failure));
+});
+
+test('age based collection protects old active uploads while removing older legacy orphans', (_t, finishTest) => {
+    let idAt = minutesAgo => ObjectId.createFromTime(Math.floor((Date.now() - minutesAgo * MINUTE) / 1000));
+    let active = idAt(20);
+    let orphan = idAt(60);
+    let state = {
+        files: [{ _id: active, filename: 'message active' }, { _id: orphan, filename: 'message orphan' }],
+        chunks: [{ _id: idAt(19), files_id: active }, { _id: idAt(59), files_id: orphan }],
+        pending: [{ _id: active, state: 'writing', expires: beating() }],
+        queue: []
+    };
+    let { queue } = makeQueue(state);
+    queue.clearGarbage().then(() => {
+        assert.equal(state.files.length, 1);
+        assert.equal(state.chunks.length, 1);
+        assert.equal(state.pending.length, 1);
+        assert.equal(String(state.files[0]._id), String(active));
+        assert.equal(String(state.chunks[0].files_id), String(active));
+        finishTest();
+    }).catch(finishTest);
+});
+
+test('queueing a slow upload keeps its body protected from age based collection', (_t, finishTest) => {
+    let filesId = ObjectId.createFromTime(Math.floor((Date.now() - 20 * MINUTE) / 1000));
+    let state = {
+        files: [{ _id: filesId, filename: 'message slow' }],
+        chunks: [{ _id: filesId, files_id: filesId }],
+        pending: [{ _id: filesId, state: 'writing', expires: beating() }],
+        queue: []
+    };
+    let { queue } = makeQueue(state);
+    let originalHandler = plugins.handler;
+    plugins.handler = new PluginHandler();
+    queue.store = (id, source, cb) => {
+        source.once('end', () => cb(null, id, filesId));
+        source.resume();
+    };
+    queue.setMeta = (id, data, cb) => cb();
+    queue.push = (id, envelope, cb) => {
+        state.queue.push({ id, _id: new ObjectId() });
+        cb();
+    };
+    queue.maildrop.add({ id: 'slow', to: ['recipient@example.com'] }, 'Subject: slow upload\r\n\r\nbody', err => {
+        plugins.handler = originalHandler;
+        assert.ifError(err);
+        assert.equal(state.pending.length, 1, 'the old body must still bound the GC watermark after queueing');
+        if (state.pending.length) {
+            state.pending[0].expires = dead();
+        }
+        queue.clearGarbage().then(() => {
+            assert.equal(state.files.length, 1);
+            assert.equal(state.chunks.length, 1);
+            assert.equal(state.pending.length, 1);
+            // Once the last delivery is gone, the retained writing marker also makes an
+            // interrupted release recoverable; it must not keep the body forever.
+            state.queue = [];
+            state.pending[0].expires = dead();
+            return queue.collectPendingGridfs();
+        }).then(() => {
+            assert.equal(state.files.length, 0);
+            assert.equal(state.chunks.length, 0);
+            assert.equal(state.pending.length, 0);
+            finishTest();
+        }).catch(finishTest);
     });
 });

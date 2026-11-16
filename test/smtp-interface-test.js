@@ -316,3 +316,23 @@ test('an aborted message is torn down once, not on every close', (_t, finishTest
     assert.equal(errors, 1);
     finishTest();
 });
+
+test('disconnect during DATA hooks never opens a message pipeline', (_t, finishTest) => {
+    let originalHandler = plugins.handler;
+    let hooksDone;
+    plugins.handler = { runHooks: (name, args, cb) => { hooksDone = cb; } };
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder' }, false);
+    let stream = new PassThrough();
+    let session = { envelope: { rcptTo: [] } };
+    smtpInterface.maildrop = { add: () => assert.ok(false, 'must not store from a disconnected client') };
+    try {
+        smtpInterface.handleMessage(stream, session, () => assert.ok(false, 'closed connections receive no response'));
+        session.connectionClosed = true;
+        hooksDone();
+        assert.equal(stream.destroyed, true);
+        assert.equal(session.incomingMessage, undefined);
+    } finally {
+        plugins.handler = originalHandler;
+    }
+    finishTest();
+});
