@@ -369,7 +369,7 @@ module.exports = {
     },
 
     uploads: {
-        // if target is an URL then use the following User-Agent identifier
+        // If target is a URL, use this User-Agent identifier with /<ZoneMTA version> appended.
         userAgent: 'zone-mta'
     },
 
