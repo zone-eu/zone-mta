@@ -6,6 +6,7 @@ const assert = require('node:assert');
 const SMTPInterface = require('../lib/smtp-interface');
 const plugins = require('../lib/plugins');
 const captureLogs = require('./fixtures/capture-logs');
+const { PassThrough } = require('stream');
 
 function createLogger(loggerEnabled) {
     let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: loggerEnabled }, false);
@@ -242,4 +243,96 @@ test('SMTP setup installs the rejection logger when the transcript is disabled',
 
         smtpInterface.close(() => done());
     });
+});
+
+test('aborted message errors the size limiter so the pipeline unwinds', (_t, finishTest) => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    let stream = new PassThrough();
+    let sizeLimiter = new PassThrough();
+    let session = { incomingMessage: { stream, sizeLimiter } };
+
+    let seen = false;
+    sizeLimiter.once('error', err => {
+        seen = true;
+        // The name, not a code: mail-drop logs a storage failure for anything whose name ends
+        // in "Error", and a client that hung up must not look like one.
+        assert.equal(err.name, 'ClientDisconnect');
+        assert.equal(/Error$/.test(err.name), false);
+    });
+
+    smtpInterface.abortMessage(session);
+
+    assert.ok(seen);
+    assert.equal(session.incomingMessage, false);
+    finishTest();
+});
+
+test('a message that finished DATA is left alone', (_t, finishTest) => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    let stream = new PassThrough();
+    let sizeLimiter = new PassThrough();
+    let session = { incomingMessage: { stream, sizeLimiter } };
+
+    // The terminating dot ends the DATA stream, so the message is whole even though the
+    // connection is closing.
+    stream.end();
+
+    let seen = false;
+    sizeLimiter.once('error', () => {
+        seen = true;
+    });
+
+    smtpInterface.abortMessage(session);
+
+    assert.ok(!seen);
+    finishTest();
+});
+
+test('closing a connection with no message in flight does nothing', (_t, finishTest) => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    assert.doesNotThrow(() => smtpInterface.abortMessage({}));
+    assert.doesNotThrow(() => smtpInterface.abortMessage({ incomingMessage: false }));
+    finishTest();
+});
+
+test('an aborted message is torn down once, not on every close', (_t, finishTest) => {
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder', logger: false }, false);
+
+    let stream = new PassThrough();
+    let sizeLimiter = new PassThrough();
+    let session = { incomingMessage: { stream, sizeLimiter } };
+
+    let errors = 0;
+    sizeLimiter.on('error', () => {
+        errors++;
+    });
+
+    smtpInterface.abortMessage(session);
+    smtpInterface.abortMessage(session);
+
+    assert.equal(errors, 1);
+    finishTest();
+});
+
+test('disconnect during DATA hooks never opens a message pipeline', (_t, finishTest) => {
+    let originalHandler = plugins.handler;
+    let hooksDone;
+    plugins.handler = { runHooks: (name, args, cb) => { hooksDone = cb; } };
+    let smtpInterface = new SMTPInterface('feeder', { name: 'feeder' }, false);
+    let stream = new PassThrough();
+    let session = { envelope: { rcptTo: [] } };
+    smtpInterface.maildrop = { add: () => assert.ok(false, 'must not store from a disconnected client') };
+    try {
+        smtpInterface.handleMessage(stream, session, () => assert.ok(false, 'closed connections receive no response'));
+        session.connectionClosed = true;
+        hooksDone();
+        assert.equal(stream.destroyed, true);
+        assert.equal(session.incomingMessage, undefined);
+    } finally {
+        plugins.handler = originalHandler;
+    }
+    finishTest();
 });
