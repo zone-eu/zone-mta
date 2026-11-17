@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.6](https://github.com/zone-eu/zone-mta/compare/v3.11.5...v3.11.6) (2026-11-17)
+
+
+### Bug Fixes
+
+* Fix POST upload, add Content-Length, add zone-mta version in http user agent ([#544](https://github.com/zone-eu/zone-mta/issues/544)) ([e55da7e](https://github.com/zone-eu/zone-mta/commit/e55da7e2926cffab5a3f01f6746e93caee1bcde2))
+
 ## [3.11.5](https://github.com/zone-eu/zone-mta/compare/v3.11.4...v3.11.5) (2026-10-27)
 
 
