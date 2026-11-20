@@ -26,6 +26,9 @@
 
 # Spamhaus related error messages
 
+# 541 Your IP (192.0.2.1) is blocked, more information at http://zen.spamhaus.org
+^541[ \-]+Your IP \([a-f\d:.]+\) is blocked\b,defer,blacklist,Sender IP blacklisted
+
 # 550 11.22.33.44 blacklisted see http://www.spamhaus.org/query/bl?ip=11.22.33.44
 ^550[ \-]+[\d\.]+\s+blacklisted see\s,defer,blacklist,Sender IP blacklisted
 
@@ -116,13 +119,16 @@
 
 # 550 https://www.spamhaus.org/query/ip/11.22.33.44
 # 553 https://www.spamhaus.org/query/ip/11.22.33.44
-^55[03][ \-]+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
+# 550 5.7.1 IP listed on RBL (<RBL result> Listed by CSS, see https://check.spamhaus.org/query/ip/192.0.2.1)
+# 550 5.7.0 Rejected please see Listed by CSS, see https://check.spamhaus.org/query/ip/192.0.2.1
+^55[03][ \-]+.*https?:\/\/(?:www\.spamhaus\.org\/query|check\.spamhaus\.org\/query\/ip\/),defer,blacklist,Sender IP blacklisted
 
 # 550-IP 11.22.33.44 is blacklisted (xbl.spamhaus.org). Help at/Hilfe unter www.mfaq.info
 ^550[ \-]+IP [\d\.]+ is blacklisted,defer,blacklist,Sender IP blacklisted
 
 # 550-Rejected message because 11.22.33.44 is in a black list at sbl-xbl.spamhaus.org
-^550[ \-]+Rejected message because.*black list,defer,blacklist,Sender IP blacklisted
+# 550-rejected because 192.0.2.1 is in a black list at sbl.spamhaus.org
+^550[ \-]+Rejected(?: message)? because.*black list,defer,blacklist,Sender IP blacklisted
 
 # 553 5.3.0 11.22.33.44 Rejected - see http://www.spamhaus.org
 ^553[ \-]+5\.3\.0\s+ [\d\.] Rejected.*spamhaus,defer,blacklist,Sender IP blacklisted
@@ -141,8 +147,9 @@
 # 554 5.7.1 Blocked - see http://www.spamhaus.org/query/bl?ip=11.22.33.44
 # 554 5.7.1 IP blocked see: https://www.spamhaus.org/query/ip/11.22.33.44
 # 554 5.7.1 You are sending spam (check http://www.spamhaus.org/query/bl?ip=11.22.33.44)
+# 554 5.7.1 You are sending spam (check https://check.spamhaus.org/results?query=192.0.2.1)
 # 554 5.7.1 mta.example.com[11.22.33.44] blocked using zen.spamhaus.org. Please see https://www.spamhaus.org/query/ip/11.22.33.44
-^554[ \-]+5\.7\.1\s+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
+^554[ \-]+5\.7\.1\s+.*https?:\/\/(?:www\.spamhaus\.org\/query|check\.spamhaus\.org\/results\?query=),defer,blacklist,Sender IP blacklisted
 
 # 554 5.7.1 ACL dns_rbl; Client host [11.22.33.44] blocked using sa-ip4tset.blagr.emailsrvr.com=127.24.0.2 Spamhaus XBL. Please visit http://www.spamhaus.org/lookup/ for more information on why this message could not be delivered
 # 554 5.7.1 Service unavailable; Client host [11.22.33.44] blocked using sbl-xbl.spamhaus.org
@@ -165,6 +172,12 @@
 
 # 554 mx.recipient.com bizsmtp IB105. Connection refused. 11.22.33.44 is listed on the Exploits Block List (XBL) <http://www.spamhaus.org/query/ip/11.22.33.44> Please visit http://www.spamhaus.org/xbl/ for more information.
 ^554[ \-]+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
+
+# 554 5.7.1 Your ip 192.0.2.1 is blacklisted at bl.spamcop.net, sbl-xbl.spamhaus.org or b.barracudacentral.org
+^554[ \-]+5\.7\.1\s+Your IP [a-f\d:.]+ is blacklisted at\b,reject,blacklist,Sender IP blacklisted
+
+# 550 5.5.0 192.0.2.1 is blocklisted by FortiGuard. This email from IP has been rejected. The email message was detected as spam.
+^550[ \-]+5\.5\.0\s+[a-f\d:.]+ is blocklisted by FortiGuard\b,reject,blacklist,Sender IP blocklisted by FortiGuard
 
 # 554 mx.recipient.com cmsmtp 1sSZcfhLEUv3Q IP blacklisted by Spamhaus. For remediation please use https://www.spamhaus.org/lookup/ [103]
 # 591 sofia.nascimento@yanabg.com your host [1.2.3.4] is blacklisted by dnsbl.sorbs.net. Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4. Send your questions to blacklist-admin@mx01.cmailpro.net
@@ -371,8 +384,9 @@ IPTS04,defer,spam,temporarily deferred due to user complaints
 # 550 Black listed at hostkarma http://ipadmin.junkemailfilter.com/remove.php?ip=1.2.3.4
 ^550[ \-]Black listed at\s,defer,blacklist,Sender IP blacklisted
 
-# 550 The sending IP (1.2.3.4) is listed on https://spamrl.com/. Please resolve this and retry.
-^550[ \-]The sending IP \([\d\.]+\) is listed,defer,blacklist,Sender IP blacklisted
+# 550 The sending IP (192.0.2.1) is listed on https://spamrl.com/. Please resolve this and retry.
+# 550 The sending IP ( 192.0.2.1 ) is listed on Spamhaus ZEN. See https://check.spamhaus.org/
+^550[ \-]The sending IP \(\s*[\d\.]+\s*\) is listed,defer,blacklist,Sender IP blacklisted
 
 # 550 5.7.1 1.2.3.4 listed at dnsbl.cobion.com
 ^550[ \-]+5\.7\.1\s+[\d\.]+ listed at,defer,blacklist,Sender IP blacklisted
