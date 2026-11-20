@@ -173,6 +173,12 @@
 # 554 mx.recipient.com bizsmtp IB105. Connection refused. 11.22.33.44 is listed on the Exploits Block List (XBL) <http://www.spamhaus.org/query/ip/11.22.33.44> Please visit http://www.spamhaus.org/xbl/ for more information.
 ^554[ \-]+.*https?:\/\/www\.spamhaus\.org\/query,defer,blacklist,Sender IP blacklisted
 
+# 554 5.7.1 Your ip 192.0.2.1 is blacklisted at bl.spamcop.net, sbl-xbl.spamhaus.org or b.barracudacentral.org
+^554[ \-]+5\.7\.1\s+Your IP [a-f\d:.]+ is blacklisted at\b,reject,blacklist,Sender IP blacklisted
+
+# 550 5.5.0 192.0.2.1 is blocklisted by FortiGuard. This email from IP has been rejected. The email message was detected as spam.
+^550[ \-]+5\.5\.0\s+[a-f\d:.]+ is blocklisted by FortiGuard\b,reject,blacklist,Sender IP blocklisted by FortiGuard
+
 # 554 mx.recipient.com cmsmtp 1sSZcfhLEUv3Q IP blacklisted by Spamhaus. For remediation please use https://www.spamhaus.org/lookup/ [103]
 # 591 sofia.nascimento@yanabg.com your host [1.2.3.4] is blacklisted by dnsbl.sorbs.net. Currently Sending Spam See: http://www.sorbs.net/lookup.shtml?1.2.3.4. Send your questions to blacklist-admin@mx01.cmailpro.net
 ^5\d\d[ \-]+.*(IP|is) blacklisted by,defer,blacklist,Sender IP blacklisted
